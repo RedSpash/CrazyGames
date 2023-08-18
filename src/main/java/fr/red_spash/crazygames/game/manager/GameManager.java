@@ -16,7 +16,6 @@ import java.util.Arrays;
 public class GameManager {
     
     private Game actualGame;
-    private final ArrayList<Game> allGames = new ArrayList<>();
     private final ArrayList<GameMap> maps = new ArrayList<>();
     private static final Path MAP_PATH = Paths.get("MAPS");
     private World world;
@@ -42,12 +41,7 @@ public class GameManager {
                     name = directory.toString().split("/");
                 }
 
-                File [] files = directory.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".yml");
-                    }
-                });
+                File [] files = directory.listFiles((dir, fileName) -> fileName.equalsIgnoreCase("config.yml"));
 
                 if(files.length != 1){
                     Bukkit.getLogger().warning("La map suivante est invalide : "+directory.toString());
@@ -57,12 +51,18 @@ public class GameManager {
                 }
 
             }
+        }else{
+            Bukkit.getLogger().warning("No map found.");
         }
 
     }
 
     public ArrayList<GameMap> getMaps() {
         return maps;
+    }
+
+    public World getWorld() {
+        return world;
     }
 
     public void setWorld(World world) {

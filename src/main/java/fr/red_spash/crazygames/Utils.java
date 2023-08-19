@@ -1,6 +1,6 @@
 package fr.red_spash.crazygames;
 
-import org.bukkit.World;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,18 +14,21 @@ public class Utils {
         return (int) (Math.random()*(max-min)) + min;
     }
 
-    public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation)
-            throws IOException {
-        Files.walk(Paths.get(sourceDirectoryLocation))
-                .forEach(source -> {
-                    Path destination = Paths.get(destinationDirectoryLocation, source.toString()
-                            .substring(sourceDirectoryLocation.length()));
-                    try {
-                        Files.copy(source, destination);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+    public static void copyDirectory(String sourceDirectoryLocation, String destinationDirectoryLocation) {
+        try {
+            Files.walk(Paths.get(sourceDirectoryLocation))
+                    .forEach(source -> {
+                        Path destination = Paths.get(destinationDirectoryLocation, source.toString()
+                                .substring(sourceDirectoryLocation.length()));
+                        try {
+                            Files.copy(source, destination);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void deleteWorldFiles(File worldFolder) {
@@ -36,10 +39,16 @@ public class Utils {
                     if (file.isDirectory()) {
                         deleteWorldFiles(file);
                     }
-                    file.delete();
+                    boolean isDeleted = file.delete();
+                    if(!isDeleted){
+                        Bukkit.getLogger().warning("Impossible de supprimer le fichier: "+file.getName()+"!");
+                    }
                 }
             }
-            worldFolder.delete();
+            boolean isDeleted = worldFolder.delete();
+            if(!isDeleted){
+                Bukkit.getLogger().warning("Impossible de supprimer le monde: "+worldFolder.getName()+"!");
+            }
         }
     }
 }

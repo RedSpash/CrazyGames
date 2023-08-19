@@ -4,6 +4,8 @@ package fr.red_spash.crazygames.game.games;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 
 public class Spleef extends Game {
@@ -16,6 +18,8 @@ public class Spleef extends Game {
 
     @Override
     protected void startGame() {
-
+        for(Player p : Bukkit.getOnlinePlayers()){
+            p.teleport(super.getGameMap().getSpawnLocation());
+        }
     }
 }

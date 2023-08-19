@@ -4,6 +4,7 @@ import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,18 +16,31 @@ import java.nio.file.Paths;
 import java.util.Locale;
 
 public class GameMap {
-
+    private Location spawnLocation;
     private final String name;
     private final File file;
     private final GameType gameType;
     private final FileConfiguration fileConfiguration;
+    private World world;
 
     public GameMap(String name, File file,FileConfiguration fileConfiguration) {
         this.name = name;
         this.file = file;
         this.fileConfiguration = fileConfiguration;
 
-        this.gameType = GameType.valueOf(this.fileConfiguration.getString("gameType","").toUpperCase());
+        Bukkit.getConsoleSender().sendMessage(this.fileConfiguration.getString("gametype","SPLEEF"));
+        this.gameType = GameType.valueOf(this.fileConfiguration.getString("gametype","SPLEEF").toUpperCase());
+    }
+
+    private void loadMapData() {
+        this.spawnLocation = new Location(
+                this.world,
+                this.fileConfiguration.getDouble("spawnlocation.x",0),
+                this.fileConfiguration.getDouble("spawnlocation.y",100),
+                this.fileConfiguration.getDouble("spawnlocation.z",0.0),
+                this.fileConfiguration.getInt("spawnlocation.yaw",0),
+                this.fileConfiguration.getInt("spawnlocation.pitch",0)
+        );
     }
 
     public String getName() {
@@ -48,11 +62,12 @@ public class GameMap {
             throw new RuntimeException(e);
         }
 
-        World world = Bukkit.createWorld(new WorldCreator(name));
+        this.world = Bukkit.createWorld(new WorldCreator(name));
         if(world == null){
             world = Bukkit.getWorld(name);
         }
 
+        this.loadMapData();
         return world;
     }
 
@@ -66,5 +81,9 @@ public class GameMap {
 
     public Class<? extends Game> classGame(){
         return this.gameType.getGameClass();
+    }
+
+    public Location getSpawnLocation() {
+        return spawnLocation;
     }
 }

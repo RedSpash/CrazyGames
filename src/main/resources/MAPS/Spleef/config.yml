@@ -1,0 +1,5 @@
+gametype: "SPLEEF"
+spawnlocation:
+  x: 0.5
+  y: 100.0
+  z: 0.5

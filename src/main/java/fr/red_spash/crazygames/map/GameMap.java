@@ -28,15 +28,14 @@ public class GameMap {
         this.file = file;
         this.fileConfiguration = fileConfiguration;
 
-        Bukkit.getConsoleSender().sendMessage(this.fileConfiguration.getString("gametype","d"));
-        this.gameType = GameType.valueOf(this.fileConfiguration.getString("gametype","d").toUpperCase());
+        this.gameType = GameType.valueOf(this.fileConfiguration.getString("gametype","").toUpperCase());
     }
 
     private void loadMapData() {
         this.spawnLocation = new Location(
                 this.world,
-                this.fileConfiguration.getDouble("spawnlocation.x",0),
-                this.fileConfiguration.getDouble("spawnlocation.y",100),
+                this.fileConfiguration.getDouble("spawnlocation.x",0.0),
+                this.fileConfiguration.getDouble("spawnlocation.y",101.5),
                 this.fileConfiguration.getDouble("spawnlocation.z",0.0),
                 this.fileConfiguration.getInt("spawnlocation.yaw",0),
                 this.fileConfiguration.getInt("spawnlocation.pitch",0)

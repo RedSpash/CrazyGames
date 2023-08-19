@@ -25,7 +25,7 @@ public abstract class Game {
         this.gameType = gameType;
     }
 
-    protected void loadMap(){
+    public void loadMap(){
         List<GameMap> gameMaps = new ArrayList<>(this.getGameManager().getMaps());
         gameMaps.removeIf(gameMap -> gameMap.getGameType() != this.gameType);
 
@@ -34,7 +34,8 @@ public abstract class Game {
         World world = this.gameMap.loadWorld();
         this.gameManager.setWorld(world);
     }
-    protected abstract void startGame();
+    public abstract void initializePlayers();
+    public abstract void startGame();
 
     public String getName() {
         return name;

@@ -17,9 +17,14 @@ public class Spleef extends Game {
 
 
     @Override
-    protected void startGame() {
+    public void initializePlayers() {
         for(Player p : Bukkit.getOnlinePlayers()){
             p.teleport(super.getGameMap().getSpawnLocation());
         }
+    }
+
+    @Override
+    public void startGame() {
+
     }
 }

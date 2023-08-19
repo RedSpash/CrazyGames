@@ -1,5 +1,8 @@
 package fr.red_spash.crazygames;
 
+import org.bukkit.World;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,5 +26,20 @@ public class Utils {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    public static void deleteWorldFiles(File worldFolder) {
+        if (worldFolder.exists() && worldFolder.isDirectory()) {
+            File[] files = worldFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteWorldFiles(file);
+                    }
+                    file.delete();
+                }
+            }
+            worldFolder.delete();
+        }
     }
 }

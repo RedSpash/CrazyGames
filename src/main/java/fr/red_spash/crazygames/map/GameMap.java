@@ -28,8 +28,8 @@ public class GameMap {
         this.file = file;
         this.fileConfiguration = fileConfiguration;
 
-        Bukkit.getConsoleSender().sendMessage(this.fileConfiguration.getString("gametype","SPLEEF"));
-        this.gameType = GameType.valueOf(this.fileConfiguration.getString("gametype","SPLEEF").toUpperCase());
+        Bukkit.getConsoleSender().sendMessage(this.fileConfiguration.getString("gametype","d"));
+        this.gameType = GameType.valueOf(this.fileConfiguration.getString("gametype","d").toUpperCase());
     }
 
     private void loadMapData() {

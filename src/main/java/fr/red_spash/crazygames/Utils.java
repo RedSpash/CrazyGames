@@ -9,7 +9,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Utils {
-    public static int random_number(Integer min, Integer max){
+
+    private Utils(){
+
+    }
+
+    public static int randomNumber(Integer min, Integer max){
         max = max +1;
         return (int) (Math.random()*(max-min)) + min;
     }

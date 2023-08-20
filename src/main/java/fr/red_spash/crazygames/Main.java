@@ -19,16 +19,8 @@ public class Main extends JavaPlugin {
         instance = this;
         this.gameManager = new GameManager(this);
 
-        Spleef spleef = new Spleef(this.gameManager);
-        Long time = System.currentTimeMillis();
-        spleef.loadMap();
-        Long after = System.currentTimeMillis();
-
-        Bukkit.getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                spleef.initializePlayers();
-            }
+        Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
+            this.gameManager.startGame();
         },20*3);
     }
 

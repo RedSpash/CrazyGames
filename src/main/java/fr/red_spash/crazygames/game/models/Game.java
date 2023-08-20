@@ -1,10 +1,12 @@
 package fr.red_spash.crazygames.game.models;
 
 import fr.red_spash.crazygames.Utils;
+import fr.red_spash.crazygames.game.error.IncompatibleGameType;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.World;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +28,24 @@ public abstract class Game {
     }
 
     public void loadMap(){
-        List<GameMap> gameMaps = new ArrayList<>(this.getGameManager().getMaps());
-        gameMaps.removeIf(gameMap -> gameMap.getGameType() != this.gameType);
+        this.loadMap(null);
+    }
 
-        this.gameMap = gameMaps.get(Utils.random_number(0,gameMaps.size()-1));
+    public void loadMap(@Nullable GameMap forceGameMap){
+        if(forceGameMap == null){
+            List<GameMap> gameMaps = new ArrayList<>(this.getGameManager().getMaps());
+            gameMaps.removeIf(gameMap -> gameMap.getGameType() != this.gameType);
+
+            this.gameMap = gameMaps.get(Utils.random_number(0,gameMaps.size()-1));
+        }else{
+            if(forceGameMap.getGameType() == this.gameType){
+                this.gameMap = forceGameMap;
+            }else{
+                new IncompatibleGameType("La carte '"+forceGameMap.getName()+"' n'est pas compatible avec le mode "+this.gameType+" !").printStackTrace();
+                return;
+            }
+
+        }
 
         World world = this.gameMap.loadWorld();
         this.gameManager.setWorld(world);

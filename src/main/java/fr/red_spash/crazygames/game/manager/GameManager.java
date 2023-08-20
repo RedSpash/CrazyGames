@@ -4,6 +4,7 @@ import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.interaction.GameInteraction;
 import fr.red_spash.crazygames.game.models.Game;
+import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -15,12 +16,16 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 
 import static org.bukkit.Bukkit.getLogger;
 
 public class GameManager {
 
-    private GameInteraction gameInteraction;
+    private final ArrayList<GameType> playedGameType = new ArrayList<>();
+    private final ArrayList<GameMap> playedGameMap = new ArrayList<>();
+    private GameStatus gameStatus = GameStatus.WAITING;
+    private final GameInteraction gameInteraction;
     private Game actualGame;
     private final ArrayList<GameMap> maps = new ArrayList<>();
     private World world;
@@ -28,19 +33,6 @@ public class GameManager {
     public GameManager(Main main){
         this.gameInteraction = new GameInteraction(main);
         this.loadMaps();
-    }
-
-    private void copyDirectory(File source, File target) throws IOException {
-        Files.walk(source.toPath()).forEach(sourcePath -> {
-            try {
-                Files.copy(sourcePath,
-                        target.toPath().resolve(source.toPath().relativize(sourcePath)),
-                        StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     private void loadMaps() {
@@ -64,7 +56,7 @@ public class GameManager {
 
                         File[] files = directory.listFiles((dir, fileName) -> fileName.equalsIgnoreCase("config.yml"));
 
-                        if (files.length != 1) {
+                        if (files == null || files.length != 1) {
                             getLogger().warning("La map suivante est invalide : " + directory.toString());
                         } else {
                             FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(files[0]);
@@ -98,5 +90,28 @@ public class GameManager {
             Bukkit.unloadWorld(this.world,false);
             Utils.deleteWorldFiles(file);
         }
+    }
+
+    public void startGame(GameType gameType) {
+        if(gameStatus == GameStatus.WAITING || gameStatus == GameStatus.ENDING){
+            for(GameMap gameMap : this.maps){
+
+            }
+        }
+    }
+
+    public void startGame(GameMap gameMap) {
+        if(gameStatus == GameStatus.WAITING || gameStatus == GameStatus.ENDING){
+
+        }
+    }
+
+
+    public ArrayList<GameMap> getPlayedGameMap() {
+        return playedGameMap;
+    }
+
+    public ArrayList<GameType> getPlayedGameType() {
+        return playedGameType;
     }
 }

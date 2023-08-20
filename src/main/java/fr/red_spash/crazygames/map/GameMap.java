@@ -10,10 +10,8 @@ import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Locale;
 
 public class GameMap {
     private Location spawnLocation;
@@ -52,18 +50,14 @@ public class GameMap {
 
     public World loadWorld(){
         Path path = Paths.get(this.file.getPath());
-        String name = System.currentTimeMillis()+"";
-        Path path2 = Paths.get(name);
+        String pathName = String.valueOf(System.currentTimeMillis());
+        Path path2 = Paths.get(pathName);
 
-        try {
-            Utils.copyDirectory(path.toString(), path2.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Utils.copyDirectory(path.toString(), path2.toString());
 
-        this.world = Bukkit.createWorld(new WorldCreator(name));
+        this.world = Bukkit.createWorld(new WorldCreator(pathName));
         if(world == null){
-            world = Bukkit.getWorld(name);
+            world = Bukkit.getWorld(pathName);
         }
 
         this.loadMapData();

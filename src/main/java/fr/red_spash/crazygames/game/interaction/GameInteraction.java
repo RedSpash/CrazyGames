@@ -5,6 +5,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GameInteraction {
 
@@ -67,8 +69,8 @@ public class GameInteraction {
         this.allowedToBePlaced.clear();
     }
 
-    public GameInteraction addAllowedToBeBreak(Material material) {
-        this.allowedToBeBreak.add(material);
+    public GameInteraction addAllowedToBeBreak(Material... material) {
+        this.allowedToBeBreak.addAll(Arrays.asList(material));
         return this;
     }
 
@@ -105,11 +107,11 @@ public class GameInteraction {
         return pve;
     }
 
-    public ArrayList<Material> getAllowedToBeBreak() {
+    public List<Material> getAllowedToBeBreak() {
         return allowedToBeBreak;
     }
 
-    public ArrayList<Material> getAllowedToBePlaced() {
+    public List<Material> getAllowedToBePlaced() {
         return allowedToBePlaced;
     }
 }

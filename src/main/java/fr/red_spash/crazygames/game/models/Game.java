@@ -1,17 +1,22 @@
 package fr.red_spash.crazygames.game.models;
 
+import com.google.common.base.MoreObjects;
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.error.IncompatibleGameType;
+import fr.red_spash.crazygames.game.games.spleef.SpleefListener;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class Game implements Cloneable{
@@ -20,8 +25,10 @@ public abstract class Game implements Cloneable{
     private final GameType gameType;
     private GameMap gameMap;
     private GameStatus gameStatus;
+    private final ArrayList<Listener> activeListeners;
 
     protected Game(GameType gameType) {
+        this.activeListeners = new ArrayList<>();
         this.gameManager = Main.getInstance().getGameManager();
         this.gameType = gameType;
         this.gameStatus = GameStatus.WAITING;
@@ -47,8 +54,7 @@ public abstract class Game implements Cloneable{
 
         }
 
-        World world = this.gameMap.loadWorld();
-        this.gameManager.setWorld(world);
+        this.gameMap.loadWorld();
     }
     public void initializePlayers(){
         for(Player p : Bukkit.getOnlinePlayers()){
@@ -73,5 +79,22 @@ public abstract class Game implements Cloneable{
 
     public GameStatus getGameStatus() {
         return gameStatus;
+    }
+
+    public void setGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
+    }
+
+    public void unRegisterListeners(){
+        for(Listener listener : this.activeListeners){
+            HandlerList.unregisterAll(listener);
+        }
+        this.activeListeners.clear();
+    }
+
+    protected void initializeListener(Listener listener) {
+        Bukkit.getPluginManager().registerEvents(listener, Main.getInstance());
+
+        this.activeListeners.add(listener);
     }
 }

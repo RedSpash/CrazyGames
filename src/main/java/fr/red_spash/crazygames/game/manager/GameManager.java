@@ -8,6 +8,7 @@ import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.map.GameMap;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -24,7 +25,7 @@ import static org.bukkit.Bukkit.getLogger;
 
 public class GameManager {
 
-    private final HashMap<UUID,PlayerData> playerData = new HashMap<>();
+    private final HashMap<UUID,PlayerData> playerDataHashMap = new HashMap<>();
 
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
@@ -33,13 +34,14 @@ public class GameManager {
     private GameInteraction gameInteraction;
     private Game actualGame;
     private final ArrayList<GameMap> maps = new ArrayList<>();
-    private World world;
     private BukkitTask taskCountDown;
+    private BukkitTask rollGameTask;
 
     public GameManager(Main main){
         this.main = main;
         this.gameInteraction = new GameInteraction(this.main);
         this.loadMaps();
+
     }
 
     private void loadMaps() {
@@ -83,26 +85,38 @@ public class GameManager {
         return maps;
     }
 
-    public World getWorld() {
-        return world;
-    }
-
-    public void setWorld(World world) {
-        this.world = world;
-    }
-
     public void destroyWorlds() {
-        if(this.world != null){
-            File file = this.world.getWorldFolder();
-            Bukkit.unloadWorld(this.world,false);
-            Bukkit.getScheduler().runTaskLater(Main.getInstance(),()->Utils.deleteWorldFiles(file),2);
+        World world = this.actualGame.getGameMap().getWorld();
+        if(world != null)return;
+
+        File file = world.getWorldFolder();
+        Bukkit.unloadWorld(world,false);
+        Bukkit.getScheduler().runTaskLater(Main.getInstance(),()->Utils.deleteWorldFiles(file),2);
+    }
+
+    public void startGame(){
+        ArrayList<GameType> availableGameType = new ArrayList<>();
+        for(GameType gameType : GameType.values()){
+            if(!this.playedGameType.contains(gameType)){
+                availableGameType.add(gameType);
+            }
         }
+
+        if(availableGameType.isEmpty()){
+            availableGameType.addAll(Arrays.asList(GameType.values()));
+            this.playedGameType.clear();
+        }
+
+        this.startGame(availableGameType.get(Utils.randomNumber(0,availableGameType.size()-1)));
+
     }
 
     public void startGame(GameType gameType) {
-        GameStatus gameStatus = this.actualGame.getGameStatus();
-        if(gameStatus == null)return;
-        if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
+        if(this.actualGame != null){
+            GameStatus gameStatus = this.actualGame.getGameStatus();
+            if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
+        }
+
 
         ArrayList<GameMap> mapsAvailable = new ArrayList<>();
         for(GameMap gameMap : this.maps){
@@ -122,13 +136,15 @@ public class GameManager {
     }
 
     public void startGame(GameMap gameMap) {
-        GameStatus gameStatus = this.actualGame.getGameStatus();
-        if(gameStatus == null)return;
-        if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
+        if(this.actualGame != null){
+            GameStatus gameStatus = this.actualGame.getGameStatus();
+            if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
+        }
 
         this.actualGame = gameMap.getGameType().createInstance();
         this.actualGame.loadMap();
         this.actualGame.initializePlayers();
+        this.actualGame.setGameStatus(GameStatus.STARTING);
 
         this.startCountdown();
 
@@ -148,6 +164,7 @@ public class GameManager {
                         p.sendTitle("§a§lC'est parti !","§a§lBonne chance !",0,20*3,10);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING,2,2);
                     }
+                    actualGame.setGameStatus(GameStatus.PLAYING);
                     actualGame.startGame();
                     taskCountDown.cancel();
                     return;
@@ -178,14 +195,103 @@ public class GameManager {
     }
 
     public PlayerData getPlayerData(UUID uniqueId) {
-        return playerData.get(uniqueId);
+        return playerDataHashMap.get(uniqueId);
     }
 
-    public void resetInteractions(){
-        this.gameInteraction = new GameInteraction(this.main);
-    }
 
     public GameInteraction getGameInteractions() {
         return this.gameInteraction;
+    }
+
+    public Game getActualGame() {
+        return actualGame;
+    }
+
+
+    public void eliminatePlayer(Player p) {
+        PlayerData playerData = this.getPlayerData(p.getUniqueId());
+
+        if(this.actualGame.getGameStatus() != GameStatus.PLAYING){
+            p.teleport(this.actualGame.getGameMap().getSpawnLocation());
+            return;
+        }
+
+        if(!playerData.isDead() && !playerData.isQualified()){
+            p.setGameMode(GameMode.SPECTATOR);
+            Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" §6§l"+Main.SEPARATOR+" §c"+p.getName()+ChatColor.of(new Color(255,0,0))+" vient d'être éliminé !");
+            playerData.setDead(true);
+            p.setVelocity((p.getVelocity().multiply(-5)));
+            p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN,4,1);
+
+            this.stopGame();
+        }
+
+    }
+
+    private void stopGame() {
+        int qualified = 0;
+        for(Player p : Bukkit.getOnlinePlayers()){
+            PlayerData playerData = this.getPlayerData(p.getUniqueId());
+            if(!playerData.isDead()){
+                p.sendTitle("§a§lVous êtes qualifié !","§aBien joué !",0,20*3,20);
+                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                qualified++;
+            }
+        }
+        this.resetPlayerData();
+        this.actualGame.setGameStatus(GameStatus.ENDING);
+        this.actualGame.unRegisterListeners();
+        this.gameInteraction.resetInteractions();
+
+        if(qualified == 1){
+            UUID uuid = null;
+            for(PlayerData playerData : this.playerDataHashMap.values()){
+                if(!playerData.isDead()){
+                    uuid = playerData.getUuid();
+                }
+            }
+            if(uuid != null){
+                Player p = Bukkit.getPlayer(uuid);
+                Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" §6"+Main.SEPARATOR+" "+ChatColor.of(new Color(0,255,0))+p.getName()+" vient de gagner la partie !");
+            }
+
+        }else{
+            Bukkit.getScheduler().runTaskLater(Main.getInstance(), this::rollGames,5*20);
+        }
+    }
+
+    private void resetPlayerData() {
+        for(PlayerData playerData : this.playerDataHashMap.values()){
+            playerData.setQualified(false);
+            playerData.setPoint(0);
+        }
+    }
+
+    private void rollGames() {
+        if(this.rollGameTask != null){
+            this.rollGameTask.cancel();
+        }
+        this.rollGameTask = Bukkit.getScheduler().runTaskTimer(this.main, new Runnable() {
+            int rollNumber = 0;
+            @Override
+            public void run() {
+                if(rollNumber >= 100){
+                    startGame();
+                    rollGameTask.cancel();
+                    return;
+                }
+                GameType gameType = GameType.values()[Utils.randomNumber(0,GameType.values().length-1)];
+                for(Player p : Bukkit.getOnlinePlayers()){
+                    p.sendTitle("§a"+gameType.getName(),"§2"+gameType.getShortDescription(),0,20,0);
+                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK,1,1);
+                }
+                rollNumber ++;
+            }
+        },1,2);
+
+    }
+
+    public void addPlayerData(UUID uniqueId, PlayerData playerData) {
+        this.playerDataHashMap.put(uniqueId,playerData);
     }
 }

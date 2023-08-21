@@ -10,8 +10,10 @@ import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class GameMap {
     private Location spawnLocation;
@@ -19,6 +21,7 @@ public class GameMap {
     private final File file;
     private final GameType gameType;
     private final FileConfiguration fileConfiguration;
+    private ArrayList<CheckPoint> checkPoints;
     private World world;
 
     public GameMap(String name, File file,FileConfiguration fileConfiguration) {
@@ -30,14 +33,32 @@ public class GameMap {
     }
 
     private void loadMapData() {
-        this.spawnLocation = new Location(
-                this.world,
-                this.fileConfiguration.getDouble("spawnlocation.x",0.0),
-                this.fileConfiguration.getDouble("spawnlocation.y",101.5),
-                this.fileConfiguration.getDouble("spawnlocation.z",0.0),
-                this.fileConfiguration.getInt("spawnlocation.yaw",0),
-                this.fileConfiguration.getInt("spawnlocation.pitch",0)
-        );
+        this.spawnLocation = this.getConfigurationLocation("spawnlocation");
+
+
+        if(this.fileConfiguration.isSet("checkpoints")){
+            this.fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).forEach(checkpointId ->{
+                Location firstLocation = this.getConfigurationLocation("checkpoints."+checkpointId+".pointA");
+                Location secondLocation = this.getConfigurationLocation("checkpoints."+checkpointId+".pointB");
+                this.checkPoints.add(new CheckPoint(firstLocation,secondLocation));
+            });
+        }
+    }
+
+    private Location getConfigurationLocation(String path) {
+        Location location = this.fileConfiguration.getLocation(path,null);
+        if(location == null){
+            location = new Location(
+                    this.world,
+                    this.fileConfiguration.getDouble(path+".x",0.0),
+                    this.fileConfiguration.getDouble(path+".y",101.5),
+                    this.fileConfiguration.getDouble(path+".z",0.0),
+                    this.fileConfiguration.getInt(path+".yaw",0),
+                    this.fileConfiguration.getInt(path+".pitch",0)
+            );
+        }
+        return location;
+
     }
 
     public String getName() {
@@ -48,7 +69,7 @@ public class GameMap {
         return this.file;
     }
 
-    public World loadWorld(){
+    public void loadWorld(){
         Path path = Paths.get(this.file.getPath());
         String pathName = String.valueOf(System.currentTimeMillis());
         Path path2 = Paths.get(pathName);
@@ -61,7 +82,6 @@ public class GameMap {
         }
 
         this.loadMapData();
-        return world;
     }
 
     public GameType getGameType() {
@@ -78,5 +98,9 @@ public class GameMap {
 
     public Location getSpawnLocation() {
         return spawnLocation;
+    }
+
+    public World getWorld() {
+        return this.world;
     }
 }

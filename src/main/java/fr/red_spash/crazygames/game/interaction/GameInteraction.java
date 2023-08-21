@@ -11,19 +11,42 @@ import java.util.List;
 public class GameInteraction {
 
     private final InteractionListener interactionListener;
-    private boolean explosion = false;
-    private boolean vehicleBreak = false;
-    private boolean entityMount = false;
-    private boolean bucketInteract = false;
-    private boolean shootProjectile = false;
-    private boolean pvp = false;
-    private boolean pve = false;
-    private ArrayList<Material> allowedToBeBreak = new ArrayList<>();
-    private ArrayList<Material> allowedToBePlaced = new ArrayList<>();
+    private boolean explosion;
+    private boolean vehicleBreak;
+    private boolean entityMount;
+    private boolean bucketInteract;
+    private boolean shootProjectile;
+    private boolean pvp;
+    private boolean pve;
+    private boolean foodChange;
+    private double deathY;
+    private ArrayList<Material> allowedToBeBreak;
+    private ArrayList<Material> allowedToBePlaced;
+    private boolean blockLoot;
 
     public GameInteraction(Main main) {
-        this.interactionListener = new InteractionListener(this);
+        this.resetInteractions();
+        this.interactionListener = new InteractionListener(this,main.getGameManager());
         Bukkit.getPluginManager().registerEvents(this.interactionListener,main);
+    }
+
+    public void resetInteractions(){
+        this.explosion = false;
+        this.vehicleBreak = false;
+        this.entityMount = false;
+        this.bucketInteract = false;
+        this.shootProjectile = false;
+        this.pvp = false;
+        this.pve = false;
+        this.foodChange = false;
+        this.deathY = -1;
+        this.allowedToBeBreak = new ArrayList<>();
+        this.allowedToBePlaced = new ArrayList<>();
+        this.blockLoot = true;
+    }
+
+    public double getDeathY() {
+        return deathY;
     }
 
     public GameInteraction setExplosion(boolean explosion) {
@@ -113,5 +136,23 @@ public class GameInteraction {
 
     public List<Material> getAllowedToBePlaced() {
         return allowedToBePlaced;
+    }
+
+    public GameInteraction blockLoot(boolean b) {
+        this.blockLoot = b;
+        return this;
+    }
+
+    public GameInteraction setDeathY(double deathY) {
+        this.deathY = deathY;
+        return this;
+    }
+
+    public boolean isBlockLoot() {
+        return this.blockLoot;
+    }
+
+    public boolean isFoodLevel() {
+        return this.foodChange;
     }
 }

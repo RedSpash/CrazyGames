@@ -48,6 +48,7 @@ public class Spleef extends Game {
         }
 
         this.gameManager.getGameInteractions()
+                .setShootProjectile(true)
                 .addAllowedToBeBreak(Material.CLAY,Material.SNOW_BLOCK)
                 .blockLoot(false)
                 .setDeathY(this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY()-5);

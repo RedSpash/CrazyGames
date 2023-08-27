@@ -1,5 +1,7 @@
 package fr.red_spash.crazygames.game.manager;
 
+import fr.red_spash.crazygames.map.CheckPoint;
+
 import java.util.UUID;
 
 public class PlayerData {
@@ -8,6 +10,7 @@ public class PlayerData {
     private boolean isDead;
     private boolean isQualified;
     private int point;
+    private CheckPoint lastCheckPoint;
 
 
     public PlayerData(UUID uuid){
@@ -15,6 +18,7 @@ public class PlayerData {
         this.isDead = false;
         this.isQualified = false;
         this.point = 0;
+        this.lastCheckPoint = null;
     }
 
     public UUID getUuid() {
@@ -33,6 +37,10 @@ public class PlayerData {
         return isQualified;
     }
 
+    public CheckPoint getLastCheckPoint() {
+        return lastCheckPoint;
+    }
+
     public void setQualified(boolean qualified) {
         isQualified = qualified;
     }
@@ -43,5 +51,19 @@ public class PlayerData {
 
     public void setPoint(int point) {
         this.point = point;
+    }
+
+    public boolean canUnlockCheckPoint(CheckPoint checkPoint){
+        return lastCheckPoint != null || checkPoint.getId() > this.lastCheckPoint.getId();
+    }
+
+    public void unlockCheckPoint(CheckPoint checkPoint) {
+        this.lastCheckPoint = checkPoint;
+    }
+
+    public void resetGameData() {
+        this.isQualified = false;
+        this.point = 0;
+        this.lastCheckPoint = null;
     }
 }

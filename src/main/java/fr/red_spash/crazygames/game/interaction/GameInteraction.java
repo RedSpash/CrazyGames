@@ -1,6 +1,8 @@
 package fr.red_spash.crazygames.game.interaction;
 
 import fr.red_spash.crazygames.Main;
+import fr.red_spash.crazygames.game.manager.GameManager;
+import fr.red_spash.crazygames.game.models.Game;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
@@ -23,15 +25,17 @@ public class GameInteraction {
     private ArrayList<Material> allowedToBeBreak;
     private ArrayList<Material> allowedToBePlaced;
     private boolean blockLoot;
+    private boolean moveItemInventory;
 
-    public GameInteraction(Main main) {
+    public GameInteraction(Main main, GameManager gameManager) {
         this.resetInteractions();
-        this.interactionListener = new InteractionListener(this,main.getGameManager());
+        this.interactionListener = new InteractionListener(this,gameManager);
         Bukkit.getPluginManager().registerEvents(this.interactionListener,main);
     }
 
     public void resetInteractions(){
         this.explosion = false;
+        this.moveItemInventory = false;
         this.vehicleBreak = false;
         this.entityMount = false;
         this.bucketInteract = false;
@@ -102,6 +106,11 @@ public class GameInteraction {
         return this;
     }
 
+    public GameInteraction setMoveItemInventory(boolean moveItemInventory) {
+        this.moveItemInventory = moveItemInventory;
+        return this;
+    }
+
     public boolean isExplosion() {
         return explosion;
     }
@@ -155,4 +164,9 @@ public class GameInteraction {
     public boolean isFoodLevel() {
         return this.foodChange;
     }
+
+    public boolean isMoveItemInventory() {
+        return moveItemInventory;
+    }
+
 }

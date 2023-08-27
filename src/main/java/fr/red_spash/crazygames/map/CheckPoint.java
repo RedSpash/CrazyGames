@@ -1,13 +1,17 @@
 package fr.red_spash.crazygames.map;
 
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 public class CheckPoint {
 
     public final Location locationMin;
     public final Location locationMax;
+    private final int id;
 
-    public CheckPoint(Location locationA, Location locationB) {
+    public CheckPoint(int id, Location locationA, Location locationB) {
+        this.id = id;
+
         final double minX;
         final double maxX;
         if(locationA.getX() < locationB.getX()){
@@ -52,4 +56,12 @@ public class CheckPoint {
                 && this.locationMin.getZ() <= z && this.locationMax.getZ() >= z;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public Location getCheckPointLocation() {
+        Vector vector = this.locationMax.subtract(this.locationMin).toVector();
+        return this.locationMin.clone().add(vector);
+    }
 }

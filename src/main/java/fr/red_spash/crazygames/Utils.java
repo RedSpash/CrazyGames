@@ -1,12 +1,20 @@
 package fr.red_spash.crazygames;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Utils {
 
@@ -55,5 +63,54 @@ public class Utils {
                 Bukkit.getLogger().warning("Impossible de supprimer le monde: "+worldFolder.getName()+"!");
             }
         }
+    }
+
+    public static void teleportPlayersAndRemoveWorld(World world,boolean save) {
+        for(Player p : world.getPlayers()){
+            p.teleport(Main.SPAWN);
+            p.sendMessage("§cLe monde vient d'être détruit! Vous êtes désormais au spawn.");
+        }
+        Bukkit.unloadWorld(world,save);
+    }
+
+    public static ItemStack createFastItemStack(Material material, String name, String... lore) {
+        return createFastItemStack(material,name,0,new ArrayList<>(Arrays.asList(lore)));
+    }
+
+    public static ItemStack createFastItemStack(Material material, String name,int customModelData, String... lore) {
+        return createFastItemStack(material,name,customModelData,new ArrayList<>(Arrays.asList(lore)));
+    }
+
+    public static ItemStack createFastItemStack(Material material, String name, ArrayList<String> lore) {
+        return createFastItemStack(material,name,0,lore);
+    }
+
+    public static ItemStack createFastItemStack(Material material, String name,int customModelData, ArrayList<String> lore) {
+        ItemStack itemStack = new ItemStack(material);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName(name);
+        if(customModelData != 0){
+            itemMeta.setCustomModelData(customModelData);
+        }
+        if(lore.size() > 0){
+            itemMeta.setLore(lore);
+        }
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public static List<String> splitSentance(String shortDescription) {
+        List<String> dividedList = new ArrayList<>();
+        String[] words = shortDescription.split("\\s+"); // Diviser la phrase en mots
+
+        int currentIndex = 0;
+        while (currentIndex < words.length) {
+            int endIndex = Math.min(currentIndex + 7, words.length); // Index de fin pour chaque sous-liste
+            String[] subArray = Arrays.copyOfRange(words, currentIndex, endIndex); // Sous-liste de 7 mots ou moins
+            dividedList.add("§7"+String.join(" ", subArray)); // Ajouter la sous-liste à la liste principale
+            currentIndex = endIndex; // Passer à la prochaine sous-liste
+        }
+
+        return dividedList;
     }
 }

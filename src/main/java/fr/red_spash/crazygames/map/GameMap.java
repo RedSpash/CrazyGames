@@ -10,7 +10,6 @@ import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -21,13 +20,14 @@ public class GameMap {
     private final File file;
     private final GameType gameType;
     private final FileConfiguration fileConfiguration;
-    private ArrayList<CheckPoint> checkPoints;
+    private final ArrayList<CheckPoint> checkPoints;
     private World world;
 
     public GameMap(String name, File file,FileConfiguration fileConfiguration) {
         this.name = name;
         this.file = file;
         this.fileConfiguration = fileConfiguration;
+        this.checkPoints = new ArrayList<>();
 
         this.gameType = GameType.valueOf(this.fileConfiguration.getString("gametype","").toUpperCase());
     }
@@ -35,12 +35,11 @@ public class GameMap {
     private void loadMapData() {
         this.spawnLocation = this.getConfigurationLocation("spawnlocation");
 
-
         if(this.fileConfiguration.isSet("checkpoints")){
             this.fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).forEach(checkpointId ->{
                 Location firstLocation = this.getConfigurationLocation("checkpoints."+checkpointId+".pointA");
                 Location secondLocation = this.getConfigurationLocation("checkpoints."+checkpointId+".pointB");
-                this.checkPoints.add(new CheckPoint(firstLocation,secondLocation));
+                this.checkPoints.add(new CheckPoint(Integer.parseInt(checkpointId),firstLocation,secondLocation));
             });
         }
     }
@@ -69,7 +68,7 @@ public class GameMap {
         return this.file;
     }
 
-    public void loadWorld(){
+    public boolean loadWorld(){
         Path path = Paths.get(this.file.getPath());
         String pathName = String.valueOf(System.currentTimeMillis());
         Path path2 = Paths.get(pathName);
@@ -80,8 +79,13 @@ public class GameMap {
         if(world == null){
             world = Bukkit.getWorld(pathName);
         }
+        try{
+            this.loadMapData();
+        }catch (Exception e){
+            return false;
+        }
+        return true;
 
-        this.loadMapData();
     }
 
     public GameType getGameType() {
@@ -103,4 +107,13 @@ public class GameMap {
     public World getWorld() {
         return this.world;
     }
+
+    public ArrayList<CheckPoint> getCheckPoints() {
+        return this.checkPoints;
+    }
+
+    public boolean hasCheckpoint(){
+        return !this.checkPoints.isEmpty();
+    }
+
 }

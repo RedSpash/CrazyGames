@@ -32,6 +32,7 @@ public class GameManager {
     private final ArrayList<GameMap> playedGameMap = new ArrayList<>();
     private final Main main;
     private GameInteraction gameInteraction;
+    private ArrayList<File> invalidMaps = new ArrayList<>();
     private Game actualGame;
     private final ArrayList<GameMap> maps = new ArrayList<>();
     private BukkitTask taskCountDown;
@@ -39,7 +40,7 @@ public class GameManager {
 
     public GameManager(Main main){
         this.main = main;
-        this.gameInteraction = new GameInteraction(this.main);
+        this.gameInteraction = new GameInteraction(this.main,this);
         this.loadMaps();
 
     }
@@ -66,9 +67,15 @@ public class GameManager {
                         File[] files = directory.listFiles((dir, fileName) -> fileName.equalsIgnoreCase("config.yml"));
 
                         if (files == null || files.length != 1) {
-                            getLogger().warning("La map suivante est invalide : " + directory.toString());
+                            this.invalidateMap(directory);
                         } else {
                             FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(files[0]);
+
+                            if(!fileConfiguration.isSet("spawnlocation")){
+                                this.invalidateMap(directory);
+                                return;
+                            }
+
                             GameMap gameMap = new GameMap(name[name.length - 1], directory, fileConfiguration);
                             this.maps.add(gameMap);
                             getLogger().info("[MAP LOADER]: map " + gameMap.getName() + " loaded !");
@@ -81,6 +88,11 @@ public class GameManager {
 
     }
 
+    private void invalidateMap(File directory) {
+        getLogger().warning("La map suivante est invalide : " + directory.toString());
+        this.invalidMaps.add(directory);
+    }
+
     public List<GameMap> getMaps() {
         return maps;
     }
@@ -90,8 +102,8 @@ public class GameManager {
         if(world != null)return;
 
         File file = world.getWorldFolder();
-        Bukkit.unloadWorld(world,false);
-        Bukkit.getScheduler().runTaskLater(Main.getInstance(),()->Utils.deleteWorldFiles(file),2);
+        Utils.teleportPlayersAndRemoveWorld(world,false);
+        Utils.deleteWorldFiles(file);
     }
 
     public void startGame(){
@@ -140,13 +152,23 @@ public class GameManager {
             GameStatus gameStatus = this.actualGame.getGameStatus();
             if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
         }
-
+        GameMap oldGameMap = null;
+        if(this.actualGame != null){
+            oldGameMap = this.actualGame.getGameMap();
+        }
         this.actualGame = gameMap.getGameType().createInstance();
         this.actualGame.loadMap();
         this.actualGame.initializePlayers();
         this.actualGame.setGameStatus(GameStatus.STARTING);
 
         this.startCountdown();
+
+        if(oldGameMap != null){
+            GameMap finalOldGameMap = oldGameMap;
+            Utils.teleportPlayersAndRemoveWorld(oldGameMap.getWorld(),false);
+            Bukkit.getScheduler().runTaskLater(this.main,() -> Utils.deleteWorldFiles(finalOldGameMap.getFile()),10);
+        }
+
 
     }
 
@@ -211,8 +233,8 @@ public class GameManager {
     public void eliminatePlayer(Player p) {
         PlayerData playerData = this.getPlayerData(p.getUniqueId());
 
-        if(this.actualGame.getGameStatus() != GameStatus.PLAYING){
-            p.teleport(this.actualGame.getGameMap().getSpawnLocation());
+        if(this.actualGame != null && this.actualGame.getGameMap().hasCheckpoint() && playerData.getLastCheckPoint() != null){
+            p.teleport(playerData.getLastCheckPoint().getCheckPointLocation());
             return;
         }
 
@@ -220,6 +242,7 @@ public class GameManager {
             p.setGameMode(GameMode.SPECTATOR);
             Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" §6§l"+Main.SEPARATOR+" §c"+p.getName()+ChatColor.of(new Color(255,0,0))+" vient d'être éliminé !");
             playerData.setDead(true);
+            p.getInventory().clear();
             p.setVelocity((p.getVelocity().multiply(-5)));
             p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN,4,1);
 
@@ -243,7 +266,7 @@ public class GameManager {
         this.actualGame.unRegisterListeners();
         this.gameInteraction.resetInteractions();
 
-        if(qualified == 1){
+        if(qualified <= 1){
             UUID uuid = null;
             for(PlayerData playerData : this.playerDataHashMap.values()){
                 if(!playerData.isDead()){
@@ -253,6 +276,8 @@ public class GameManager {
             if(uuid != null){
                 Player p = Bukkit.getPlayer(uuid);
                 Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" §6"+Main.SEPARATOR+" "+ChatColor.of(new Color(0,255,0))+p.getName()+" vient de gagner la partie !");
+            }else{
+                Bukkit.broadcastMessage("§c§lFIN DE LA PARTIE");
             }
 
         }else{
@@ -262,8 +287,7 @@ public class GameManager {
 
     private void resetPlayerData() {
         for(PlayerData playerData : this.playerDataHashMap.values()){
-            playerData.setQualified(false);
-            playerData.setPoint(0);
+            playerData.resetGameData();
         }
     }
 
@@ -289,6 +313,10 @@ public class GameManager {
             }
         },1,2);
 
+    }
+
+    public ArrayList<File> getInvalidMaps() {
+        return invalidMaps;
     }
 
     public void addPlayerData(UUID uniqueId, PlayerData playerData) {

@@ -27,14 +27,23 @@ public class SpleefListener implements Listener {
 
     @EventHandler
     public void blockBreakEvent(BlockBreakEvent e){
+        if(e.isCancelled())return;
         if(e.getBlock().getType() == Material.SNOW_BLOCK || e.getBlock().getType() == Material.CLAY){
-            if(Utils.randomNumber(0,1) == 0){
+            if(Utils.randomNumber(0,2) == 0){
+                Player p = e.getPlayer();
                 ItemStack itemStack = new ItemStack(Material.SNOWBALL);
+                if(p.getInventory().getItem(3) != null){
+                    itemStack = new ItemStack(Material.SNOWBALL,p.getInventory().getItem(3).getAmount()+1);
+                    if(itemStack.getAmount() > 16){
+                        itemStack.setAmount(16);
+                    }
+                }
+
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 itemMeta.setDisplayName("§f§lSnowBreaker");
                 itemMeta.setLore(Arrays.asList("§7Permet de casser le","§7block visé par la boule de neige."));
                 itemStack.setItemMeta(itemMeta);
-                e.getPlayer().getInventory().addItem(itemStack);
+                e.getPlayer().getInventory().setItem(3,itemStack);
             }
         }
     }
@@ -43,15 +52,13 @@ public class SpleefListener implements Listener {
     public void projectilHitEvent(ProjectileHitEvent e){
         if(e.getEntity() instanceof Snowball){
             if(e.getHitBlock() != null){
-                if(e.getHitBlock().getType() == Material.CLAY || e.getHitBlock().getType() == Material.CLAY ){
-                    e.getHitBlock().breakNaturally();
+                if(e.getHitBlock().getType() == Material.CLAY || e.getHitBlock().getType() == Material.SNOW_BLOCK ){
+                    e.getHitBlock().setType(Material.AIR);
                 }
             }else{
                 e.setCancelled(true);
             }
         }
     }
-
-
 
 }

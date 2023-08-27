@@ -7,6 +7,8 @@ import fr.red_spash.crazygames.game.error.IncompatibleGameType;
 import fr.red_spash.crazygames.game.games.spleef.SpleefListener;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
+import fr.red_spash.crazygames.game.manager.PlayerData;
+import fr.red_spash.crazygames.map.CheckPoint;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -54,10 +56,16 @@ public abstract class Game implements Cloneable{
 
         }
 
-        this.gameMap.loadWorld();
+        boolean isSpawned = this.gameMap.loadWorld();
+        if(!isSpawned){
+            Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" "+Main.SEPARATOR+" §cChangement de programme !");
+            this.gameManager.startGame();
+        }
     }
     public void initializePlayers(){
         for(Player p : Bukkit.getOnlinePlayers()){
+            PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+            playerData.resetGameData();
             p.teleport(this.gameMap.getSpawnLocation());
             p.sendTitle("§a§l"+this.gameType.getName(),"§9"+this.gameType.getShortDescription(),20,20*3,20);
             p.sendMessage("§2§l"+this.gameType.getName()+"\n§a"+this.gameType.getLongDescription());

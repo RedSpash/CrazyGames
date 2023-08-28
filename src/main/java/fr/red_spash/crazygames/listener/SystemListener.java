@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class SystemListener implements Listener {
 
@@ -21,6 +22,14 @@ public class SystemListener implements Listener {
         if(this.gameManager.getPlayerData(p.getUniqueId()) == null){
             this.gameManager.addPlayerData(p.getUniqueId(),new PlayerData(p.getUniqueId()));
         }
+    }
+
+    @EventHandler
+    public void playerLeaveEvent(PlayerQuitEvent e){
+        Player p = e.getPlayer();
+        PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+
+
     }
 
 }

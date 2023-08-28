@@ -1,24 +1,19 @@
 package fr.red_spash.crazygames.game.models;
 
-import com.google.common.base.MoreObjects;
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.error.IncompatibleGameType;
-import fr.red_spash.crazygames.game.games.spleef.SpleefListener;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
-import fr.red_spash.crazygames.map.CheckPoint;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class Game implements Cloneable{
@@ -42,7 +37,7 @@ public abstract class Game implements Cloneable{
 
     public void loadMap(@Nullable GameMap forceGameMap){
         if(forceGameMap == null){
-            List<GameMap> gameMaps = new ArrayList<>(this.getGameManager().getMaps());
+            List<GameMap> gameMaps = new ArrayList<>(this.getGameManager().getMapManager().getMaps());
             gameMaps.removeIf(map -> map.getGameType() != this.gameType);
 
             this.gameMap = gameMaps.get(Utils.randomNumber(0,gameMaps.size()-1));
@@ -59,7 +54,7 @@ public abstract class Game implements Cloneable{
         boolean isSpawned = this.gameMap.loadWorld();
         if(!isSpawned){
             Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" "+Main.SEPARATOR+" §cChangement de programme !");
-            this.gameManager.startGame();
+            this.gameManager.startRandomGame();
         }
     }
     public void initializePlayers(){

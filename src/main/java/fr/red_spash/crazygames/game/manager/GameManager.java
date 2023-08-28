@@ -11,9 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.awt.*;
@@ -21,87 +20,34 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
-import static org.bukkit.Bukkit.getLogger;
-
 public class GameManager {
 
     private final HashMap<UUID,PlayerData> playerDataHashMap = new HashMap<>();
 
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
-    private final ArrayList<GameMap> playedGameMap = new ArrayList<>();
     private final Main main;
+    private final MapManager mapManager;
     private GameInteraction gameInteraction;
-    private ArrayList<File> invalidMaps = new ArrayList<>();
+
     private Game actualGame;
-    private final ArrayList<GameMap> maps = new ArrayList<>();
+
     private BukkitTask taskCountDown;
     private BukkitTask rollGameTask;
 
     public GameManager(Main main){
         this.main = main;
+        this.mapManager = new MapManager(this);
         this.gameInteraction = new GameInteraction(this.main,this);
-        this.loadMaps();
-
     }
 
-    private void loadMaps() {
-        this.maps.clear();
 
-        File mapsFolder = new File(this.main.getDataFolder(), "maps");
-
-        if (mapsFolder.exists() && mapsFolder.isDirectory()) {
-            File[] mapFolders = mapsFolder.listFiles(File::isDirectory);
-
-            if (mapFolders != null) {
-                for (File mapFolder : mapFolders) {
-                    ArrayList<File> directories = new ArrayList<>(Collections.singletonList(mapFolder));
-
-                    for (File directory : directories) {
-                        String[] name = directory.toString().split("\\\\");
-
-                        if (name.length == 1) {
-                            name = directory.toString().split("/");
-                        }
-
-                        File[] files = directory.listFiles((dir, fileName) -> fileName.equalsIgnoreCase("config.yml"));
-
-                        if (files == null || files.length != 1) {
-                            this.invalidateMap(directory);
-                        } else {
-                            FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(files[0]);
-
-                            if(!fileConfiguration.isSet("spawnlocation")){
-                                this.invalidateMap(directory);
-                                return;
-                            }
-
-                            GameMap gameMap = new GameMap(name[name.length - 1], directory, fileConfiguration);
-                            this.maps.add(gameMap);
-                            getLogger().info("[MAP LOADER]: map " + gameMap.getName() + " loaded !");
-                        }
-                    }
-
-                }
-            }
-        }
-
-    }
-
-    private void invalidateMap(File directory) {
-        getLogger().warning("La map suivante est invalide : " + directory.toString());
-        this.invalidMaps.add(directory);
-    }
-
-    public List<GameMap> getMaps() {
-        return maps;
-    }
 
     public void destroyWorlds() {
         this.actualGame.getGameMap().deleteWorld();
     }
 
-    public void startGame(){
+    public void startRandomGame(){
         ArrayList<GameType> availableGameType = new ArrayList<>();
         for(GameType gameType : GameType.values()){
             if(!this.playedGameType.contains(gameType)){
@@ -114,35 +60,23 @@ public class GameManager {
             this.playedGameType.clear();
         }
 
-        this.startGame(availableGameType.get(Utils.randomNumber(0,availableGameType.size()-1)));
+        this.startAGameType(availableGameType.get(Utils.randomNumber(0,availableGameType.size()-1)));
 
     }
 
-    public void startGame(GameType gameType) {
+    public void startAGameType(GameType gameType) {
         if(this.actualGame != null){
             GameStatus gameStatus = this.actualGame.getGameStatus();
             if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
         }
 
+        GameMap randomGameMap = this.mapManager.getRandomMap(gameType);
+        this.startAGameMap(randomGameMap);
+        this.mapManager.setPlayed(randomGameMap);
 
-        ArrayList<GameMap> mapsAvailable = new ArrayList<>();
-        for(GameMap gameMap : this.maps){
-            if(!this.playedGameMap.contains(gameMap) && gameMap.getGameType() == gameType){
-                mapsAvailable.add(gameMap);
-            }
-        }
-        if(mapsAvailable.isEmpty()) {
-            this.playedGameMap.clear();
-            Bukkit.broadcastMessage("Toutes les maps ont été jouées !");
-
-            mapsAvailable = new ArrayList<>(this.maps);
-            mapsAvailable.removeIf(gameMap -> gameMap.getGameType() != gameType);
-        }
-        GameMap gameMap = mapsAvailable.get(Utils.randomNumber(0,mapsAvailable.size()-1));
-        startGame(gameMap);
     }
 
-    public void startGame(GameMap gameMap) {
+    public void startAGameMap(GameMap gameMap) {
         if(this.actualGame != null){
             GameStatus gameStatus = this.actualGame.getGameStatus();
             if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
@@ -201,10 +135,6 @@ public class GameManager {
         },20,20);
     }
 
-
-    public List<GameMap> getPlayedGameMap() {
-        return playedGameMap;
-    }
 
     public List<GameType> getPlayedGameType() {
         return playedGameType;
@@ -300,7 +230,7 @@ public class GameManager {
             @Override
             public void run() {
                 if(rollNumber >= 50){
-                    startGame();
+                    startRandomGame();
                     rollGameTask.cancel();
                     return;
                 }
@@ -315,8 +245,8 @@ public class GameManager {
 
     }
 
-    public ArrayList<File> getInvalidMaps() {
-        return invalidMaps;
+    public MapManager getMapManager() {
+        return mapManager;
     }
 
     public void addPlayerData(UUID uniqueId, PlayerData playerData) {
@@ -338,6 +268,15 @@ public class GameManager {
         p.setGameMode(GameMode.SPECTATOR);
 
         stopGame();
+    }
 
+    public List<PlayerData> getAlivePlayerData(){
+        ArrayList<PlayerData> alive = new ArrayList<>(this.playerDataHashMap.values());
+        alive.removeIf(PlayerData::isDead);
+        return alive;
+    }
+
+    public Plugin getMain() {
+        return this.main;
     }
 }

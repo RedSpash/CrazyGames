@@ -3,6 +3,7 @@ package fr.red_spash.crazygames.commands;
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.manager.GameManager;
+import fr.red_spash.crazygames.game.manager.MapManager;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -40,11 +41,12 @@ public class EditWorld implements CommandExecutor, TabCompleter {
         Player p = (Player) commandSender;
 
         ArrayList<String> completer = new ArrayList<>();
-        for(GameMap gameMap : this.gameManager.getMaps()){
+        MapManager manager = this.gameManager.getMapManager();
+        for(GameMap gameMap : manager.getMaps()){
             completer.add(gameMap.getFile().getName());
         }
 
-        for(File file : this.gameManager.getInvalidMaps()){
+        for(File file : manager.getInvalidMaps()){
             completer.add(file.getName());
         }
         String name = "";
@@ -86,11 +88,12 @@ public class EditWorld implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
         ArrayList<String> completer = new ArrayList<>();
-        for(GameMap gameMap : this.gameManager.getMaps()){
+        MapManager manager = this.gameManager.getMapManager();
+        for(GameMap gameMap : manager.getMaps()){
             completer.add(gameMap.getFile().getName());
         }
 
-        for(File file : this.gameManager.getInvalidMaps()){
+        for(File file : manager.getInvalidMaps()){
             completer.add(file.getName());
         }
 

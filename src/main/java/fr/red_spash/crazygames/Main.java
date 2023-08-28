@@ -6,7 +6,6 @@ import fr.red_spash.crazygames.commands.SaveWorld;
 import fr.red_spash.crazygames.game.GameListener;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
-import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.listener.SystemListener;
 import fr.red_spash.crazygames.listener.edittools.EditToolsListener;
 import org.bukkit.Bukkit;
@@ -45,7 +44,7 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new EditToolsListener(this.editTools,this.editWorld),this);
 
         Bukkit.getScheduler().runTaskLater(Main.getInstance(),
-                () -> this.gameManager.startGame()
+                () -> this.gameManager.startRandomGame()
                 ,20*3L
         );
     }

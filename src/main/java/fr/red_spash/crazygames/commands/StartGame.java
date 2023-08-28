@@ -16,6 +16,7 @@ public class StartGame implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if(commandSender.isOp()){
+            this.gameManager.fillPlayerData();
             commandSender.sendMessage("§aLancement d'un nouveau jeu !");
             this.gameManager.rollGames();
         }

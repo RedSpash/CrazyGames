@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.checkerframework.checker.units.qual.C;
 
 import java.awt.*;
 import java.util.*;
@@ -43,7 +44,7 @@ public class GameManager {
 
     }
 
-    private void fillPlayerData() {
+    public void fillPlayerData() {
         this.playerDataHashMap.clear();
         for(Player p : Bukkit.getOnlinePlayers()){
             if(!this.playerDataHashMap.containsKey(p.getUniqueId())){
@@ -97,17 +98,22 @@ public class GameManager {
         if(this.actualGame != null){
             oldGameMap = this.actualGame.getGameMap();
         }
+        if(oldGameMap != null){
+            GameMap finalOldGameMap = oldGameMap;
+            Bukkit.getScheduler().runTaskLater(this.main, ()->{
+                Utils.teleportPlayersAndRemoveWorld(finalOldGameMap.getWorld(),false);
+                finalOldGameMap.deleteWorld();
+            } ,10);
+        }
         this.actualGame = gameMap.getGameType().createInstance();
         this.actualGame.loadMap();
         this.actualGame.initializePlayers();
         this.actualGame.setGameStatus(GameStatus.STARTING);
+        this.playedGameType.add(gameMap.getGameType());
 
         this.startCountdown();
 
-        if(oldGameMap != null){
-            Utils.teleportPlayersAndRemoveWorld(oldGameMap.getWorld(),false);
-            Bukkit.getScheduler().runTaskLater(this.main, oldGameMap::deleteWorld,10);
-        }
+
 
 
     }
@@ -187,17 +193,19 @@ public class GameManager {
         GameType gameType = this.actualGame.getGameType();
         for(Player p : Bukkit.getOnlinePlayers()){
             PlayerData playerData = this.getPlayerData(p.getUniqueId());
-            if((gameType.isQualificationMode() && playerData.isQualified()) || (!gameType.isQualificationMode() && !playerData.isDead())){
+            if(!gameType.isQualificationMode() && !playerData.isDead()){
                 p.sendTitle("§a§lVous êtes qualifié !","§aBien joué !",0,20*3,20);
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
                 qualified++;
-            }else{
-                if(!playerData.isDead()){
-                    p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
-                }
+            }else if(gameType.isQualificationMode() && !playerData.isDead() && !playerData.isQualified()){
+                p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
+                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_AMBIENT,1,1);
                 playerData.setDead(true);
+            }else{
+                qualified++;
             }
         }
+
         this.resetPlayerData();
         this.actualGame.setGameStatus(GameStatus.ENDING);
         this.actualGame.unRegisterListeners();
@@ -222,7 +230,7 @@ public class GameManager {
         }
     }
 
-    private void resetPlayerData() {
+    public void resetPlayerData() {
         for(PlayerData playerData : this.playerDataHashMap.values()){
             playerData.resetGameData();
         }
@@ -271,10 +279,30 @@ public class GameManager {
         PlayerData playerData = this.getPlayerData(p.getUniqueId());
 
         playerData.setQualified(true);
-        p.sendMessage("§aQualifié !");
         p.setGameMode(GameMode.SPECTATOR);
+        p.sendTitle(ChatColor.of(new Color(0,255,0))+"§lQUALIFIÉ !","§aVous êtes qualifié pour la prochaine épreuve!",0,20*3,20);
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
 
-        stopGame();
+        int top = 0;
+
+        for(PlayerData data : this.playerDataHashMap.values()){
+            if(data.isQualified()){
+                top = top + 1;
+            }
+        }
+
+        this.messageManager.sendQualificationMessage(p.getName(),top);
+
+        int amount = 0;
+        for(PlayerData data : this.playerDataHashMap.values()){
+            if(!data.isDead() && !data.isQualified()){
+                amount += 1;
+            }
+        }
+
+        if(amount == 1){
+            stopGame();
+        }
     }
 
     public List<PlayerData> getAlivePlayerData(){

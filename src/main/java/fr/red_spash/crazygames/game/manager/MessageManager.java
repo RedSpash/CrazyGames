@@ -11,10 +11,14 @@ public class MessageManager {
     public static final String SEPARATOR = "§6§l>>>";
 
     public void sendEliminateMessage(String playerName){
-        Bukkit.broadcastMessage("§d§l"+ MessageManager.PREFIX+" §6§l"+ MessageManager.SEPARATOR+" "+ChatColor.of(new Color(255,0,0))+"§l"+playerName+" §cvient d'être éliminé !");
+        Bukkit.broadcastMessage(PREFIX+" "+ SEPARATOR+" "+ChatColor.of(new Color(255,0,0))+"§l"+playerName+" §cvient d'être éliminé !");
     }
 
     public void sendVictoryMessage(String name) {
-        Bukkit.broadcastMessage("§d§l"+ MessageManager.PREFIX+" §6"+ MessageManager.SEPARATOR+" "+ChatColor.of(new Color(0,255,0))+"§l"+name+" §avient de gagner la partie !");
+        Bukkit.broadcastMessage(PREFIX+" "+ SEPARATOR+" "+ChatColor.of(new Color(0,255,0))+"§l"+name+" §avient de gagner la partie !");
+    }
+
+    public void sendQualificationMessage(String name, int top) {
+        Bukkit.broadcastMessage(PREFIX+" "+SEPARATOR+" "+ChatColor.of(new Color(0,255,0))+"§l"+name+"§a vient de se qualifier ! §e§lTOP "+top);
     }
 }

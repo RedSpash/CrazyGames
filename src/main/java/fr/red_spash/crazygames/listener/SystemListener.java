@@ -29,7 +29,9 @@ public class SystemListener implements Listener {
         Player p = e.getPlayer();
         PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
 
-
+        if(!playerData.isDead() && this.gameManager.getActualGame() != null){
+            this.gameManager.killPlayer(p);
+        }
     }
 
 }

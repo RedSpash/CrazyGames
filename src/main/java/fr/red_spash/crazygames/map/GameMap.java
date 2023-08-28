@@ -13,6 +13,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameMap {
     private Location spawnLocation;
@@ -119,7 +120,7 @@ public class GameMap {
         return this.world;
     }
 
-    public ArrayList<CheckPoint> getCheckPoints() {
+    public List<CheckPoint> getCheckPoints() {
         return this.checkPoints;
     }
 

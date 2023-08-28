@@ -5,9 +5,11 @@ import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.error.IncompatibleGameType;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
+import fr.red_spash.crazygames.game.manager.MessageManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -53,7 +55,7 @@ public abstract class Game implements Cloneable{
 
         boolean isSpawned = this.gameMap.loadWorld();
         if(!isSpawned){
-            Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" "+Main.SEPARATOR+" §cChangement de programme !");
+            Bukkit.broadcastMessage("§d§l"+ MessageManager.PREFIX+" "+ MessageManager.SEPARATOR+" §cChangement de programme !");
             this.gameManager.startRandomGame();
         }
     }
@@ -63,7 +65,13 @@ public abstract class Game implements Cloneable{
             playerData.resetGameData();
             p.teleport(this.gameMap.getSpawnLocation());
             p.sendTitle("§a§l"+this.gameType.getName(),"§9"+this.gameType.getShortDescription(),20,20*3,20);
-            p.sendMessage("§2§l"+this.gameType.getName()+"\n§a"+this.gameType.getLongDescription());
+            p.sendMessage("§2§l"+this.gameType.getName()+"\n§a "+this.gameType.getLongDescription());
+            p.getInventory().clear();
+            if(playerData.isDead()){
+                p.setGameMode(GameMode.SPECTATOR);
+            }else{
+                p.setGameMode(GameMode.SURVIVAL);
+            }
         }
     }
     public abstract void startGame();

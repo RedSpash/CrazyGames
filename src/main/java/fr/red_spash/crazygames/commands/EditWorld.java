@@ -36,7 +36,7 @@ public class EditWorld implements CommandExecutor, TabCompleter {
         if(strings.length == 0){
             commandSender.sendMessage("§c/editworld <nom du monde>");
             return true;
-        };
+        }
 
         Player p = (Player) commandSender;
 
@@ -71,7 +71,7 @@ public class EditWorld implements CommandExecutor, TabCompleter {
         String pathName = name;
         Path path2 = Paths.get(pathName);
 
-        Utils.copyDirectory(mapsFolder.getPath().toString(), path2.toString());
+        Utils.copyDirectory(mapsFolder.getPath(), path2.toString());
 
         World world = Bukkit.createWorld(new WorldCreator(name));
         if(world == null){
@@ -100,7 +100,7 @@ public class EditWorld implements CommandExecutor, TabCompleter {
         return completer;
     }
 
-    public ArrayList<World> getEditingWorld() {
+    public List<World> getEditingWorld() {
         return this.editingWorld;
     }
 

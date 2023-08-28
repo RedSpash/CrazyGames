@@ -16,18 +16,16 @@ import java.util.UUID;
 
 public class EditTools implements CommandExecutor {
 
-    public final String GAME_TYPE_DISPLAY_NAME = "§a§lModification du type de jeu";
-    public final ItemStack GAME_TYPE = Utils.createFastItemStack(Material.NETHER_STAR,GAME_TYPE_DISPLAY_NAME,"§7Permet de modifier le type de jeu relié à la carte.");
-    public final ItemStack SPAWN_LOCATION = Utils.createFastItemStack(Material.RED_BED,"§6Point de Spawn","§7Permet de modifier l'endroit de spawn des joueurs.");
-    public final ItemStack CHECKPOINT_MANAGER = Utils.createFastItemStack(Material.DIAMOND_AXE,"§aAjouter un checkpoint","§7Permet d'ajouter un nouveau checkpoint.","§7Clique gauche sur un block pour poser le 1er point","§7Clique droit sur un block pour poser le 2ème point.");
-    public final ItemStack SHOW_CHECK_POINT = Utils.createFastItemStack(Material.BOOK,"§aVoir les Checkpoints","§7Permet de voir les checkpoints.");
+    public static final String GAME_TYPE_DISPLAY_NAME = "§a§lModification du type de jeu";
+    public static final ItemStack GAME_TYPE = Utils.createFastItemStack(Material.NETHER_STAR,GAME_TYPE_DISPLAY_NAME,"§7Permet de modifier le type de jeu relié à la carte.");
+    public static final ItemStack SPAWN_LOCATION = Utils.createFastItemStack(Material.RED_BED,"§6Point de Spawn","§7Permet de modifier l'endroit de spawn des joueurs.");
+    public static final ItemStack CHECKPOINT_MANAGER = Utils.createFastItemStack(Material.DIAMOND_AXE,"§aAjouter un checkpoint","§7Permet d'ajouter un nouveau checkpoint.","§7Clique gauche sur un block pour poser le 1er point","§7Clique droit sur un block pour poser le 2ème point.");
+    public static final ItemStack SHOW_CHECK_POINT = Utils.createFastItemStack(Material.BOOK,"§aVoir les Checkpoints","§7Permet de voir les checkpoints.");
 
-    private final GameManager gameManager;
     private final EditWorld editWorld;
     private final ArrayList<UUID> editMode;
 
-    public EditTools(GameManager gameManager, EditWorld editWorld) {
-        this.gameManager = gameManager;
+    public EditTools(EditWorld editWorld) {
         this.editWorld = editWorld;
         this.editMode = new ArrayList<>();
     }

@@ -29,11 +29,9 @@ import java.util.ArrayList;
 
 public class EditToolsListener implements Listener {
     private final EditTools editTools;
-    private final EditWorld editWorld;
 
-    public EditToolsListener(EditTools editTools, EditWorld editWorld) {
+    public EditToolsListener(EditTools editTools) {
         this.editTools = editTools;
-        this.editWorld = editWorld;
     }
 
     @EventHandler

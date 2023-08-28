@@ -17,11 +17,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 
 public class SpleefListener implements Listener {
-    private final Spleef spleef;
     private final GameManager gameManager;
 
     public SpleefListener(Spleef spleef) {
-        this.spleef = spleef;
         this.gameManager = spleef.getGameManager();
     }
 

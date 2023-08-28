@@ -1,7 +1,6 @@
 package fr.red_spash.crazygames.game.interaction;
 
 import fr.red_spash.crazygames.game.manager.GameManager;
-import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,7 +9,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
@@ -54,30 +52,29 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void playerMoveEvent(PlayerMoveEvent e){
-        if(e.getTo().getBlock() != e.getFrom().getBlock()){
-            if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
-            Player p = e.getPlayer();
-            PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+        if(e.getTo().getBlock() == e.getFrom().getBlock())return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
-            if(this.gameInteraction.getBlockWin() != null && !playerData.isDead() && !playerData.isQualified()){
-                for(int i =0; i>=-5; i--){
-                    if(p.getLocation().add(0,i,0).getBlock().getType() == this.gameInteraction.getBlockWin()){
-                        this.gameManager.qualifiedPlayer(p);
-                    }
+        Player p = e.getPlayer();
+        PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+
+        if(this.gameInteraction.getBlockWin() != null && !playerData.isDead() && !playerData.isQualified()){
+            for(int i =0; i>=-5; i--){
+                if(p.getLocation().add(0,i,0).getBlock().getType() == this.gameInteraction.getBlockWin()){
+                    this.gameManager.qualifiedPlayer(p);
                 }
             }
+        }
 
-
-            if(this.gameInteraction.getDeathY() != -1){
-                if(this.gameManager.getActualGame() != null && !playerData.isDead()){
-                    if(this.gameManager.getActualGame().getGameMap() != null){
-                        if(this.gameInteraction.getDeathY() >= p.getLocation().getY()){
+        if(this.gameInteraction.getDeathY() != -1){
+            if(this.gameManager.getActualGame() != null && !playerData.isDead()){
+                if(this.gameManager.getActualGame().getGameMap() != null){
+                    if(this.gameInteraction.getDeathY() >= p.getLocation().getY()){
                             this.gameManager.eliminatePlayer(p);
                         }
                     }
                 }
             }
-        }
     }
 
     @EventHandler()
@@ -179,7 +176,6 @@ public class InteractionListener implements Listener {
         if(!gameInteraction.isPve()){
             if(!(e.getDamager() instanceof Player && e.getEntity() instanceof Player)){
                 e.setCancelled(true);
-                return;
             }
         }
 

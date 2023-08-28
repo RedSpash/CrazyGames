@@ -16,31 +16,43 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.awt.*;
-import java.io.*;
 import java.util.*;
 import java.util.List;
 
 public class GameManager {
 
     private final HashMap<UUID,PlayerData> playerDataHashMap = new HashMap<>();
-
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
     private final Main main;
     private final MapManager mapManager;
-    private GameInteraction gameInteraction;
-
+    private final GameInteraction gameInteraction;
+    private final MessageManager messageManager;
     private Game actualGame;
-
     private BukkitTask taskCountDown;
     private BukkitTask rollGameTask;
 
+
     public GameManager(Main main){
+        this.fillPlayerData();
+
         this.main = main;
+        this.messageManager = new MessageManager();
         this.mapManager = new MapManager(this);
         this.gameInteraction = new GameInteraction(this.main,this);
+
     }
 
+    private void fillPlayerData() {
+        this.playerDataHashMap.clear();
+        for(Player p : Bukkit.getOnlinePlayers()){
+            if(!this.playerDataHashMap.containsKey(p.getUniqueId())){
+                this.playerDataHashMap.put(p.getUniqueId(),new PlayerData(p.getUniqueId()));
+            }else{
+                this.playerDataHashMap.get(p.getUniqueId()).reset();
+            }
+        }
+    }
 
 
     public void destroyWorlds() {
@@ -163,12 +175,7 @@ public class GameManager {
         }
 
         if(!playerData.isDead() && !playerData.isQualified()){
-            p.setGameMode(GameMode.SPECTATOR);
-            Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" §6§l"+Main.SEPARATOR+" §c"+p.getName()+ChatColor.of(new Color(255,0,0))+" vient d'être éliminé !");
-            playerData.setDead(true);
-            p.getInventory().clear();
-            p.setVelocity((p.getVelocity().multiply(-5)));
-            p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN,4,1);
+            this.killPlayer(p);
 
             this.stopGame();
         }
@@ -205,13 +212,13 @@ public class GameManager {
             }
             if(uuid != null){
                 Player p = Bukkit.getPlayer(uuid);
-                Bukkit.broadcastMessage("§d§l"+Main.PREFIX+" §6"+Main.SEPARATOR+" "+ChatColor.of(new Color(0,255,0))+p.getName()+" vient de gagner la partie !");
+                this.messageManager.sendVictoryMessage(p.getName());
             }else{
                 Bukkit.broadcastMessage("§c§lFIN DE LA PARTIE");
             }
 
         }else{
-            Bukkit.getScheduler().runTaskLater(Main.getInstance(), this::rollGames,5*20);
+            Bukkit.getScheduler().runTaskLater(Main.getInstance(), this::rollGames,5*20L);
         }
     }
 
@@ -221,7 +228,7 @@ public class GameManager {
         }
     }
 
-    private void rollGames() {
+    public void rollGames() {
         if(this.rollGameTask != null){
             this.rollGameTask.cancel();
         }
@@ -278,5 +285,21 @@ public class GameManager {
 
     public Plugin getMain() {
         return this.main;
+    }
+
+    public MessageManager messageManager() {
+        return this.messageManager;
+    }
+
+    public void killPlayer(Player p) {
+        PlayerData playerData = this.getPlayerData(p.getUniqueId());
+
+        p.setGameMode(GameMode.SPECTATOR);
+        this.messageManager.sendEliminateMessage(p.getName());
+        playerData.setDead(true);
+        p.getInventory().clear();
+        p.setVelocity((p.getVelocity().multiply(-5)));
+        p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN,4,1);
+
     }
 }

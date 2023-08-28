@@ -82,7 +82,7 @@ public class MapManager {
             }
         }
 
-        if(mapsAvailable.isEmpty() && this.maps.size()>0){
+        if(mapsAvailable.isEmpty() && !this.maps.isEmpty()){
             this.playedGameMap.clear();
             return getAvailableMaps(gameType);
         }

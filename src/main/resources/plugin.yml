@@ -3,7 +3,7 @@ version: 1.0
 main: fr.red_spash.crazygames.Main
 author: Red_Spash
 api-version: 1.19
-description: §a§lplugin développé par §c§l@Red_Spash
+description: §a§lplugin développé par §2§l@Red_Spash
 commands:
   editWorld:
     permission: CrazyGames.editWorld
@@ -11,3 +11,5 @@ commands:
     permission: CrazyGames.saveWorld
   editTools:
     permission: CrazyGames.editTools
+  startGame:
+    permission: CrazyGames.startGame

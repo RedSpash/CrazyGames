@@ -66,4 +66,9 @@ public class PlayerData {
         this.point = 0;
         this.lastCheckPoint = null;
     }
+
+    public void reset(){
+        this.resetGameData();
+        this.isDead = false;
+    }
 }

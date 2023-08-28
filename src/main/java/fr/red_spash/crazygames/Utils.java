@@ -55,14 +55,16 @@ public class Utils {
                     if (file.isDirectory()) {
                         deleteWorldFiles(file);
                     }
-                    boolean isDeleted = file.delete();
-                    if(!isDeleted){
+                    try {
+                        Files.delete(file.toPath());
+                    } catch (IOException e) {
                         Bukkit.getLogger().warning("Impossible de supprimer le fichier: "+file.getName()+"!");
                     }
                 }
             }
-            boolean isDeleted = worldFolder.delete();
-            if(!isDeleted){
+            try {
+                Files.delete(worldFolder.toPath());
+            } catch (IOException e) {
                 Bukkit.getLogger().warning("Impossible de supprimer le monde: "+worldFolder.getName()+"!");
             }
         }
@@ -84,18 +86,18 @@ public class Utils {
         return createFastItemStack(material,name,customModelData,new ArrayList<>(Arrays.asList(lore)));
     }
 
-    public static ItemStack createFastItemStack(Material material, String name, ArrayList<String> lore) {
+    public static ItemStack createFastItemStack(Material material, String name, List<String> lore) {
         return createFastItemStack(material,name,0,lore);
     }
 
-    public static ItemStack createFastItemStack(Material material, String name,int customModelData, ArrayList<String> lore) {
+    public static ItemStack createFastItemStack(Material material, String name,int customModelData, List<String> lore) {
         ItemStack itemStack = new ItemStack(material);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setDisplayName(name);
         if(customModelData != 0){
             itemMeta.setCustomModelData(customModelData);
         }
-        if(lore.size() > 0){
+        if(!lore.isEmpty()){
             itemMeta.setLore(lore);
         }
         itemStack.setItemMeta(itemMeta);

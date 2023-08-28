@@ -27,6 +27,7 @@ public class SpleefListener implements Listener {
 
     @EventHandler
     public void blockBreakEvent(BlockBreakEvent e){
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
         if(e.isCancelled())return;
         if(e.getBlock().getType() == Material.SNOW_BLOCK || e.getBlock().getType() == Material.CLAY){
             if(Utils.randomNumber(0,2) == 0){
@@ -40,7 +41,7 @@ public class SpleefListener implements Listener {
                 }
 
                 ItemMeta itemMeta = itemStack.getItemMeta();
-                itemMeta.setDisplayName("§f§lSnowBreaker");
+                itemMeta.setDisplayName("§c§lSnowBreaker");
                 itemMeta.setLore(Arrays.asList("§7Permet de casser le","§7block visé par la boule de neige."));
                 itemStack.setItemMeta(itemMeta);
                 e.getPlayer().getInventory().setItem(3,itemStack);
@@ -50,6 +51,7 @@ public class SpleefListener implements Listener {
 
     @EventHandler
     public void projectilHitEvent(ProjectileHitEvent e){
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
         if(e.getEntity() instanceof Snowball){
             if(e.getHitBlock() != null){
                 if(e.getHitBlock().getType() == Material.CLAY || e.getHitBlock().getType() == Material.SNOW_BLOCK ){

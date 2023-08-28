@@ -27,9 +27,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void explode(EntityExplodeEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getEntity().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(!gameInteraction.isExplosion()){
             e.setCancelled(true);
@@ -38,9 +36,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void explode(InventoryClickEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getWhoClicked().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getWhoClicked().getWorld()))return;
 
         if(!gameInteraction.isMoveItemInventory()){
             e.setCancelled(true);
@@ -49,9 +45,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void explode(PlayerDropItemEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getPlayer().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         if(!gameInteraction.isMoveItemInventory()){
             e.setCancelled(true);
@@ -61,19 +55,25 @@ public class InteractionListener implements Listener {
     @EventHandler
     public void playerMoveEvent(PlayerMoveEvent e){
         if(e.getTo().getBlock() != e.getFrom().getBlock()){
-            if(this.gameManager.getActualGame() == null)return;
-            if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-            if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getPlayer().getWorld())return;
-
+            if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
             Player p = e.getPlayer();
-            if(this.gameInteraction.getDeathY() == -1){
-                return;
-            }
             PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
-            if(this.gameManager.getActualGame() != null && !playerData.isDead()){
-                if(this.gameManager.getActualGame().getGameMap() != null){
-                    if(this.gameInteraction.getDeathY() >= p.getLocation().getY()){
-                        this.gameManager.eliminatePlayer(p);
+
+            if(this.gameInteraction.getBlockWin() != null && !playerData.isDead() && !playerData.isQualified()){
+                for(int i =0; i>=-5; i--){
+                    if(p.getLocation().add(0,i,0).getBlock().getType() == this.gameInteraction.getBlockWin()){
+                        this.gameManager.qualifiedPlayer(p);
+                    }
+                }
+            }
+
+
+            if(this.gameInteraction.getDeathY() != -1){
+                if(this.gameManager.getActualGame() != null && !playerData.isDead()){
+                    if(this.gameManager.getActualGame().getGameMap() != null){
+                        if(this.gameInteraction.getDeathY() >= p.getLocation().getY()){
+                            this.gameManager.eliminatePlayer(p);
+                        }
                     }
                 }
             }
@@ -82,9 +82,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler()
     public void blockBreakEvent(BlockBreakEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getPlayer().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         if(!gameInteraction.getAllowedToBeBreak().contains(e.getBlock().getType())){
             e.setCancelled(true);
@@ -96,9 +94,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler()
     public void blockPlaceEvent(BlockPlaceEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getPlayer().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         if(!gameInteraction.getAllowedToBePlaced().contains(e.getBlock().getType())){
             e.setCancelled(true);
@@ -107,9 +103,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void vehicleBreak(VehicleDestroyEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getAttacker().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getVehicle().getWorld()))return;
 
         if(!gameInteraction.isVehicleBreak()){
             e.setCancelled(true);
@@ -118,9 +112,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void mount(EntityMountEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getEntity().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(!gameInteraction.isEntityMount()){
             e.setCancelled(true);
@@ -129,9 +121,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void playerBucketFillEvent(PlayerBucketFillEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getPlayer().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         if(!gameInteraction.isBucketInteract()){
             e.setCancelled(true);
@@ -140,9 +130,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void playerBucketEmptyEvent(PlayerBucketEmptyEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getPlayer().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         if(!gameInteraction.isBucketInteract()){
             e.setCancelled(true);
@@ -151,9 +139,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void playerBucketEntityEvent(PlayerBucketEntityEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getPlayer().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         if(!gameInteraction.isBucketInteract()){
             e.setCancelled(true);
@@ -162,9 +148,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void projectileHit(ProjectileLaunchEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getEntity().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(!gameInteraction.isShootProjectile()){
             e.setCancelled(true);
@@ -173,9 +157,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void foodLevelChangeEvent(FoodLevelChangeEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getEntity().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(!gameInteraction.isFoodLevel()){
             e.getEntity().setFoodLevel(20);
@@ -185,9 +167,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void entityHit(EntityDamageByEntityEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getEntity().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(!gameInteraction.isPvp()){
             if(e.getDamager() instanceof Player && e.getEntity() instanceof Player){
@@ -207,9 +187,7 @@ public class InteractionListener implements Listener {
 
     @EventHandler
     public void entityDamage(EntityDamageEvent e){
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() == null)return;
-        if(this.gameManager.getActualGame().getGameMap().getWorld() != e.getEntity().getWorld())return;
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK){
             if(!gameInteraction.isPve()){

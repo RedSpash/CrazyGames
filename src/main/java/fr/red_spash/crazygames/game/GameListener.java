@@ -20,8 +20,7 @@ public class GameListener implements Listener {
     @EventHandler
     public void playerMoveEvent(PlayerMoveEvent e) {
         if (e.getTo().getBlock() == e.getFrom().getBlock()) return;
-        if(this.gameManager.getActualGame() == null)return;
-        if(this.gameManager.getActualGame().getGameMap() == null)return;
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         Player p = e.getPlayer();
         if (this.gameManager.getActualGame().getGameStatus() != GameStatus.PLAYING

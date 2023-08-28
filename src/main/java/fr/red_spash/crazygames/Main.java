@@ -45,7 +45,7 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new EditToolsListener(this.editTools,this.editWorld),this);
 
         Bukkit.getScheduler().runTaskLater(Main.getInstance(),
-                () -> this.gameManager.startGame(GameType.SPLEEF)
+                () -> this.gameManager.startGame()
                 ,20*3L
         );
     }

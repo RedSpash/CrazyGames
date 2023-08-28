@@ -57,8 +57,14 @@ public class EditToolsListener implements Listener {
         if(itemStack == null)return;
         if(!itemStack.hasItemMeta())return;
         if(!itemStack.getItemMeta().hasDisplayName())return;
-        String name = itemStack.getItemMeta().getDisplayName().replace("§a§l","");
-        GameType gameType = GameType.valueOf(name.toUpperCase());
+        String name = itemStack.getItemMeta().getDisplayName().replace("§e§l","");
+        GameType gameType = null;
+
+        for(GameType search : GameType.values()){
+            if(name.contains(search.getName())){
+                gameType = search;
+            }
+        }
 
         FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
         fileConfiguration.set("gametype",gameType.toString().toUpperCase());
@@ -85,6 +91,7 @@ public class EditToolsListener implements Listener {
                 int index = 0;
                 for(GameType gameType : GameType.values()){
                     inventory.setItem(index, Utils.createFastItemStack(Material.PAPER,"§a§l"+gameType.getName(),new ArrayList<>(Utils.splitSentance(gameType.getLongDescription()))));
+                    index++;
                 }
                 p.openInventory(inventory);
             } else if (this.editTools.SPAWN_LOCATION.isSimilar(itemStack)) {

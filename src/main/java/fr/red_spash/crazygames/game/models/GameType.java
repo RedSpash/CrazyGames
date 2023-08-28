@@ -1,9 +1,11 @@
 package fr.red_spash.crazygames.game.models;
 
 import fr.red_spash.crazygames.game.games.spleef.Spleef;
+import fr.red_spash.crazygames.game.games.maze.Maze;
 
 public enum GameType {
-    SPLEEF(Spleef.class,false,"Spleef","Éliminez vos adversaires en creusant sous leurs pieds!","Spleef vous plonge dans une frénésie de creusage, où vous devez éliminer habilement vos rivaux en les faisant chuter de la plateforme. Affinez votre stratégie pour demeurer le dernier en pied dans ce jeu de survie compétitif sur fond de glace et de neige.");
+    SPLEEF(Spleef.class,false,"Spleef","Éliminez vos adversaires en creusant sous leurs pieds!","Spleef vous plonge dans une frénésie de creusage, où vous devez éliminer habilement vos rivaux en les faisant chuter de la plateforme. Affinez votre stratégie pour demeurer le dernier en pied dans ce jeu de survie compétitif sur fond de glace et de neige."),
+    MAZE(Maze.class,true,"Labyrinthe","Sortez le plus rapidement du labyrinthe pour gagner !","Explorez les mystères du Labyrinthe ! Trouvez votre chemin à travers des passages sinueux et remportez la partie en sortant ! Parviendrez-vous à percer ses secrets et à sortir victorieux ? C'est l'heure de l'aventure dans le Labyrinthe !");
 
     private final Class<? extends Game> gameClass;
     private final String name;
@@ -23,6 +25,9 @@ public enum GameType {
         switch (this){
             case SPLEEF -> {
                 return new Spleef();
+            }
+            case MAZE -> {
+                return new Maze();
             }
         }
         return null;

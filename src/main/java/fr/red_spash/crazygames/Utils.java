@@ -34,7 +34,10 @@ public class Utils {
                         Path destination = Paths.get(destinationDirectoryLocation, source.toString()
                                 .substring(sourceDirectoryLocation.length()));
                         try {
-                            Files.copy(source, destination);
+                            if(!destination.toString().contains("uid.dat")){
+                                Files.copy(source, destination);
+                            }
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

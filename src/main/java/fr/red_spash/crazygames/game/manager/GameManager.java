@@ -98,12 +98,7 @@ public class GameManager {
     }
 
     public void destroyWorlds() {
-        World world = this.actualGame.getGameMap().getWorld();
-        if(world != null)return;
-
-        File file = world.getWorldFolder();
-        Utils.teleportPlayersAndRemoveWorld(world,false);
-        Utils.deleteWorldFiles(file);
+        this.actualGame.getGameMap().deleteWorld();
     }
 
     public void startGame(){
@@ -164,9 +159,8 @@ public class GameManager {
         this.startCountdown();
 
         if(oldGameMap != null){
-            GameMap finalOldGameMap = oldGameMap;
             Utils.teleportPlayersAndRemoveWorld(oldGameMap.getWorld(),false);
-            Bukkit.getScheduler().runTaskLater(this.main,() -> Utils.deleteWorldFiles(finalOldGameMap.getFile()),10);
+            Bukkit.getScheduler().runTaskLater(this.main, oldGameMap::deleteWorld,10);
         }
 
 
@@ -253,12 +247,18 @@ public class GameManager {
 
     private void stopGame() {
         int qualified = 0;
+        GameType gameType = this.actualGame.getGameType();
         for(Player p : Bukkit.getOnlinePlayers()){
             PlayerData playerData = this.getPlayerData(p.getUniqueId());
-            if(!playerData.isDead()){
+            if((gameType.isQualificationMode() && playerData.isQualified()) || (!gameType.isQualificationMode() && !playerData.isDead())){
                 p.sendTitle("§a§lVous êtes qualifié !","§aBien joué !",0,20*3,20);
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
                 qualified++;
+            }else{
+                if(!playerData.isDead()){
+                    p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
+                }
+                playerData.setDead(true);
             }
         }
         this.resetPlayerData();
@@ -299,7 +299,7 @@ public class GameManager {
             int rollNumber = 0;
             @Override
             public void run() {
-                if(rollNumber >= 100){
+                if(rollNumber >= 50){
                     startGame();
                     rollGameTask.cancel();
                     return;
@@ -321,5 +321,23 @@ public class GameManager {
 
     public void addPlayerData(UUID uniqueId, PlayerData playerData) {
         this.playerDataHashMap.put(uniqueId,playerData);
+    }
+
+    public boolean isInWorld(World world) {
+        if(this.getActualGame() == null)return false;
+        if(this.getActualGame().getGameMap().getWorld() == null)return false;
+
+        return this.getActualGame().getGameMap().getWorld() == world;
+    }
+
+    public void qualifiedPlayer(Player p) {
+        PlayerData playerData = this.getPlayerData(p.getUniqueId());
+
+        playerData.setQualified(true);
+        p.sendMessage("§aQualifié !");
+        p.setGameMode(GameMode.SPECTATOR);
+
+        stopGame();
+
     }
 }

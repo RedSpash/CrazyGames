@@ -68,9 +68,19 @@ public class GameMap {
         return this.file;
     }
 
+    public void deleteWorld(){
+        if(this.getWorld() != null){
+            Utils.teleportPlayersAndRemoveWorld(this.getWorld(),false);
+            Utils.deleteWorldFiles(this.world.getWorldFolder());
+        }else{
+            Bukkit.broadcastMessage("§cMonde introuvable !");
+        }
+
+    }
+
     public boolean loadWorld(){
         Path path = Paths.get(this.file.getPath());
-        String pathName = String.valueOf(System.currentTimeMillis());
+        String pathName =System.currentTimeMillis()+"-"+this.name;
         Path path2 = Paths.get(pathName);
 
         Utils.copyDirectory(path.toString(), path2.toString());
@@ -88,6 +98,7 @@ public class GameMap {
 
     }
 
+
     public GameType getGameType() {
         return this.gameType;
     }
@@ -101,7 +112,7 @@ public class GameMap {
     }
 
     public Location getSpawnLocation() {
-        return spawnLocation;
+        return spawnLocation.clone();
     }
 
     public World getWorld() {

@@ -13,6 +13,7 @@ import java.util.List;
 public class GameInteraction {
 
     private final InteractionListener interactionListener;
+    private Material blockWin;
     private boolean explosion;
     private boolean vehicleBreak;
     private boolean entityMount;
@@ -34,6 +35,7 @@ public class GameInteraction {
     }
 
     public void resetInteractions(){
+        this.blockWin = null;
         this.explosion = false;
         this.moveItemInventory = false;
         this.vehicleBreak = false;
@@ -169,4 +171,12 @@ public class GameInteraction {
         return moveItemInventory;
     }
 
+    public GameInteraction setBlockWin(Material blockWin) {
+        this.blockWin = blockWin;
+        return this;
+    }
+
+    public Material getBlockWin() {
+        return blockWin;
+    }
 }

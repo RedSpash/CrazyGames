@@ -22,6 +22,7 @@ public class SystemListener implements Listener {
         if(this.gameManager.getPlayerData(p.getUniqueId()) == null){
             this.gameManager.addPlayerData(p.getUniqueId(),new PlayerData(p.getUniqueId()));
         }
+        p.setScoreboard(this.gameManager.getPlayerData(p.getUniqueId()).getScoreboard().getBoard());
     }
 
     @EventHandler

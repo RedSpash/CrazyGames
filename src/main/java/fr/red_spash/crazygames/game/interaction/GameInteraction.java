@@ -2,7 +2,6 @@ package fr.red_spash.crazygames.game.interaction;
 
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.game.manager.GameManager;
-import fr.red_spash.crazygames.game.models.Game;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
@@ -12,7 +11,6 @@ import java.util.List;
 
 public class GameInteraction {
 
-    private final InteractionListener interactionListener;
     private Material blockWin;
     private boolean explosion;
     private boolean vehicleBreak;
@@ -27,14 +25,20 @@ public class GameInteraction {
     private ArrayList<Material> allowedToBePlaced;
     private boolean blockLoot;
     private boolean moveItemInventory;
+    private int teleportUnderBlock;
+    private int maxBuildHeight;
 
     public GameInteraction(Main main, GameManager gameManager) {
         this.resetInteractions();
-        this.interactionListener = new InteractionListener(this,gameManager);
-        Bukkit.getPluginManager().registerEvents(this.interactionListener,main);
+        InteractionListener interactionListener = new InteractionListener(this, gameManager);
+        Bukkit.getPluginManager().registerEvents(interactionListener,main);
+        Bukkit.broadcastMessage("is registrered");
     }
 
     public void resetInteractions(){
+        Bukkit.broadcastMessage("§c§lReset interaction");
+        this.maxBuildHeight = -1;
+        this.teleportUnderBlock = -1;
         this.blockWin = null;
         this.explosion = false;
         this.moveItemInventory = false;
@@ -53,6 +57,11 @@ public class GameInteraction {
 
     public double getDeathY() {
         return deathY;
+    }
+
+    public GameInteraction setMaxBuildHeight(int maxBuildHeight) {
+        this.maxBuildHeight = maxBuildHeight;
+        return this;
     }
 
     public GameInteraction setExplosion(boolean explosion) {
@@ -176,7 +185,31 @@ public class GameInteraction {
         return this;
     }
 
+
     public Material getBlockWin() {
         return blockWin;
+    }
+
+    public GameInteraction addAllowedToBePlaced(List<Material> list) {
+        this.allowedToBePlaced.addAll(list);
+        return this;
+    }
+
+    public GameInteraction addAllowedToBeBreak(List<Material> list) {
+        this.allowedToBeBreak.addAll(list);
+        return this;
+    }
+
+    public GameInteraction setTeleportUnderBlock(int teleportUnderBlock) {
+        this.teleportUnderBlock = teleportUnderBlock;
+        return this;
+    }
+
+    public int getTeleportUnderBlock() {
+        return this.teleportUnderBlock;
+    }
+
+    public int getMaxBuildHeight() {
+        return maxBuildHeight;
     }
 }

@@ -9,6 +9,7 @@ import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.listener.SystemListener;
 import fr.red_spash.crazygames.listener.edittools.EditToolsListener;
+import fr.red_spash.crazygames.scoreboard.ScoreboardTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -37,6 +38,9 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new GameListener(this.gameManager),this);
         Bukkit.getPluginManager().registerEvents(new SystemListener(this.gameManager),this);
         Bukkit.getPluginManager().registerEvents(new EditToolsListener(this.editTools),this);
+
+        Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ScoreboardTask(this.gameManager), 0, 20);
+
     }
 
     private void loadCommands() {

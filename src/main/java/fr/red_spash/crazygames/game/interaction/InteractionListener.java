@@ -2,8 +2,10 @@ package fr.red_spash.crazygames.game.interaction;
 
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -42,6 +44,15 @@ public class InteractionListener implements Listener {
     }
 
     @EventHandler
+    public void explode(PlayerSwapHandItemsEvent e){
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
+
+        if(!gameInteraction.isMoveItemInventory()){
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
     public void explode(PlayerDropItemEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
@@ -70,14 +81,24 @@ public class InteractionListener implements Listener {
             if(this.gameManager.getActualGame() != null && !playerData.isDead()){
                 if(this.gameManager.getActualGame().getGameMap() != null){
                     if(this.gameInteraction.getDeathY() >= p.getLocation().getY()){
-                            this.gameManager.eliminatePlayer(p);
-                        }
+                        this.gameManager.eliminatePlayer(p);
                     }
                 }
             }
+        }
+
+        if(this.gameInteraction.getTeleportUnderBlock() != -1){
+            if(this.gameManager.getActualGame() != null && !playerData.isDead()){
+                if(this.gameManager.getActualGame().getGameMap() != null){
+                    if(this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY()-this.gameInteraction.getTeleportUnderBlock() >= p.getLocation().getY()){
+                        p.teleport(this.gameManager.getActualGame().getGameMap().getSpawnLocation());
+                    }
+                }
+            }
+        }
     }
 
-    @EventHandler()
+    @EventHandler
     public void blockBreakEvent(BlockBreakEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
@@ -89,12 +110,32 @@ public class InteractionListener implements Listener {
         }
     }
 
-    @EventHandler()
+    @EventHandler
     public void blockPlaceEvent(BlockPlaceEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
-
+        if(this.gameInteraction.getMaxBuildHeight() != -1){
+            if(this.gameManager.getActualGame() != null ){
+                if(this.gameManager.getActualGame().getGameMap() != null){
+                    if(this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY()+this.gameInteraction.getMaxBuildHeight() < e.getBlock().getLocation().getY()){
+                        e.setCancelled(true);
+                        e.getPlayer().sendMessage("§cVous êtes à la limite de hauteur !");
+                        return;
+                    }
+                }
+            }
+        }
         if(!gameInteraction.getAllowedToBePlaced().contains(e.getBlock().getType())){
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void playerInteractEvent(PlayerInteractEvent e){
+        if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
+        if(e.getClickedBlock() != null){
+            if(e.getClickedBlock().getType().isInteractable()){
+                e.setCancelled(true);
+            }
         }
     }
 

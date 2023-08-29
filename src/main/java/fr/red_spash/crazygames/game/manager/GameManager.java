@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.checkerframework.checker.units.qual.A;
 import org.checkerframework.checker.units.qual.C;
 
 import java.awt.*;
@@ -52,12 +53,16 @@ public class GameManager {
             }else{
                 this.playerDataHashMap.get(p.getUniqueId()).reset();
             }
+            p.setScoreboard(this.getPlayerData(p.getUniqueId()).getScoreboard().getBoard());
+
         }
     }
 
 
     public void destroyWorlds() {
-        this.actualGame.getGameMap().deleteWorld();
+        if(this.actualGame != null){
+            this.actualGame.getGameMap().deleteWorld();
+        }
     }
 
     public void startRandomGame(){
@@ -199,9 +204,11 @@ public class GameManager {
                 qualified++;
             }else if(gameType.isQualificationMode() && !playerData.isDead() && !playerData.isQualified()){
                 p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
-                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_AMBIENT,1,1);
+                this.messageManager.sendEliminateMessage(p.getName());
+                p.setGameMode(GameMode.SPECTATOR);
                 playerData.setDead(true);
-            }else{
+            }
+            if(gameType.isQualificationMode() && playerData.isQualified()){
                 qualified++;
             }
         }
@@ -284,23 +291,19 @@ public class GameManager {
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
 
         int top = 0;
-
+        int alivePlayer = 0;
         for(PlayerData data : this.playerDataHashMap.values()){
             if(data.isQualified()){
                 top = top + 1;
+            } else if (!data.isDead()) {
+                alivePlayer += 1;
             }
         }
 
         this.messageManager.sendQualificationMessage(p.getName(),top);
 
-        int amount = 0;
-        for(PlayerData data : this.playerDataHashMap.values()){
-            if(!data.isDead() && !data.isQualified()){
-                amount += 1;
-            }
-        }
-
-        if(amount == 1){
+        Bukkit.broadcastMessage("alive: "+alivePlayer);
+        if(alivePlayer <= 1){
             stopGame();
         }
     }
@@ -325,9 +328,24 @@ public class GameManager {
         p.setGameMode(GameMode.SPECTATOR);
         this.messageManager.sendEliminateMessage(p.getName());
         playerData.setDead(true);
+        playerData.setEliminated(true);
+        p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
+        p.playSound(p.getLocation(), Sound.ENTITY_WITHER_AMBIENT,1,1);
         p.getInventory().clear();
         p.setVelocity((p.getVelocity().multiply(-5)));
         p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN,4,1);
 
+    }
+
+    public List<PlayerData> getQualifiedPlayers() {
+        ArrayList<PlayerData> playerData = new ArrayList<>(this.playerDataHashMap.values());
+        playerData.removeIf(data -> !data.isQualified());
+        return playerData;
+    }
+
+    public List<PlayerData> getEliminatedPlayer() {
+        ArrayList<PlayerData> playerData = new ArrayList<>(this.playerDataHashMap.values());
+        playerData.removeIf(data -> !data.isEliminated());
+        return playerData;
     }
 }

@@ -94,6 +94,7 @@ public class SaveWorld implements CommandExecutor {
                 p.sendMessage("§a§lMonde sauvegardé sous le nom de '"+name+"'");
                 this.editWorld.removeEditingWorld(world);
             }catch (Exception e){
+                e.printStackTrace();
                 p.sendMessage("§cImpossible de sauvegarder correctement le monde ! §7("+e.getMessage()+" | "+e.getLocalizedMessage()+")");
             }
             return true;

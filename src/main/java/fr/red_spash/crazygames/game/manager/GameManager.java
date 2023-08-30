@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -33,6 +34,8 @@ public class GameManager {
     private Game actualGame;
     private BukkitTask taskCountDown;
     private BukkitTask rollGameTask;
+    private int amountQualifiedPlayer;
+    private int amountEliminatedPlayer;
 
 
     public GameManager(Main main){
@@ -110,16 +113,29 @@ public class GameManager {
                 finalOldGameMap.deleteWorld();
             } ,10);
         }
+
+        this.resetPlayerData();
+        this.fillPlayerData();
+
+        for(Player p : Bukkit.getOnlinePlayers()){
+            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+            p.setHealth(20);
+        }
+
         this.actualGame = gameMap.getGameType().createInstance();
         this.actualGame.loadMap();
         this.actualGame.initializePlayers();
         this.actualGame.setGameStatus(GameStatus.STARTING);
         this.playedGameType.add(gameMap.getGameType());
 
+        GameType gameType = gameMap.getGameType();
+        if(gameType.isQualificationMode()){
+            amountQualifiedPlayer = this.getAlivePlayerData().size()-1;
+        }else{
+            amountEliminatedPlayer = this.getAlivePlayerData().size()-1;
+        }
+
         this.startCountdown();
-
-
-
 
     }
 
@@ -185,11 +201,19 @@ public class GameManager {
             return;
         }
 
-        if(!playerData.isDead() && !playerData.isQualified()){
-            this.killPlayer(p);
+        if(this.actualGame != null && !this.actualGame.getGameType().isQualificationMode()){
+            if(!playerData.isDead() && !playerData.isQualified()){
+                this.killPlayer(p);
 
-            this.stopGame();
+                if(this.amountEliminatedPlayer <= this.getEliminatedPlayer().size()){
+                    this.stopGame();
+                }
+
+            }
+        }else if(this.actualGame != null && this.actualGame.getGameMap() != null){
+            p.teleport(this.actualGame.getGameMap().getSpawnLocation());
         }
+
 
     }
 
@@ -205,15 +229,16 @@ public class GameManager {
             }else if(gameType.isQualificationMode() && !playerData.isDead() && !playerData.isQualified()){
                 p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
                 this.messageManager.sendEliminateMessage(p.getName());
+                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH,1,1);
                 p.setGameMode(GameMode.SPECTATOR);
                 playerData.setDead(true);
             }
             if(gameType.isQualificationMode() && playerData.isQualified()){
+                p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
                 qualified++;
             }
         }
 
-        this.resetPlayerData();
         this.actualGame.setGameStatus(GameStatus.ENDING);
         this.actualGame.unRegisterListeners();
         this.gameInteraction.resetInteractions();
@@ -302,7 +327,6 @@ public class GameManager {
 
         this.messageManager.sendQualificationMessage(p.getName(),top);
 
-        Bukkit.broadcastMessage("alive: "+alivePlayer);
         if(alivePlayer <= 1){
             stopGame();
         }
@@ -347,5 +371,13 @@ public class GameManager {
         ArrayList<PlayerData> playerData = new ArrayList<>(this.playerDataHashMap.values());
         playerData.removeIf(data -> !data.isEliminated());
         return playerData;
+    }
+
+    public int getAmountEliminatedPlayer() {
+        return amountEliminatedPlayer;
+    }
+
+    public int getAmountQualifiedPlayer() {
+        return amountQualifiedPlayer;
     }
 }

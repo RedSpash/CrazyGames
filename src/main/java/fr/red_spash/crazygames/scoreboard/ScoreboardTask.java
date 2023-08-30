@@ -28,11 +28,16 @@ public class ScoreboardTask implements Runnable{
                 GameType gameType = game.getGameType();
 
                 if(gameType.isQualificationMode()){
-                    board.setLine(14,"§fQualifiés: §a"+this.gameManager.getQualifiedPlayers().size()+"/"+(this.gameManager.getAlivePlayerData().size()-1));
+                    board.setLine(14,"§fQualifiés: §a"+this.gameManager.getQualifiedPlayers().size()+"/"+(this.gameManager.getAmountQualifiedPlayer()));
                 }else{
-                    board.setLine(14,"§fÉliminés: §c"+this.gameManager.getEliminatedPlayer().size()+"/1");
+                    board.setLine(14,"§fÉliminés: §c"+this.gameManager.getEliminatedPlayer().size()+"/"+this.gameManager.getAmountEliminatedPlayer());
                 }
                 board.setLine(13,"Jeu: §a"+gameType.getName());
+                String state = "§aVIVANT";
+                if(playerData.isDead()){
+                    state = "§cMORT";
+                }
+                board.setLine(12,"État: "+state);
             }else{
                 board.setLine(14,"§cEn attente du");
                 board.setLine(13,"§clancement de la partie.");

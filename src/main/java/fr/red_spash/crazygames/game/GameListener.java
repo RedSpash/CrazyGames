@@ -4,11 +4,15 @@ import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.CheckPoint;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 
 public class GameListener implements Listener {
     private final GameManager gameManager;
@@ -41,6 +45,16 @@ public class GameListener implements Listener {
                     p.playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE,1,2);
                     p.sendMessage("§a§lCHECKPOINT débloqué !");
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerDeath(EntityDamageEvent e){
+        if(e.getEntity() instanceof Player p){
+            if(p.getHealth()-e.getFinalDamage() <= 0.0){
+                e.setCancelled(true);
+                this.gameManager.eliminatePlayer(p);
             }
         }
     }

@@ -27,16 +27,20 @@ public class GameInteraction {
     private boolean moveItemInventory;
     private int teleportUnderBlock;
     private int maxBuildHeight;
+    private boolean playerRegen;
+    private boolean blockLootItem;
+    private boolean allowInteraction;
 
     public GameInteraction(Main main, GameManager gameManager) {
         this.resetInteractions();
         InteractionListener interactionListener = new InteractionListener(this, gameManager);
         Bukkit.getPluginManager().registerEvents(interactionListener,main);
-        Bukkit.broadcastMessage("is registrered");
     }
 
     public void resetInteractions(){
-        Bukkit.broadcastMessage("§c§lReset interaction");
+        this.allowInteraction = false;
+        this.blockLootItem = true;
+        this.playerRegen = true;
         this.maxBuildHeight = -1;
         this.teleportUnderBlock = -1;
         this.blockWin = null;
@@ -211,5 +215,32 @@ public class GameInteraction {
 
     public int getMaxBuildHeight() {
         return maxBuildHeight;
+    }
+
+    public boolean isPlayerRegen() {
+        return this.playerRegen;
+    }
+
+    public GameInteraction setPlayerRegen(boolean playerRegen) {
+        this.playerRegen = playerRegen;
+        return this;
+    }
+
+    public GameInteraction setBlockLootItem(boolean b) {
+        this.blockLootItem = b;
+        return this;
+    }
+
+    public boolean isBlockLootItem() {
+        return blockLootItem;
+    }
+
+    public GameInteraction setAllowInteraction(boolean b) {
+        this.allowInteraction = b;
+        return this;
+    }
+
+    public boolean isAllowInteraction() {
+        return allowInteraction;
     }
 }

@@ -3,6 +3,7 @@ package fr.red_spash.crazygames.game.models;
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.error.IncompatibleGameType;
+import fr.red_spash.crazygames.game.games.blastvillage.BlastVillageTask;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.MessageManager;
@@ -10,9 +11,11 @@ import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.potion.PotionEffect;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -25,9 +28,11 @@ public abstract class Game implements Cloneable{
     private GameMap gameMap;
     private GameStatus gameStatus;
     private final ArrayList<Listener> activeListeners;
+    private ArrayList<Integer> activeTasks;
 
     protected Game(GameType gameType) {
         this.activeListeners = new ArrayList<>();
+        this.activeTasks = new ArrayList<>();
         this.gameManager = Main.getInstance().getGameManager();
         this.gameType = gameType;
         this.gameStatus = GameStatus.WAITING;
@@ -63,6 +68,13 @@ public abstract class Game implements Cloneable{
         for(Player p : Bukkit.getOnlinePlayers()){
             PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
             playerData.resetGameData();
+            for(PotionEffect potionEffect : p.getActivePotionEffects()){
+                p.removePotionEffect(potionEffect.getType());
+            }
+            p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+            p.setFoodLevel(20);
+            p.setLevel(0);
+            p.setExp(0);
             p.teleport(this.gameMap.getSpawnLocation());
             p.sendTitle("§a§l"+this.gameType.getName(),"§9"+this.gameType.getShortDescription(),20,20*3,20);
             p.sendMessage("§2§l"+this.gameType.getName()+"\n§a "+this.gameType.getLongDescription());
@@ -100,12 +112,21 @@ public abstract class Game implements Cloneable{
         for(Listener listener : this.activeListeners){
             HandlerList.unregisterAll(listener);
         }
+
+        for(int runnable : this.activeTasks){
+            Bukkit.getScheduler().cancelTask(runnable);
+        }
+        this.activeTasks.clear();
         this.activeListeners.clear();
     }
 
     protected void initializeListener(Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, Main.getInstance());
-
         this.activeListeners.add(listener);
+    }
+
+    protected void initializeTask(BlastVillageTask blastVillageTask, int i, int i1) {
+        int id = Bukkit.getServer().getScheduler().runTaskTimer(this.gameManager.getMain(),blastVillageTask, i, i1).getTaskId();
+        this.activeTasks.add(id);
     }
 }

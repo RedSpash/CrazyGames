@@ -6,18 +6,16 @@ import fr.red_spash.crazygames.commands.SaveWorld;
 import fr.red_spash.crazygames.commands.StartGame;
 import fr.red_spash.crazygames.game.GameListener;
 import fr.red_spash.crazygames.game.manager.GameManager;
-import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.listener.SystemListener;
 import fr.red_spash.crazygames.listener.edittools.EditToolsListener;
 import fr.red_spash.crazygames.scoreboard.ScoreboardTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
-    public static final Location SPAWN = new Location(Bukkit.getWorld("world"),0,100,0);
+    public static Location SPAWN;
     private GameManager gameManager;
     private static Main instance;
     private EditTools editTools;
@@ -40,6 +38,7 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new EditToolsListener(this.editTools),this);
 
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ScoreboardTask(this.gameManager), 0, 20);
+        SPAWN = new Location(Bukkit.getWorld("world"),0,100,0);
 
     }
 

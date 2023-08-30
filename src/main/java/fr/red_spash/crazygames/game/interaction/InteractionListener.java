@@ -3,6 +3,7 @@ package fr.red_spash.crazygames.game.interaction;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -25,6 +26,15 @@ public class InteractionListener implements Listener {
         this.gameManager = gameManager;
     }
 
+
+    @EventHandler
+    public void item(ItemSpawnEvent e){
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
+
+        if(!gameInteraction.isBlockLootItem()){
+            e.setCancelled(true);
+        }
+    }
     @EventHandler
     public void explode(EntityExplodeEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
@@ -132,10 +142,15 @@ public class InteractionListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void playerInteractEvent(PlayerInteractEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
+
+
         if(e.getClickedBlock() != null){
-            if(e.getClickedBlock().getType().isInteractable()){
-                e.setCancelled(true);
+            if(!this.gameInteraction.isAllowInteraction()){
+                if(e.getClickedBlock().getType().isInteractable() || e.getClickedBlock().getType() == Material.FARMLAND){
+                    e.setCancelled(true);
+                }
             }
+
         }
     }
 
@@ -201,6 +216,19 @@ public class InteractionListener implements Listener {
             e.getEntity().setFoodLevel(20);
             e.setCancelled(true);
         }
+    }
+
+
+    @EventHandler
+    public void playerRegenEvent(EntityRegainHealthEvent e){
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
+
+        if(e.getEntity() instanceof Player p){
+            if(!gameInteraction.isPlayerRegen()){
+                e.setCancelled(true);
+            }
+        }
+
     }
 
     @EventHandler

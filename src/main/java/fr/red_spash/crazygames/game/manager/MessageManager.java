@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class MessageManager {
 
-    public static final String PREFIX = "§d§lCrazy§9§lGames";
+    public static final String PREFIX = "§d§lCrazy§2§lGames";
     public static final String SEPARATOR = "§6§l>>>";
 
     public void sendEliminateMessage(String playerName){

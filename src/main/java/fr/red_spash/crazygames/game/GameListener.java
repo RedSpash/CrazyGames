@@ -4,6 +4,7 @@ import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.CheckPoint;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -27,16 +28,26 @@ public class GameListener implements Listener {
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
         Player p = e.getPlayer();
-        if (this.gameManager.getActualGame().getGameStatus() != GameStatus.PLAYING
-                && this.gameManager.getActualGame().getGameMap().getSpawnLocation() != null
-                && p.getLocation().getY() <= this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY() - 5) {
-            p.teleport(this.gameManager.getActualGame().getGameMap().getSpawnLocation());
+        PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+
+        if (this.gameManager.getActualGameStatus() != GameStatus.PLAYING
+                && this.gameManager.getSpawnLocation() != null
+                && p.getLocation().getY() <= this.gameManager.getSpawnLocation().getY() - 5
+                && !playerData.isDead()) {
+            p.teleport(this.gameManager.getSpawnLocation());
             return;
         }
 
 
-        PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
-        if(playerData.isDead())return;
+
+        if(playerData.isDead() || p.getGameMode() == GameMode.SPECTATOR){
+            if(this.gameManager.getSpawnLocation() != null){
+                if(this.gameManager.getSpawnLocation().distance(p.getLocation()) >= 500){
+                    p.teleport(this.gameManager.getSpawnLocation());
+                }
+            }
+            return;
+        }
 
         for(CheckPoint checkPoint : this.gameManager.getActualGame().getGameMap().getCheckPoints()){
             if(checkPoint.isInside(p.getLocation())){

@@ -20,7 +20,7 @@ public class GameInteraction {
     private boolean pvp;
     private boolean pve;
     private boolean foodChange;
-    private double deathY;
+    private double deathUnderSpawn;
     private ArrayList<Material> allowedToBeBreak;
     private ArrayList<Material> allowedToBePlaced;
     private boolean blockLoot;
@@ -53,14 +53,14 @@ public class GameInteraction {
         this.pvp = false;
         this.pve = false;
         this.foodChange = false;
-        this.deathY = -1;
+        this.deathUnderSpawn = 0;
         this.allowedToBeBreak = new ArrayList<>();
         this.allowedToBePlaced = new ArrayList<>();
         this.blockLoot = true;
     }
 
-    public double getDeathY() {
-        return deathY;
+    public double getDeathUnderSpawn() {
+        return deathUnderSpawn;
     }
 
     public GameInteraction setMaxBuildHeight(int maxBuildHeight) {
@@ -167,8 +167,8 @@ public class GameInteraction {
         return this;
     }
 
-    public GameInteraction setDeathY(double deathY) {
-        this.deathY = deathY;
+    public GameInteraction setDeathUnderSpawn(double deathY) {
+        this.deathUnderSpawn = deathY;
         return this;
     }
 

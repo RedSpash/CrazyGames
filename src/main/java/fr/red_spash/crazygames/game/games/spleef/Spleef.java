@@ -1,8 +1,6 @@
 package fr.red_spash.crazygames.game.games.spleef;
 
 
-import fr.red_spash.crazygames.Main;
-import fr.red_spash.crazygames.game.games.spleef.SpleefListener;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
@@ -51,7 +49,7 @@ public class Spleef extends Game {
                 .setShootProjectile(true)
                 .addAllowedToBeBreak(Material.CLAY,Material.SNOW_BLOCK)
                 .blockLoot(false)
-                .setDeathY(this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY()-5);
+                .setDeathUnderSpawn(5);
     }
 
 }

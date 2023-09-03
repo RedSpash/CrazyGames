@@ -5,25 +5,23 @@ import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.interaction.GameInteraction;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
+import fr.red_spash.crazygames.game.tasks.GameTimer;
 import fr.red_spash.crazygames.map.GameMap;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.checker.units.qual.C;
 
 import java.awt.*;
+import java.awt.Color;
 import java.util.*;
 import java.util.List;
 
 public class GameManager {
 
+    private final int MAX_TIME = 60*4;
     private final HashMap<UUID,PlayerData> playerDataHashMap = new HashMap<>();
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
@@ -34,6 +32,8 @@ public class GameManager {
     private Game actualGame;
     private BukkitTask taskCountDown;
     private BukkitTask rollGameTask;
+    private GameTimer gameTimer;
+    private BukkitTask gameTimerTask;
     private int amountQualifiedPlayer;
     private int amountEliminatedPlayer;
 
@@ -143,6 +143,7 @@ public class GameManager {
         if(this.taskCountDown != null){
             this.taskCountDown.cancel();
         }
+        GameManager gameManager = this;
         this.taskCountDown = Bukkit.getScheduler().runTaskTimer(this.main, new Runnable() {
             int seconds = 15;
             @Override
@@ -155,6 +156,8 @@ public class GameManager {
                     }
                     actualGame.setGameStatus(GameStatus.PLAYING);
                     actualGame.startGame();
+                    gameTimer = new GameTimer(gameManager,MAX_TIME);
+                    gameTimerTask = Bukkit.getScheduler().runTaskTimer(gameManager.getMain(), gameTimer,0,20);
                     taskCountDown.cancel();
                     return;
                 }
@@ -183,7 +186,6 @@ public class GameManager {
         return playerDataHashMap.get(uniqueId);
     }
 
-
     public GameInteraction getGameInteractions() {
         return this.gameInteraction;
     }
@@ -195,30 +197,33 @@ public class GameManager {
 
     public void eliminatePlayer(Player p) {
         PlayerData playerData = this.getPlayerData(p.getUniqueId());
+        if(playerData.isDead())return;
 
-        if(this.actualGame != null && this.actualGame.getGameMap().hasCheckpoint() && playerData.getLastCheckPoint() != null){
-            p.teleport(playerData.getLastCheckPoint().getCheckPointLocation());
-            return;
-        }
+        if(this.actualGame != null){
+            if(this.actualGame.getGameMap().hasCheckpoint() && playerData.getLastCheckPoint() != null) {
+                p.teleport(playerData.getLastCheckPoint().getCheckPointLocation());
+            }else if(this.actualGame.getGameStatus() == GameStatus.PLAYING){
+                if(this.actualGame.getGameType().isQualificationMode()){
+                    p.teleport(this.actualGame.getGameMap().getSpawnLocation());
+                }else if(!playerData.isDead()){
+                    this.killPlayer(p);
 
-        if(this.actualGame != null && !this.actualGame.getGameType().isQualificationMode()){
-            if(!playerData.isDead() && !playerData.isQualified()){
-                this.killPlayer(p);
+                    if(this.amountEliminatedPlayer <= this.getEliminatedPlayer().size()){
+                        this.stopGame();
+                    }
 
-                if(this.amountEliminatedPlayer <= this.getEliminatedPlayer().size()){
-                    this.stopGame();
                 }
-
             }
-        }else if(this.actualGame != null && this.actualGame.getGameMap() != null){
-            p.teleport(this.actualGame.getGameMap().getSpawnLocation());
         }
-
-
     }
 
-    private void stopGame() {
+    public void stopGame() {
         int qualified = 0;
+
+        if(gameTimerTask != null){
+            gameTimerTask.cancel();
+        }
+
         GameType gameType = this.actualGame.getGameType();
         for(Player p : Bukkit.getOnlinePlayers()){
             PlayerData playerData = this.getPlayerData(p.getUniqueId());
@@ -284,7 +289,7 @@ public class GameManager {
                 GameType gameType = GameType.values()[Utils.randomNumber(0,GameType.values().length-1)];
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendTitle("§a"+gameType.getName(),"§2"+gameType.getShortDescription(),0,20,0);
-                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK,1,1);
+                    p.playSound(p.getLocation(), Sound.UI_TOAST_OUT,1,2);
                 }
                 rollNumber ++;
             }
@@ -379,5 +384,28 @@ public class GameManager {
 
     public int getAmountQualifiedPlayer() {
         return amountQualifiedPlayer;
+    }
+
+    public GameTimer getGameTimer() {
+        return gameTimer;
+    }
+
+    public int getMaxTime() {
+        return this.MAX_TIME;
+    }
+
+    public GameType getActualGameType() {
+        if(this.actualGame == null)return null;
+        return this.actualGame.getGameType();
+    }
+
+    public GameStatus getActualGameStatus() {
+        if(this.actualGame == null)return null;
+        return this.actualGame.getGameStatus();
+    }
+
+    public Location getSpawnLocation() {
+        if(this.actualGame == null)return null;
+        return this.actualGame.getGameMap().getSpawnLocation();
     }
 }

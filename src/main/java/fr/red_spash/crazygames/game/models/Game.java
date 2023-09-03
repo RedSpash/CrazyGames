@@ -125,8 +125,8 @@ public abstract class Game implements Cloneable{
         this.activeListeners.add(listener);
     }
 
-    protected void initializeTask(BlastVillageTask blastVillageTask, int i, int i1) {
-        int id = Bukkit.getServer().getScheduler().runTaskTimer(this.gameManager.getMain(),blastVillageTask, i, i1).getTaskId();
+    protected void initializeTask(Runnable runnable, int i, int i1) {
+        int id = Bukkit.getServer().getScheduler().runTaskTimer(this.gameManager.getMain(),runnable, i, i1).getTaskId();
         this.activeTasks.add(id);
     }
 }

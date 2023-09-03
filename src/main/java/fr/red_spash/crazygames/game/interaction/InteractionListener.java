@@ -2,7 +2,6 @@ package fr.red_spash.crazygames.game.interaction;
 
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -87,10 +86,10 @@ public class InteractionListener implements Listener {
             }
         }
 
-        if(this.gameInteraction.getDeathY() != -1){
+        if(this.gameInteraction.getDeathUnderSpawn() > 0){
             if(this.gameManager.getActualGame() != null && !playerData.isDead()){
                 if(this.gameManager.getActualGame().getGameMap() != null){
-                    if(this.gameInteraction.getDeathY() >= p.getLocation().getY()){
+                    if(this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY() - this.gameInteraction.getDeathUnderSpawn() >= p.getLocation().getY()){
                         this.gameManager.eliminatePlayer(p);
                     }
                 }
@@ -98,11 +97,9 @@ public class InteractionListener implements Listener {
         }
 
         if(this.gameInteraction.getTeleportUnderBlock() != -1){
-            if(this.gameManager.getActualGame() != null && !playerData.isDead()){
-                if(this.gameManager.getActualGame().getGameMap() != null){
-                    if(this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY()-this.gameInteraction.getTeleportUnderBlock() >= p.getLocation().getY()){
-                        p.teleport(this.gameManager.getActualGame().getGameMap().getSpawnLocation());
-                    }
+            if(this.gameManager.getSpawnLocation() != null && !playerData.isDead()){
+                if(this.gameManager.getSpawnLocation().getY()-this.gameInteraction.getTeleportUnderBlock() >= p.getLocation().getY()){
+                    p.teleport(this.gameManager.getSpawnLocation());
                 }
             }
         }

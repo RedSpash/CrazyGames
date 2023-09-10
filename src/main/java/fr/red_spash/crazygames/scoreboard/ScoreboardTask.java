@@ -41,8 +41,6 @@ public class ScoreboardTask implements Runnable{
                 board.setLine(12,"État: "+state);
                 board.setLine(11,"Temps: §a"+getTimeRemaining());
 
-
-
             }else{
                 board.setLine(14,"§cEn attente du");
                 board.setLine(13,"§clancement de la partie.");

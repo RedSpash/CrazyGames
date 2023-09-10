@@ -11,14 +11,19 @@ import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class Game implements Cloneable{
@@ -128,5 +133,32 @@ public abstract class Game implements Cloneable{
     protected void initializeTask(Runnable runnable, int i, int i1) {
         int id = Bukkit.getServer().getScheduler().runTaskTimer(this.gameManager.getMain(),runnable, i, i1).getTaskId();
         this.activeTasks.add(id);
+    }
+
+    protected ArrayList<Block> getBlockPlatform(Material material,Material toReplace) {
+        ArrayList<Block> blocks = new ArrayList<>();
+        Location location = this.gameManager.getSpawnLocation();
+        int count = 0;
+        while(location.getBlock().getType() != material && count<=50){
+            location.add(0,-1,0);
+            count++;
+        }
+
+        for(int x=-75; x<=75; x++){
+            for(int z=-75; z<=75; z++){
+                Location blockLocation = location.clone().add(x,0,z);
+                if(blockLocation.getBlock().getType() == material){
+                    blocks.add(blockLocation.getBlock());
+                    if(toReplace != null){
+                        blockLocation.getBlock().setType(toReplace);
+                    }
+                }
+            }
+        }
+        return blocks;
+    }
+
+    public ArrayList<Block> getBlockPlatform(Material material) {
+        return this.getBlockPlatform(material,null);
     }
 }

@@ -5,11 +5,11 @@ import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.game.tasks.GameTimer;
-import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class ScoreboardTask implements Runnable{
+    private static final String SYMBOL = "◈ ";
     private final GameManager gameManager;
 
     public ScoreboardTask(GameManager gameManager) {
@@ -28,27 +28,32 @@ public class ScoreboardTask implements Runnable{
                 Game game = this.gameManager.getActualGame();
                 GameType gameType = game.getGameType();
 
+                board.setLine(14,SYMBOL+"Temps: §a"+getTimeRemaining());
                 if(gameType.isQualificationMode()){
-                    board.setLine(14,"§fQualifiés: §a"+this.gameManager.getQualifiedPlayers().size()+"/"+(this.gameManager.getAmountQualifiedPlayer()));
+                    board.setLine(13,SYMBOL+"§fQualifiés: §a"+this.gameManager.getQualifiedPlayers().size()+"/"+(this.gameManager.getAmountQualifiedPlayer()));
                 }else{
-                    board.setLine(14,"§fÉliminés: §c"+this.gameManager.getEliminatedPlayer().size()+"/"+this.gameManager.getAmountEliminatedPlayer());
+                    board.setLine(13,SYMBOL+"§fÉliminés: §c"+this.gameManager.getEliminatedPlayer().size()+"/"+this.gameManager.getAmountEliminatedPlayer());
                 }
-                board.setLine(13,"Jeu: §a"+gameType.getName());
                 String state = "§aVIVANT";
                 if(playerData.isDead()){
                     state = "§cMORT";
                 }
-                board.setLine(12,"État: "+state);
-                board.setLine(11,"Temps: §a"+getTimeRemaining());
-
-
-
+                board.setLine(12,"§f§1");
+                board.setLine(11,SYMBOL+"Jeu: §a"+gameType.getName());
+                board.setLine(10,SYMBOL+"État: "+state);
+                board.setLine(9,"§f");
+                int index = 8;
+                for(String line : game.updateScoreboard()){
+                    if(index >= 2){
+                        board.setLine(index,SYMBOL+line);
+                        index--;
+                    }
+                }
+                board.setLine(1,"§f§r§1");
             }else{
-                board.setLine(14,"§cEn attente du");
-                board.setLine(13,"§clancement de la partie.");
+                board.setLine(14,"§c"+SYMBOL+"En attente du");
+                board.setLine(13,"§c"+SYMBOL+"lancement de la partie.");
             }
-
-            board.setLine(1,"§f");
             board.setLine(0,"§7Développé par Red_Spash");
 
         }

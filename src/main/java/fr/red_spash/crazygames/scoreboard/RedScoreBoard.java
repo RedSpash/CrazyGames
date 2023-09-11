@@ -2,13 +2,11 @@ package fr.red_spash.crazygames.scoreboard;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class RedScoreBoard {
 
@@ -79,5 +77,9 @@ public class RedScoreBoard {
 
     public Scoreboard getBoard() {
         return board;
+    }
+
+    public boolean lineExist(int i) {
+        return this.Lines.containsKey(i);
     }
 }

@@ -9,6 +9,7 @@ import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.MessageManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.GameMap;
+import fr.red_spash.crazygames.scoreboard.RedScoreBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -128,5 +130,9 @@ public abstract class Game implements Cloneable{
     protected void initializeTask(Runnable runnable, int i, int i1) {
         int id = Bukkit.getServer().getScheduler().runTaskTimer(this.gameManager.getMain(),runnable, i, i1).getTaskId();
         this.activeTasks.add(id);
+    }
+
+    public List<String> updateScoreboard() {
+        return new ArrayList<>();
     }
 }

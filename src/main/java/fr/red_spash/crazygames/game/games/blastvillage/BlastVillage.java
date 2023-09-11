@@ -8,11 +8,18 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class BlastVillage extends Game {
+
+    private final BlastVillageTask blastVillageTask;
 
     public BlastVillage() {
         super(GameType.BLAST_VILLAGE);
-        super.initializeTask(new BlastVillageTask(this),0,10);
+        this.blastVillageTask = new BlastVillageTask(this);
+        super.initializeTask(blastVillageTask,0,10);
     }
 
     @Override
@@ -36,5 +43,13 @@ public class BlastVillage extends Game {
                 .setBlockLootItem(false)
                 .setAllowInteraction(true)
                 .addAllowedToBeBreak(Material.FIRE);
+    }
+
+    @Override
+    public List<String> updateScoreboard() {
+        if(this.blastVillageTask != null){
+            return Arrays.asList("Fireballs: §c"+this.blastVillageTask.getAmountOfFireBall(),"Dégats: §c"+this.blastVillageTask.getFireBallDamage());
+        }
+        return super.updateScoreboard();
     }
 }

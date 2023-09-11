@@ -33,6 +33,9 @@ public class HotBlockTask implements Runnable {
                 }
             }
         }
+    }
 
+    public int getBlocksNumber() {
+        return blocks.size();
     }
 }

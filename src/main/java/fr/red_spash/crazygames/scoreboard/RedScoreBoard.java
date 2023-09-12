@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public class RedScoreBoard {
 
-    private HashMap<Integer,Team> Lines = new HashMap<>();
+    private HashMap<Integer,Team> lines = new HashMap<>();
     private Scoreboard board;
     private String title;
     private Objective objective;
@@ -51,10 +51,10 @@ public class RedScoreBoard {
 
 
     public void setLine(Integer position, String text){
-        if(!Lines.containsKey(position)){
+        if(!lines.containsKey(position)){
             this.createTeam(position,text);
         }else{
-            this.setTeamName(Lines.get(position),text,position);
+            this.setTeamName(lines.get(position),text);
         }
     }
 
@@ -64,13 +64,13 @@ public class RedScoreBoard {
         team.addEntry(chatColors.get(position)+"");
         this.objective.getScore(chatColors.get(position)+"").setScore(position);
 
-        setTeamName(team,text,position);
+        setTeamName(team,text);
 
-        Lines.put(position,team);
+        lines.put(position,team);
 
     }
 
-    private void setTeamName(Team team, String text, Integer position) {
+    private void setTeamName(Team team, String text) {
         team.setPrefix(text);
         team.setSuffix("§f");
     }
@@ -80,6 +80,6 @@ public class RedScoreBoard {
     }
 
     public boolean lineExist(int i) {
-        return this.Lines.containsKey(i);
+        return this.lines.containsKey(i);
     }
 }

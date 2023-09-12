@@ -5,15 +5,12 @@ import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.CheckPoint;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 
 public class GameListener implements Listener {
     private final GameManager gameManager;

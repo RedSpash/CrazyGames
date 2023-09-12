@@ -49,18 +49,18 @@ public class EditWorld implements CommandExecutor, TabCompleter {
         for(File file : manager.getInvalidMaps()){
             completer.add(file.getName());
         }
-        String name = "";
+        StringBuilder name = new StringBuilder();
         for(String ss : strings){
-            name += ss+" ";
+            name.append(ss).append(" ");
         }
-        name = name.substring(0,name.length()-1);
-        if(!completer.contains(name)){
+        name = new StringBuilder(name.substring(0, name.length() - 1));
+        if(!completer.contains(name.toString())){
             commandSender.sendMessage("§cCarte introuvable !");
             return true;
         }
 
         for(World world : editingWorld){
-            if(world.getName().equalsIgnoreCase(name)){
+            if(world.getName().equalsIgnoreCase(name.toString())){
                 p.sendMessage("§cImpossible de charger un monde avec le nom '"+name+"' car un monde a déjà ce nom !");
                 p.teleport(world.getSpawnLocation());
                 return true;
@@ -68,14 +68,14 @@ public class EditWorld implements CommandExecutor, TabCompleter {
         }
 
         File mapsFolder = new File(Main.getInstance().getDataFolder(), "maps/"+name);
-        String pathName = name;
+        String pathName = name.toString();
         Path path2 = Paths.get(pathName);
 
         Utils.copyDirectory(mapsFolder.getPath(), path2.toString());
 
-        World world = Bukkit.createWorld(new WorldCreator(name));
+        World world = Bukkit.createWorld(new WorldCreator(name.toString()));
         if(world == null){
-            world = Bukkit.getWorld(name);
+            world = Bukkit.getWorld(name.toString());
         }
         p.teleport(world.getSpawnLocation());
         p.setGameMode(GameMode.CREATIVE);

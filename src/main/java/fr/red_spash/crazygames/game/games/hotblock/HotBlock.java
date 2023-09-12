@@ -3,7 +3,6 @@ package fr.red_spash.crazygames.game.games.hotblock;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
@@ -14,6 +13,8 @@ import java.util.List;
 public class HotBlock extends Game {
 
     ArrayList<Block> blocks = new ArrayList<>();
+    private HotBlockTask hotBlockTask;
+    private int blockBefore;
 
     public HotBlock() {
         super(GameType.HOT_BLOCK);

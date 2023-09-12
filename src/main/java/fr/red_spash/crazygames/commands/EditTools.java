@@ -1,8 +1,6 @@
 package fr.red_spash.crazygames.commands;
 
-import com.google.common.base.MoreObjects;
 import fr.red_spash.crazygames.Utils;
-import fr.red_spash.crazygames.game.manager.GameManager;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

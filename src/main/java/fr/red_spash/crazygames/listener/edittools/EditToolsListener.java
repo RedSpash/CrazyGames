@@ -2,8 +2,6 @@ package fr.red_spash.crazygames.listener.edittools;
 
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.commands.EditTools;
-import fr.red_spash.crazygames.commands.EditWorld;
-import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,7 +12,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -49,7 +46,7 @@ public class EditToolsListener implements Listener {
         e.setCancelled(true);
 
         if(e.getClickedInventory() == null) return;
-        if(!e.getView().getTitle().equalsIgnoreCase(this.editTools.GAME_TYPE_DISPLAY_NAME))return;
+        if(!e.getView().getTitle().equalsIgnoreCase(EditTools.GAME_TYPE_DISPLAY_NAME))return;
 
         ItemStack itemStack = e.getCurrentItem();
         if(itemStack == null)return;
@@ -63,13 +60,17 @@ public class EditToolsListener implements Listener {
                 gameType = search;
             }
         }
+        if(gameType != null){
+            FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
+            fileConfiguration.set("gametype",gameType.toString().toUpperCase());
+            p.sendMessage("§aLe mode de la carte vient d'être définie sur '"+gameType+"' avec succès !");
+            this.saveFileConfiguration(p.getWorld(),fileConfiguration);
+            p.closeInventory();
+            p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
+        }else{
+            p.sendMessage("§cImpossible de trouver le mode de jeu !");
+        }
 
-        FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
-        fileConfiguration.set("gametype",gameType.toString().toUpperCase());
-        p.sendMessage("§aLe mode de la carte vient d'être définie sur '"+gameType+"' avec succès !");
-        this.saveFileConfiguration(p.getWorld(),fileConfiguration);
-        p.closeInventory();
-        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
     }
 
 
@@ -84,15 +85,15 @@ public class EditToolsListener implements Listener {
 
             ItemStack itemStack = e.getItem();
 
-            if(this.editTools.GAME_TYPE.isSimilar(itemStack)){
-                Inventory inventory = Bukkit.createInventory(null,9*6,this.editTools.GAME_TYPE_DISPLAY_NAME);
+            if(EditTools.GAME_TYPE.isSimilar(itemStack)){
+                Inventory inventory = Bukkit.createInventory(null,9*6, EditTools.GAME_TYPE_DISPLAY_NAME);
                 int index = 0;
                 for(GameType gameType : GameType.values()){
                     inventory.setItem(index, Utils.createFastItemStack(Material.PAPER,"§a§l"+gameType.getName(),new ArrayList<>(Utils.splitSentance(gameType.getLongDescription()))));
                     index++;
                 }
                 p.openInventory(inventory);
-            } else if (this.editTools.SPAWN_LOCATION.isSimilar(itemStack)) {
+            } else if (EditTools.SPAWN_LOCATION.isSimilar(itemStack)) {
                 FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
                 fileConfiguration.set("spawnlocation.x",p.getLocation().getX());
                 fileConfiguration.set("spawnlocation.y",p.getLocation().getY());

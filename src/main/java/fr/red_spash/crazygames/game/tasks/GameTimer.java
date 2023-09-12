@@ -1,8 +1,6 @@
 package fr.red_spash.crazygames.game.tasks;
 
 import fr.red_spash.crazygames.game.manager.GameManager;
-import org.bukkit.GameMode;
-import org.bukkit.scheduler.BukkitTask;
 
 public class GameTimer implements Runnable {
 

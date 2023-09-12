@@ -220,7 +220,7 @@ public class InteractionListener implements Listener {
     public void playerRegenEvent(EntityRegainHealthEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
-        if(e.getEntity() instanceof Player p){
+        if(e.getEntity() instanceof Player){
             if(!gameInteraction.isPlayerRegen()){
                 e.setCancelled(true);
             }

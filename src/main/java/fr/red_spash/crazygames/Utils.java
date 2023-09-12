@@ -120,9 +120,24 @@ public class Utils {
     }
 
     public static String onXString(int size, String s) {
-        while (s.length() < size){
-            s = "0"+s;
+        StringBuilder sBuilder = new StringBuilder(s);
+        while (sBuilder.length() < size){
+            sBuilder.insert(0, "0");
         }
-        return s;
+        return sBuilder.toString();
+    }
+
+    public static double round(Double x, Double value){
+        return Math.round(x*value)/value;
+    }
+    public static double round(Double x){
+        return round(x,10.0);
+    }
+
+    public static double round(Float x, Double value){
+        return Math.round(x*value)/value;
+    }
+    public static double round(Float x){
+        return round(x,10.0);
     }
 }

@@ -18,9 +18,11 @@ import java.util.Arrays;
 
 public class SpleefListener implements Listener {
     private final GameManager gameManager;
+    private final Spleef spleef;
 
     public SpleefListener(Spleef spleef) {
         this.gameManager = spleef.getGameManager();
+        this.spleef = spleef;
     }
 
     @EventHandler
@@ -28,6 +30,7 @@ public class SpleefListener implements Listener {
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
         if(e.isCancelled())return;
         if(e.getBlock().getType() == Material.SNOW_BLOCK || e.getBlock().getType() == Material.CLAY){
+            this.spleef.getAvailableBlocks().remove(e.getBlock());
             if(Utils.randomNumber(0,2) == 0){
                 Player p = e.getPlayer();
                 ItemStack itemStack = new ItemStack(Material.SNOWBALL);

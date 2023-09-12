@@ -99,7 +99,7 @@ public class MapManager {
         this.playedGameMap.add(gameMap);
     }
 
-    public ArrayList<File> getInvalidMaps() {
+    public List<File> getInvalidMaps() {
         return this.invalidMaps;
     }
 }

@@ -3,7 +3,6 @@ package fr.red_spash.crazygames.game.models;
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.error.IncompatibleGameType;
-import fr.red_spash.crazygames.game.games.blastvillage.BlastVillageTask;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.MessageManager;
@@ -133,11 +132,16 @@ public abstract class Game implements Cloneable{
         this.activeTasks.add(id);
     }
 
-    protected ArrayList<Block> getBlockPlatform(Material material, Material toReplace) {
+    protected List<Block> getBlockPlatform(Material material, Material toReplace) {
+        return this.getBlockPlatform(List.of(material),toReplace);
+    }
+
+
+    protected List<Block> getBlockPlatform(List<Material> materials, Material toReplace) {
         ArrayList<Block> blocks = new ArrayList<>();
         Location location = this.gameManager.getSpawnLocation();
         int count = 0;
-        while(location.getBlock().getType() != material && count<=50){
+        while(!materials.contains(location.getBlock().getType()) && count<=50){
             location.add(0,-1,0);
             count++;
         }
@@ -145,7 +149,7 @@ public abstract class Game implements Cloneable{
         for(int x=-75; x<=75; x++){
             for(int z=-75; z<=75; z++){
                 Location blockLocation = location.clone().add(x,0,z);
-                if(blockLocation.getBlock().getType() == material){
+                if(materials.contains(blockLocation.getBlock().getType())){
                     blocks.add(blockLocation.getBlock());
                     if(toReplace != null){
                         blockLocation.getBlock().setType(toReplace);
@@ -156,7 +160,7 @@ public abstract class Game implements Cloneable{
         return blocks;
     }
 
-    public ArrayList<Block> getBlockPlatform(Material material) {
+    public List<Block> getBlockPlatform(Material material) {
         return this.getBlockPlatform(material,null);
     }
 

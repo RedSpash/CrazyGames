@@ -3,10 +3,7 @@ package fr.red_spash.crazygames.map;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
@@ -69,10 +66,14 @@ public class GameMap {
         return this.file;
     }
 
-    public void deleteWorld(){
-        if(this.getWorld() != null){
-            Utils.teleportPlayersAndRemoveWorld(this.getWorld(),false);
-            Utils.deleteWorldFiles(this.world.getWorldFolder());
+     public void deleteWorld(){
+        this.deleteWorld(this.world);
+    }
+
+    public void deleteWorld(World world){
+        if(world != null){
+            Utils.teleportPlayersAndRemoveWorld(world,false);
+            Utils.deleteWorldFiles(world.getWorldFolder());
         }else{
             Bukkit.broadcastMessage("§cMonde introuvable !");
         }
@@ -89,7 +90,10 @@ public class GameMap {
         this.world = Bukkit.createWorld(new WorldCreator(pathName));
         if(world == null){
             world = Bukkit.getWorld(pathName);
+        }else{
+            world.setGameRule(GameRule.DO_MOB_SPAWNING,false);
         }
+
         try{
             this.loadMapData();
         }catch (Exception e){

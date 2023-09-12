@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.awt.*;
 import java.awt.Color;
 import java.util.*;
 import java.util.List;
@@ -102,15 +101,15 @@ public class GameManager {
             GameStatus gameStatus = this.actualGame.getGameStatus();
             if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
         }
-        GameMap oldGameMap = null;
+        World oldWorld = null;
         if(this.actualGame != null){
-            oldGameMap = this.actualGame.getGameMap();
+            oldWorld = this.actualGame.getGameMap().getWorld();
         }
-        if(oldGameMap != null){
-            GameMap finalOldGameMap = oldGameMap;
+        if(oldWorld != null){
+            World finalOldWorld = oldWorld;
             Bukkit.getScheduler().runTaskLater(this.main, ()->{
-                Utils.teleportPlayersAndRemoveWorld(finalOldGameMap.getWorld(),false);
-                finalOldGameMap.deleteWorld();
+                Utils.teleportPlayersAndRemoveWorld(finalOldWorld,false);
+                this.actualGame.getGameMap().deleteWorld(finalOldWorld);
             } ,10);
         }
 

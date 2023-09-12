@@ -21,9 +21,9 @@ public enum GameType {
     private final String name;
     private final String shortDescription;
     private final String longDescription;
-    private final Boolean qualificationMode;
+    private final boolean qualificationMode;
 
-    GameType(Class<? extends Game> gameClass, Boolean qualificationMode, String name, String shortDescription, String longDescription) {
+    GameType(Class<? extends Game> gameClass, boolean qualificationMode, String name, String shortDescription, String longDescription) {
         this.qualificationMode = qualificationMode;
         this.gameClass = gameClass;
         this.name = name;
@@ -39,7 +39,7 @@ public enum GameType {
         }
     }
 
-    public Boolean isQualificationMode() {
+    public boolean isQualificationMode() {
         return qualificationMode;
     }
 

@@ -2,9 +2,7 @@ package fr.red_spash.crazygames.commands;
 
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
-import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.models.GameType;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,8 +12,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -84,9 +80,13 @@ public class SaveWorld implements CommandExecutor {
                 p.sendMessage("§aDéchargement du monde...");
                 Utils.teleportPlayersAndRemoveWorld(world,true);
                 p.sendMessage("§aMonde déchargé !");
+                if(path.exists()) {
+                    p.sendMessage("§cLe monde existe déjà! Suppresion en cours du monde...");
+                    Utils.deleteWorldFiles(path);
+                    p.sendMessage("§aSuppresion du monde réussie!");
+                }
                 p.sendMessage("§aSauvegarde en cours du monde ...");
                 Utils.copyDirectory(file.getPath(),path.toString());
-                p.teleport(Main.SPAWN);
                 p.sendMessage("§aMonde sauvegardé correctement !");
                 p.sendMessage("§aSuppresion des fichiers...");
                 Utils.deleteWorldFiles(file);

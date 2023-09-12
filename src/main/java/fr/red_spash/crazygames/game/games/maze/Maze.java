@@ -1,6 +1,5 @@
 package fr.red_spash.crazygames.game.games.maze;
 
-import fr.red_spash.crazygames.game.games.spleef.SpleefListener;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Material;
@@ -11,12 +10,6 @@ public class Maze extends Game {
 
     public Maze() {
         super(GameType.MAZE);
-    }
-
-    @Override
-    public void initializePlayers() {
-        super.initializeListener(new MazeListener(this));
-        super.initializePlayers();
     }
 
     @Override

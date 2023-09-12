@@ -5,7 +5,6 @@ import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.game.tasks.GameTimer;
-import fr.red_spash.crazygames.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -50,7 +49,9 @@ public class ScoreboardTask implements Runnable{
                         index--;
                     }
                 }
-                board.setLine(1,"§f§r§1");
+               if(index != 8){
+                   board.setLine(1,"§f§r§1");
+               }
             }else{
                 board.setLine(14,"§c"+SYMBOL+"En attente du");
                 board.setLine(13,"§c"+SYMBOL+"lancement de la partie.");

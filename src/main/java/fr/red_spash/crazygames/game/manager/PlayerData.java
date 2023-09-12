@@ -59,7 +59,7 @@ public class PlayerData {
     }
 
     public boolean canUnlockCheckPoint(CheckPoint checkPoint){
-        return lastCheckPoint != null || checkPoint.getId() > this.lastCheckPoint.getId();
+        return lastCheckPoint == null || checkPoint.getId() > this.lastCheckPoint.getId();
     }
 
     public void unlockCheckPoint(CheckPoint checkPoint) {

@@ -1,6 +1,5 @@
 package fr.red_spash.crazygames.game.games.blastvillage;
 
-import fr.red_spash.crazygames.game.games.spleef.SpleefListener;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Bukkit;
@@ -9,7 +8,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class BlastVillage extends Game {

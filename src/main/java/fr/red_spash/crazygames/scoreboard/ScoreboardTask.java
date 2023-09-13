@@ -6,7 +6,12 @@ import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.game.tasks.GameTimer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Boss;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
+
+import java.util.List;
 
 public class ScoreboardTask implements Runnable{
     private static final String SYMBOL = "◈ ";
@@ -22,44 +27,95 @@ public class ScoreboardTask implements Runnable{
             PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
             RedScoreBoard board = playerData.getScoreboard();
 
-            board.setLine(15,"§f");
+            this.setScoreBoard(playerData,board);
+            this.updateTeam(board);
+        }
+    }
 
-            if(this.gameManager.getActualGame() != null){
-                Game game = this.gameManager.getActualGame();
-                GameType gameType = game.getGameType();
+    private void setScoreBoard(PlayerData playerData, RedScoreBoard board) {
+        board.setLine(15,"§f");
 
-                board.setLine(14,SYMBOL+"Temps: §a"+getTimeRemaining());
-                if(gameType.isQualificationMode()){
-                    board.setLine(13,SYMBOL+"§fQualifiés: §a"+this.gameManager.getQualifiedPlayers().size()+"/"+(this.gameManager.getAmountQualifiedPlayer()));
-                }else{
-                    board.setLine(13,SYMBOL+"§fÉliminés: §c"+this.gameManager.getEliminatedPlayer().size()+"/"+this.gameManager.getAmountEliminatedPlayer());
-                }
-                String state = "§aVIVANT";
-                if(playerData.isDead()){
-                    state = "§cMORT";
-                }
-                board.setLine(12,"§f§1");
-                board.setLine(11,SYMBOL+"Jeu: §a"+gameType.getName());
-                board.setLine(10,SYMBOL+"État: "+state);
-                board.setLine(9,"§f");
-                int index = 8;
-                for(String line : game.updateScoreboard()){
-                    if(index >= 2){
-                        board.setLine(index,SYMBOL+line);
-                        index--;
-                    }
-                }
-               if(index != 8){
-                   board.setLine(1,"§f§r§1");
-               }
+        if(this.gameManager.getActualGame() != null){
+            Game game = this.gameManager.getActualGame();
+            GameType gameType = game.getGameType();
+
+            board.setLine(14,SYMBOL+"Temps: §a"+getTimeRemaining());
+            if(gameType.isQualificationMode()){
+                board.setLine(13,SYMBOL+"§fQualifiés: §a"+this.gameManager.getQualifiedPlayers().size()+"/"+(this.gameManager.getAmountQualifiedPlayer()));
             }else{
-                board.setLine(14,"§c"+SYMBOL+"En attente du");
-                board.setLine(13,"§c"+SYMBOL+"lancement de la partie.");
+                board.setLine(13,SYMBOL+"§fÉliminés: §c"+this.gameManager.getEliminatedPlayer().size()+"/"+this.gameManager.getAmountEliminatedPlayer());
             }
 
-            board.setLine(1,"§f");
-            board.setLine(0,"§7Développé par Red_Spash");
+            board.setLine(12,"§f§1");
+            board.setLine(11,SYMBOL+"Jeu: §a"+gameType.getName());
+            board.setLine(10,SYMBOL+"État: "+playerData.getPlayerState());
 
+            this.addOtherLineOfGameMode(board,game);
+
+            if(board.lineExist(8)){
+                board.setLine(9,"§f§r§1");
+            }else{
+                board.removeLine(9);
+            }
+        }else{
+            board.setLine(14,"§c"+SYMBOL+"En attente du");
+            board.setLine(13,"§c"+SYMBOL+"lancement de la partie.");
+        }
+
+        board.setLine(1,"§f");
+        board.setLine(0,"§7Développé par Red_Spash");
+    }
+
+    private void addOtherLineOfGameMode(RedScoreBoard board, Game game) {
+        List<String> otherLines = game.updateScoreboard();
+        int index = 0;
+        for(int line = 8; line >= 2; line--){
+            if(otherLines.size() > index){
+                board.setLine(line,SYMBOL+otherLines.get(index));
+                index ++;
+            }else{
+                if(board.lineExist(line)){
+                    board.removeLine(line);
+                }
+            }
+        }
+    }
+
+    private void updateTeam(RedScoreBoard board) {
+        for(Player pl : Bukkit.getOnlinePlayers()){
+            PlayerData plData = this.gameManager.getPlayerData(pl.getUniqueId());
+
+            if(plData.getDefaultLife() >0){
+                this.showLife(board,pl);
+            }else{
+                this.addDefaultTeam(board,pl);
+            }
+        }
+    }
+
+    private void addDefaultTeam(RedScoreBoard board, Player pl) {
+        Team defaultTeam = board.getTeam("defaultTeam");
+        if(defaultTeam == null){
+            defaultTeam = board.createTeam("defaultTeam");
+            defaultTeam.setColor(ChatColor.LIGHT_PURPLE);
+        }
+
+        if(!defaultTeam.hasEntry(pl.getName())){
+            defaultTeam.addEntry(pl.getName());
+        }
+    }
+
+    private void showLife(RedScoreBoard board, Player pl) {
+        PlayerData plData = this.gameManager.getPlayerData(pl.getUniqueId());
+        Team health = board.getTeam("heal"+plData.getVisualLife());
+
+        if(health == null){
+            health = board.createTeam("heal"+plData.getVisualLife());
+            health.setPrefix("§c§l"+plData.getVisualLife()+" ❤ ");
+            health.setColor(ChatColor.LIGHT_PURPLE);
+        }
+        if(!health.hasEntry(pl.getName())){
+            health.addEntry(pl.getName());
         }
     }
 

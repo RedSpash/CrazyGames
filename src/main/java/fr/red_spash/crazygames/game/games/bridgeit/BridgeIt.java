@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BridgeIt extends Game {
@@ -21,6 +22,7 @@ public class BridgeIt extends Game {
 
     @Override
     public void startGame() {
+        Collections.shuffle(woolColor);
         int index = 0;
         for(PlayerData playerData : super.gameManager.getAlivePlayerData()){
             Player p = Bukkit.getPlayer(playerData.getUuid());
@@ -34,6 +36,5 @@ public class BridgeIt extends Game {
                 .addAllowedToBePlaced(this.woolColor)
                 .addAllowedToBeBreak(this.woolColor)
                 .setMaxBuildHeight(10);
-        Bukkit.broadcastMessage(this.gameManager.getGameInteractions().getMaxBuildHeight()+"");
     }
 }

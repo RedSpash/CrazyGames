@@ -72,7 +72,7 @@ public class Utils {
 
     public static void teleportPlayersAndRemoveWorld(World world,boolean save) {
         for(Player p : world.getPlayers()){
-            p.teleport(Main.SPAWN);
+            p.teleport(Main.spawn);
             p.sendMessage("§cLe monde vient d'être détruit! Vous êtes désormais au spawn.");
         }
         Bukkit.unloadWorld(world,save);

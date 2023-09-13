@@ -26,7 +26,6 @@ public class HotBlock extends Game {
 
         super.gameManager.getGameInteractions().setDeathUnderSpawn(2);
         super.initializePlayers();
-        super.initializePlayers();
     }
 
     @Override

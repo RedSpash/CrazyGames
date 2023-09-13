@@ -12,6 +12,8 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.awt.Color;
@@ -20,7 +22,7 @@ import java.util.List;
 
 public class GameManager {
 
-    private final int MAX_TIME = 60*4;
+    private final int maxTime = 60*4;
     private final HashMap<UUID,PlayerData> playerDataHashMap = new HashMap<>();
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
@@ -38,10 +40,11 @@ public class GameManager {
 
 
     public GameManager(Main main){
+        this.main = main;
+
         this.fillPlayerData();
 
-        this.main = main;
-        this.messageManager = new MessageManager();
+        this.messageManager = new MessageManager(this);
         this.mapManager = new MapManager(this);
         this.gameInteraction = new GameInteraction(this.main,this);
 
@@ -55,6 +58,7 @@ public class GameManager {
             }else{
                 this.playerDataHashMap.get(p.getUniqueId()).reset();
             }
+            this.updateHidedPlayer(p);
             p.setScoreboard(this.getPlayerData(p.getUniqueId()).getScoreboard().getBoard());
 
         }
@@ -114,11 +118,13 @@ public class GameManager {
         }
 
         this.resetPlayerData();
-        this.fillPlayerData();
 
         for(Player p : Bukkit.getOnlinePlayers()){
             p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
             p.setHealth(20);
+            this.updateHidedPlayer(p);
+            p.setFlying(false);
+            p.setAllowFlight(false);
         }
 
         this.actualGame = gameMap.getGameType().createInstance();
@@ -139,12 +145,13 @@ public class GameManager {
     }
 
     private void startCountdown() {
+        gameTimer = new GameTimer(this, maxTime);
         if(this.taskCountDown != null){
             this.taskCountDown.cancel();
         }
         GameManager gameManager = this;
         this.taskCountDown = Bukkit.getScheduler().runTaskTimer(this.main, new Runnable() {
-            int seconds = 15;
+            int seconds = 8;
             @Override
             public void run() {
 
@@ -155,7 +162,6 @@ public class GameManager {
                     }
                     actualGame.setGameStatus(GameStatus.PLAYING);
                     actualGame.startGame();
-                    gameTimer = new GameTimer(gameManager,MAX_TIME);
                     gameTimerTask = Bukkit.getScheduler().runTaskTimer(gameManager.getMain(), gameTimer,0,20);
                     taskCountDown.cancel();
                     return;
@@ -177,10 +183,6 @@ public class GameManager {
     }
 
 
-    public List<GameType> getPlayedGameType() {
-        return playedGameType;
-    }
-
     public PlayerData getPlayerData(UUID uniqueId) {
         return playerDataHashMap.get(uniqueId);
     }
@@ -197,6 +199,7 @@ public class GameManager {
     public void eliminatePlayer(Player p) {
         PlayerData playerData = this.getPlayerData(p.getUniqueId());
         if(playerData.isDead())return;
+        if(playerData.isEliminated())return;
 
         if(this.actualGame != null){
             if(this.actualGame.getGameMap().hasCheckpoint() && playerData.getLastCheckPoint() != null) {
@@ -205,12 +208,20 @@ public class GameManager {
                 if(this.actualGame.getGameType().isQualificationMode()){
                     p.teleport(this.actualGame.getGameMap().getSpawnLocation());
                 }else if(!playerData.isDead()){
-                    this.killPlayer(p);
+
+                    if(playerData.getLife() <= 0){
+                        this.killPlayer(p);
+                    }else{
+                        playerData.loseLife();
+                        playerData.setEliminated(true);
+                        this.messageManager.broadcastLifeLost(p.getName(),playerData.getVisualLife());
+                        this.setEliminationAnimation(p);
+                    }
 
                     if(this.amountEliminatedPlayer <= this.getEliminatedPlayer().size()){
                         this.stopGame();
                     }
-
+                    this.updateHidedPlayer(p);
                 }
             }
         }
@@ -227,15 +238,24 @@ public class GameManager {
         for(Player p : Bukkit.getOnlinePlayers()){
             PlayerData playerData = this.getPlayerData(p.getUniqueId());
             if(!gameType.isQualificationMode() && !playerData.isDead()){
-                p.sendTitle("§a§lVous êtes qualifié !","§aBien joué !",0,20*3,20);
-                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                if(playerData.isEliminated()){
+                    this.qualifiedWithLifeLost(p,true);
+                }else{
+                    this.messageManager.sendQualificationTitle(p);
+                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                }
                 qualified++;
             }else if(gameType.isQualificationMode() && !playerData.isDead() && !playerData.isQualified()){
-                p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
-                this.messageManager.sendEliminateMessage(p.getName());
-                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH,1,1);
-                p.setGameMode(GameMode.SPECTATOR);
-                playerData.setDead(true);
+                if(playerData.getLife() > 0){
+                    this.qualifiedWithLifeLost(p,false);
+                    qualified++;
+                }else{
+                    this.messageManager.sendEliminationTitle(p);
+                    this.messageManager.broadcastEliminateMessage(p.getName());
+                    p.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH,1,1);
+                    p.setGameMode(GameMode.SPECTATOR);
+                    playerData.setDead(true);
+                }
             }
             if(gameType.isQualificationMode() && playerData.isQualified()){
                 p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
@@ -256,14 +276,26 @@ public class GameManager {
             }
             if(uuid != null){
                 Player p = Bukkit.getPlayer(uuid);
-                this.messageManager.sendVictoryMessage(p.getName());
+                this.messageManager.broadcastVictoryMessage(p.getName());
             }else{
                 Bukkit.broadcastMessage("§c§lFIN DE LA PARTIE");
             }
 
         }else{
-            Bukkit.getScheduler().runTaskLater(Main.getInstance(), this::rollGames,5*20L);
+            Bukkit.getScheduler().runTaskLater(Main.getInstance(), this::rollGames,4*20L);
         }
+    }
+
+    private void qualifiedWithLifeLost(Player p, boolean hasLostHisLife) {
+        PlayerData playerData = this.getPlayerData(p.getUniqueId());
+
+        if(!hasLostHisLife){
+            playerData.loseLife();
+            this.messageManager.broadcastLifeLost(p.getName(),playerData.getVisualLife());
+        }
+        this.messageManager.sendQualifiedWithLifeLost(p);
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,0);
+        this.setEliminationAnimation(p);
     }
 
     public void resetPlayerData() {
@@ -288,7 +320,7 @@ public class GameManager {
                 GameType gameType = GameType.values()[Utils.randomNumber(0,GameType.values().length-1)];
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendTitle("§a"+gameType.getName(),"§2"+gameType.getShortDescription(),0,20,0);
-                    p.playSound(p.getLocation(), Sound.UI_TOAST_OUT,1,2);
+                    p.playSound(p.getLocation(), Sound.ENTITY_EVOKER_PREPARE_ATTACK,1,2);
                 }
                 rollNumber ++;
             }
@@ -316,7 +348,6 @@ public class GameManager {
 
         playerData.setQualified(true);
         p.setGameMode(GameMode.SPECTATOR);
-        p.sendTitle(ChatColor.of(new Color(0,255,0))+"§lQUALIFIÉ !","§aVous êtes qualifié pour la prochaine épreuve!",0,20*3,20);
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
 
         int top = 0;
@@ -329,7 +360,8 @@ public class GameManager {
             }
         }
 
-        this.messageManager.sendQualificationMessage(p.getName(),top);
+        this.messageManager.sendQualificationTitle(p);
+        this.messageManager.broadcastQualificationMessage(p.getName(),top);
 
         if(alivePlayer <= 1){
             stopGame();
@@ -353,16 +385,42 @@ public class GameManager {
     public void killPlayer(Player p) {
         PlayerData playerData = this.getPlayerData(p.getUniqueId());
 
-        p.setGameMode(GameMode.SPECTATOR);
-        this.messageManager.sendEliminateMessage(p.getName());
+        playerData.setLife(0);
+        this.messageManager.broadcastEliminateMessage(p.getName());
         playerData.setDead(true);
         playerData.setEliminated(true);
+        this.setEliminationAnimation(p);
         p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
+    }
+
+    private void updateHidedPlayer(Player p) {
+        PlayerData playerData = this.getPlayerData(p.getUniqueId());
+
+        for(Player otherPlayer : Bukkit.getOnlinePlayers()){
+            if(!otherPlayer.getUniqueId().equals(p.getUniqueId())){
+                if(playerData.isDead() || playerData.isEliminated()){
+                    if(otherPlayer.canSee(p)){
+                        otherPlayer.hidePlayer(this.main,p);
+
+                    }
+                }else{
+                    if(!otherPlayer.canSee(p)){
+                        otherPlayer.showPlayer(this.main,p);
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    private void setEliminationAnimation(Player p) {
         p.playSound(p.getLocation(), Sound.ENTITY_WITHER_AMBIENT,1,1);
         p.getInventory().clear();
         p.setVelocity((p.getVelocity().multiply(-5)));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,10,1,false,false,false));
         p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN,4,1);
-
+        p.setGameMode(GameMode.SPECTATOR);
     }
 
     public List<PlayerData> getQualifiedPlayers() {
@@ -390,7 +448,7 @@ public class GameManager {
     }
 
     public int getMaxTime() {
-        return this.MAX_TIME;
+        return this.maxTime;
     }
 
     public GameType getActualGameType() {

@@ -1,5 +1,6 @@
 package fr.red_spash.crazygames.game.models;
 
+import fr.red_spash.crazygames.game.error.ConstructorError;
 import fr.red_spash.crazygames.game.games.blastvillage.BlastVillage;
 import fr.red_spash.crazygames.game.games.bridgeit.BridgeIt;
 import fr.red_spash.crazygames.game.games.colorshuffle.ColorShuffle;
@@ -34,8 +35,9 @@ public enum GameType {
     public Game createInstance(){
         try {
             return this.gameClass.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            new ConstructorError("Impossible de créer une nouvelle instance du jeu "+this.gameClass).printStackTrace();
+            return null;
         }
     }
 

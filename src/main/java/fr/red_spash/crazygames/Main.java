@@ -15,12 +15,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
-    public static Location SPAWN;
+    public static Location spawn;
     private GameManager gameManager;
     private static Main instance;
     private EditTools editTools;
-    private EditWorld editWorld;
-
     public static Main getInstance() {
         return instance;
     }
@@ -38,16 +36,21 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new EditToolsListener(this.editTools),this);
 
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ScoreboardTask(this.gameManager), 0, 20);
-        SPAWN = new Location(Bukkit.getWorld("world"),0,100,0);
+        this.setSpawn(new Location(Bukkit.getWorld("world"),0,100,0));
+
 
     }
 
-    private void loadCommands() {
-        this.editWorld = new EditWorld(this.gameManager);
-        this.editTools = new EditTools(this.editWorld);
+    private void setSpawn(Location world) {
+        this.spawn = world;
+    }
 
-        getCommand("editWorld").setExecutor( this.editWorld);
-        getCommand("saveWorld").setExecutor(new SaveWorld(this.editWorld));
+    private void loadCommands() {
+        EditWorld editWorld = new EditWorld(this.gameManager);
+        this.editTools = new EditTools(editWorld);
+
+        getCommand("editWorld").setExecutor(editWorld);
+        getCommand("saveWorld").setExecutor(new SaveWorld(editWorld));
         getCommand("edittools").setExecutor(this.editTools);
         getCommand("startGame").setExecutor(new StartGame(this.gameManager));
     }
@@ -56,6 +59,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         this.gameManager.destroyWorlds();
     }
+
 
     public GameManager getGameManager() {
         return this.gameManager;

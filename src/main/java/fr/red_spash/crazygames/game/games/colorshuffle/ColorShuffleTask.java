@@ -49,33 +49,39 @@ public class ColorShuffleTask implements Runnable {
         }
 
         if(time >= this.maxTime){
-            if (colorShuffleStatus == ColorShuffleStatus.ALL_COLOR) {
-                this.removeOtherBlocks();
-                this.nextSong = -1;
-            } else if (colorShuffleStatus == ColorShuffleStatus.EMPTY_PLATFORM
-                    || colorShuffleStatus == ColorShuffleStatus.ONLY_ONE_COLOR) {
-                this.roundNumber++;
-                this.resetGame();
-                this.nextSong = Utils.round((this.maxTime/2)/ColorShuffleTask.NUMBER_OF_SONG,100.0)+this.maxTime/2;
-            } else if (colorShuffleStatus == ColorShuffleStatus.WAITING_COLOR) {
-                this.chooseRandomColor();
-            }
-
-        }
-
-        StringBuilder message = new StringBuilder();
-        int nbr = (int) (this.time * 50 / this.maxTime);
-        for(int i = 1; i<=50; i++){
-            if(i<=nbr){
-                message.append("§c§l|");
-            }else{
-                message.append("§f§l|");
+            switch (colorShuffleStatus) {
+                case ALL_COLOR -> {
+                    this.removeOtherBlocks();
+                    this.nextSong = -1;
+                    this.setTime(2);
+                }
+                case EMPTY_PLATFORM, ONLY_ONE_COLOR -> {
+                    this.roundNumber++;
+                    this.resetGame();
+                    this.setTime(2);
+                }
+                case WAITING_COLOR -> {
+                    this.chooseRandomColor();
+                    this.nextSong = Utils.round((this.maxTime / 2) / ColorShuffleTask.NUMBER_OF_SONG, 100.0) + this.maxTime / 2;
+                    this.setTime(this.getMaxTime());
+                }
             }
         }
+        if(this.chosenMaterial != null){
+            StringBuilder message = new StringBuilder();
+            int nbr = (int) ((this.time+0.05) * 50 / this.maxTime);
+            for(int i = 1; i<=50; i++){
+                if(i<=nbr){
+                    message.append("§c§l|");
+                }else{
+                    message.append("§f§l|");
+                }
+            }
 
 
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(this.getChosenMaterialName()+" "+message+" §7("+Utils.onXString(3,((int)(this.time*100/this.maxTime))+"%)")));
+            for(Player p : Bukkit.getOnlinePlayers()){
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(this.getChosenMaterialName()+" "+message+" §7("+Utils.onXString(3,((int)((this.time+0.05)*100/this.maxTime))+"%)")));
+            }
         }
     }
 
@@ -90,7 +96,7 @@ public class ColorShuffleTask implements Runnable {
                 p.sendTitle("",ChatColor.of(colorTranslation.color())+"§l"+colorTranslation.name(),0,50,0);
             }
         }
-        this.setTime(this.getMaxTime());
+        this.colorShuffleStatus = ColorShuffleStatus.ALL_COLOR;
     }
 
     private void playSound(double power) {
@@ -110,7 +116,6 @@ public class ColorShuffleTask implements Runnable {
             }
         }
         colorShuffleStatus = ColorShuffleStatus.ONLY_ONE_COLOR;
-        this.setTime(3);
         for(Player p : Bukkit.getOnlinePlayers()){
             p.getInventory().clear();
         }
@@ -120,13 +125,12 @@ public class ColorShuffleTask implements Runnable {
     private void resetGame() {
         regeneratePlatform();
         colorShuffleStatus = ColorShuffleStatus.WAITING_COLOR;
-        this.setTime(2);
     }
 
     public double getMaxTime() {
-        double estimatedTime = 7 - (this.roundNumber*0.15);
-        if(estimatedTime < 2){
-            estimatedTime = 2;
+        double estimatedTime = 6 - (this.roundNumber*0.15);
+        if(estimatedTime < 2.0){
+            estimatedTime = 2.0;
         }
         return estimatedTime;
     }
@@ -142,16 +146,14 @@ public class ColorShuffleTask implements Runnable {
         }
         Collections.shuffle(this.materials);
 
-        int randomNumber = Utils.randomNumber(0,9);
+        int randomNumber = Utils.randomNumber(0,12);
         int max = this.materials.size();
         Location randomPoint = new Location(this.blocks.get(0).getWorld(),Utils.randomNumber(-50,50),this.blocks.get(0).getY(),Utils.randomNumber(-50,50));
         Location location;
-        int x;
         this.availableMaterials.clear();
         for(Block block : this.blocks){
             location = block.getLocation();
-            x = Math.abs(this.getResult(randomNumber,location,randomPoint))%max;
-            block.setType(this.materials.get(x));
+            block.setType(this.materials.get(Math.abs(this.getResult(randomNumber,location,randomPoint))%max));
             if(!this.availableMaterials.contains(block.getType())){
                 this.availableMaterials.add(block.getType());
             }
@@ -178,11 +180,14 @@ public class ColorShuffleTask implements Runnable {
                 }
                 return Utils.randomNumber(0,this.materials.size()-1);
             }
-            case 7: return (location.getBlockX()+50-location.getBlockZ())/7;
+            case 7: return (location.getBlockX()+50-location.getBlockZ())/6;
             case 8: return ((location.getBlockX() + location.getBlockZ())/2)*(location.getBlockX()+50)/2;
-            case 9: return (int) middle.distance(location)/2+((location.getBlockX() + location.getBlockZ())/2);
+            case 9: return (((location.getBlockX()+5000)/3)*((location.getBlockZ()+5000)/3))/2;
+            case 10: return Math.max(location.getBlockX(),location.getBlockZ())+100;
+            case 11: return Math.min(location.getBlockX(),location.getBlockZ())+100;
+            case 12:return Math.max(location.getBlockX(),location.getBlockZ())+100 + Math.min(location.getBlockX(),location.getBlockZ())+100;
             default:
-                return 0;
+                return 1;
         }
     }
 

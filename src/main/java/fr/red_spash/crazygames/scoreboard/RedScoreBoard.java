@@ -12,7 +12,6 @@ public class RedScoreBoard {
 
     private HashMap<Integer,Team> lines = new HashMap<>();
     private Scoreboard board;
-    private String title;
     private Objective objective;
 
     private static ArrayList<ChatColor> chatColors = new ArrayList<>(Arrays.asList(
@@ -35,7 +34,6 @@ public class RedScoreBoard {
     ));
 
     public RedScoreBoard(String title){
-        this.title = title;
         this.board = Bukkit.getScoreboardManager().getNewScoreboard();
         this.objective = board.registerNewObjective(title, Criteria.DUMMY,title);
         this.objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -81,5 +79,17 @@ public class RedScoreBoard {
 
     public boolean lineExist(int i) {
         return this.lines.containsKey(i);
+    }
+
+    public void removeLine(int line) {
+        Team team = this.lines.get(line);
+        if(team != null){
+            for(String entry : team.getEntries()){
+                team.removeEntry(entry);
+            }
+            this.lines.remove(line);
+            this.board.resetScores(chatColors.get(line)+"");
+            team.unregister();
+        }
     }
 }

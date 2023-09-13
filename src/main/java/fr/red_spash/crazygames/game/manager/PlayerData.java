@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public class PlayerData {
 
+    private static final int DEFAULT_LIFE = 3;
     private final UUID uuid;
     private boolean isDead;
     private boolean isQualified;
@@ -14,11 +15,13 @@ public class PlayerData {
     private CheckPoint lastCheckPoint;
     private RedScoreBoard redScoreboard;
     private boolean eliminated;
+    private int life;
 
 
     public PlayerData(UUID uuid){
         this.uuid = uuid;
         this.isDead = false;
+        this.life = PlayerData.DEFAULT_LIFE;
         this.isQualified = false;
         this.eliminated = false;
         this.point = 0;
@@ -76,6 +79,7 @@ public class PlayerData {
     public void reset(){
         this.resetGameData();
         this.isDead = false;
+        this.life = PlayerData.DEFAULT_LIFE;
     }
 
     public RedScoreBoard getScoreboard() {
@@ -88,5 +92,35 @@ public class PlayerData {
 
     public void setEliminated(boolean value) {
         this.eliminated = value;
+    }
+
+    public int getLife() {
+        return life-1;
+    }
+
+    public int getVisualLife(){
+        return life;
+    }
+
+    public void loseLife() {
+        this.life = this.life - 1;
+    }
+
+    public void setLife(int i) {
+        this.life = i;
+    }
+
+    public int getDefaultLife() {
+        return PlayerData.DEFAULT_LIFE;
+    }
+
+    public String getPlayerState() {
+        String state = "§aVIVANT";
+        if(this.isDead()){
+            state = "§cMORT";
+        } else if (this.getDefaultLife() > 0) {
+            state = "§c"+this.getVisualLife()+" ❤";
+        }
+        return state;
     }
 }

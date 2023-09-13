@@ -19,6 +19,7 @@ public class SystemListener implements Listener {
     @EventHandler
     public void playerJoinEvent(PlayerJoinEvent e){
         Player p = e.getPlayer();
+        p.setCustomName("§d"+p.getName());
         if(this.gameManager.getPlayerData(p.getUniqueId()) == null){
             this.gameManager.addPlayerData(p.getUniqueId(),new PlayerData(p.getUniqueId()));
         }

@@ -29,8 +29,8 @@ public class BlastVillage extends Game {
     @Override
     public void startGame() {
         for(Player p : Bukkit.getOnlinePlayers()){
-            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40);
-            p.setHealth(40);
+            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(30);
+            p.setHealth(30);
         }
         super.gameManager.getGameInteractions()
                 .setExplosion(true)

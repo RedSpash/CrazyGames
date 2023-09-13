@@ -1,17 +1,16 @@
 package fr.red_spash.crazygames.game.games.colorshuffle;
 
 import fr.red_spash.crazygames.Utils;
-import fr.red_spash.crazygames.game.games.hotblock.HotBlockTask;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Map.entry;
 
@@ -66,11 +65,6 @@ public class ColorShuffle extends Game {
             ArrayList<String> list = new ArrayList<>();
             list.add("Tour n°"+this.colorShuffleTask.getRoundNumber());
             list.add("Couleur: "+this.colorShuffleTask.getChosenMaterialName());
-            if(this.colorShuffleTask.getColorShuffleStatus() == ColorShuffleStatus.ALL_COLOR){
-                list.add("Destruction: §c"+ Utils.onXString(3,String.valueOf(Utils.round(this.colorShuffleTask.getRemainingTime(),100.0)))+"s");
-            }else{
-                list.add("Restitution: §a"+Utils.onXString(3,String.valueOf(Utils.round(this.colorShuffleTask.getRemainingTime(),100.0)))+"s");
-            }
             list.add("Temps max: §c"+Utils.onXString(4,String.valueOf(Utils.round(this.colorShuffleTask.getMaxTime(),100.0)))+"s");
             return list;
         }

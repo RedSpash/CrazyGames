@@ -29,9 +29,22 @@ public class GameListener implements Listener {
 
         if (this.gameManager.getActualGameStatus() != GameStatus.PLAYING
                 && this.gameManager.getSpawnLocation() != null
-                && p.getLocation().getY() <= this.gameManager.getSpawnLocation().getY() - 5
-                && !playerData.isDead()) {
+                && p.getLocation().getY() <= this.gameManager.getSpawnLocation().getY() - 20
+                && !playerData.isDead()
+                && !playerData.isEliminated()) {
             p.teleport(this.gameManager.getSpawnLocation());
+            if(this.gameManager.getActualGameStatus() == GameStatus.ENDING){
+                boolean hasBlock = false;
+                for(int i =0; i<= 50; i++){
+                    if(p.getLocation().add(0,-i,0).getBlock().getType().isBlock()){
+                       hasBlock = true;
+                    }
+                }
+                if(!hasBlock){
+                    p.setAllowFlight(true);
+                    p.setFlying(true);
+                }
+            }
             return;
         }
 

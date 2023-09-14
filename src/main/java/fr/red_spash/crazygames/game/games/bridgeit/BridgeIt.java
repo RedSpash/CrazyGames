@@ -24,11 +24,12 @@ public class BridgeIt extends Game {
     public void startGame() {
         Collections.shuffle(woolColor);
         int index = 0;
-        for(PlayerData playerData : super.gameManager.getAlivePlayerData()){
+        for(PlayerData playerData : super.gameManager.getPlayerManager().getAlivePlayerData()){
             Player p = Bukkit.getPlayer(playerData.getUuid());
-            p.getInventory().addItem(new ItemStack(woolColor.get(index%(woolColor.size()-1)),64*9));
-            index ++;
-
+            if(p != null){
+                p.getInventory().addItem(new ItemStack(woolColor.get(index%(woolColor.size()-1)),64*9));
+                index ++;
+            }
         }
         this.gameManager.getGameInteractions()
                 .setTeleportUnderBlock(1).

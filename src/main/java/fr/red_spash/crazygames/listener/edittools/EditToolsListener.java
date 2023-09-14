@@ -2,11 +2,11 @@ package fr.red_spash.crazygames.listener.edittools;
 
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.commands.EditTools;
+import fr.red_spash.crazygames.game.manager.GameManager;
+import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.GameType;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import fr.red_spash.crazygames.map.CheckPoint;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,9 +27,11 @@ import java.util.ArrayList;
 
 public class EditToolsListener implements Listener {
     private final EditTools editTools;
+    private final GameManager gameManager;
 
-    public EditToolsListener(EditTools editTools) {
+    public EditToolsListener(EditTools editTools, GameManager gameManager) {
         this.editTools = editTools;
+        this.gameManager = gameManager;
     }
 
     @EventHandler
@@ -103,8 +106,59 @@ public class EditToolsListener implements Listener {
                 p.sendMessage("§aEndroit de spawn définie avec succès !");
                 p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
                 this.saveFileConfiguration(p.getWorld(),fileConfiguration);
-            }
+            }else if(EditTools.CHECKPOINT_MANAGER.isSimilar(itemStack) && e.getClickedBlock() != null){
+                PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+                switch (e.getAction()){
+                    case LEFT_CLICK_BLOCK -> {
+                        playerData.setLeftCheckPointCreation(e.getClickedBlock().getLocation());
+                        p.sendMessage("§aPremier point positionné.");
+                    }
+                    case RIGHT_CLICK_BLOCK -> {
+                        playerData.setRightCheckPointCreation(e.getClickedBlock().getLocation());
+                        p.sendMessage("§aDeuxième point positionné.");
+                    }
+                }
+                if(playerData.getRightCheckPointCreation() != null && playerData.getLeftCheckPointCreation() != null){
+                    try{
+                        FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
+                        int lastId = fileConfiguration.getConfigurationSection("checkpoints").getKeys(true).size();
+                        CheckPoint checkPoint = new CheckPoint(lastId,playerData.getRightCheckPointCreation(),playerData.getLeftCheckPointCreation());
+                        checkPoint.save(fileConfiguration);
+                        this.saveFileConfiguration(p.getWorld(),fileConfiguration);
+                        p.sendMessage("§aCréation d'un checkpoint avec l'id "+lastId+" !");
+                        playerData.setRightCheckPointCreation(null);
+                        playerData.setLeftCheckPointCreation(null);
+                    }catch (Exception ee){
+                        p.sendMessage("§cUne erreur est survenue ! ("+ee.getCause()+")");
+                    }
+                }
+            } else if (EditTools.SHOW_CHECK_POINT.isSimilar(itemStack)) {
+                Inventory inventory = Bukkit.createInventory(null,9*6,"§a§lCheckpoints de la carte");
+                FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
+                fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).forEach(id ->{
+                    CheckPoint checkPoint = new CheckPoint(fileConfiguration,"checkpoints",id);
+                    Material material = Material.GOLD_NUGGET;
 
+                    inventory.setItem(Integer.parseInt(id),Utils.createFastItemStack(material,"Checkpoint n°"+id));
+                });
+                p.openInventory(inventory);
+            }
+        }
+    }
+
+    @EventHandler
+    public void switchItem(PlayerItemHeldEvent e){
+        Player p = e.getPlayer();
+        ItemStack itemStack = p.getInventory().getItem(e.getPreviousSlot());
+        if(itemStack != null){
+            if(EditTools.CHECKPOINT_MANAGER.isSimilar(itemStack)){
+                PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+                if(playerData.getLeftCheckPointCreation() == null || playerData.getRightCheckPointCreation() == null){
+                    playerData.setLeftCheckPointCreation(null);
+                    playerData.setRightCheckPointCreation(null);
+                    p.sendMessage("§cLa création du checkpoint en cours vient d'être annulée.");
+                }
+            }
         }
     }
 

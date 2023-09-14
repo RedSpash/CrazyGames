@@ -2,6 +2,7 @@ package fr.red_spash.crazygames.game.manager;
 
 import fr.red_spash.crazygames.map.CheckPoint;
 import fr.red_spash.crazygames.scoreboard.RedScoreBoard;
+import org.bukkit.Location;
 
 import java.util.UUID;
 
@@ -16,6 +17,8 @@ public class PlayerData {
     private RedScoreBoard redScoreboard;
     private boolean eliminated;
     private int life;
+    private Location leftCheckPointCreation;
+    private Location rightCheckPointCreation;
 
 
     public PlayerData(UUID uuid){
@@ -122,5 +125,21 @@ public class PlayerData {
             state = "§c"+this.getVisualLife()+" ❤";
         }
         return state;
+    }
+
+    public Location getLeftCheckPointCreation() {
+        return leftCheckPointCreation;
+    }
+
+    public void setLeftCheckPointCreation(Location leftCheckPointCreation) {
+        this.leftCheckPointCreation = leftCheckPointCreation;
+    }
+
+    public void setRightCheckPointCreation(Location rightCheckPointCreation) {
+        this.rightCheckPointCreation = rightCheckPointCreation;
+    }
+
+    public Location getRightCheckPointCreation() {
+        return rightCheckPointCreation;
     }
 }

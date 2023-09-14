@@ -17,7 +17,14 @@ public class MessageManager {
     }
 
     public void broadcastEliminateMessage(String playerName){
-        Bukkit.broadcastMessage(PREFIX+" "+ SEPARATOR+" "+ChatColor.of(Color.RED)+"§l"+playerName+" §cvient d'être éliminé !");
+        this.broadcastEliminateMessage(playerName,"");
+    }
+
+    public void broadcastEliminateMessage(String playerName, String reason){
+        if(reason != null){
+            reason="§7("+reason+")";
+        }
+        Bukkit.broadcastMessage(PREFIX+" "+ SEPARATOR+" "+ChatColor.of(Color.RED)+"§l"+playerName+" §cvient d'être éliminé !"+reason);
     }
 
     public void broadcastVictoryMessage(String name) {

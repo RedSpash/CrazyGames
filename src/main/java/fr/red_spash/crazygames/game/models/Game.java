@@ -8,10 +8,8 @@ import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.MessageManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.map.GameMap;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -78,8 +76,8 @@ public abstract class Game implements Cloneable{
             p.setLevel(0);
             p.setExp(0);
             p.teleport(this.gameMap.getSpawnLocation());
-            p.sendTitle("§a§l"+this.gameType.getName(),"§9"+this.gameType.getShortDescription(),20,20*3,20);
-            p.sendMessage("§2§l"+this.gameType.getName()+"\n§a "+this.gameType.getLongDescription());
+            p.sendTitle(ChatColor.of(gameType.getColor()) +"§l"+this.gameType.getName(),"§9"+this.gameType.getShortDescription(),20,20*3,20);
+            p.sendMessage(ChatColor.of(gameType.getColor())+"§l"+this.gameType.getName()+"\n§f "+this.gameType.getLongDescription());
             p.getInventory().clear();
             if(playerData.isDead()){
                 p.setGameMode(GameMode.SPECTATOR);

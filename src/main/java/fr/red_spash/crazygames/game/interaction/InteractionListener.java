@@ -81,7 +81,7 @@ public class InteractionListener implements Listener {
         if(this.gameInteraction.getBlockWin() != null && !playerData.isDead() && !playerData.isQualified()){
             for(int i =0; i>=-5; i--){
                 if(p.getLocation().add(0,i,0).getBlock().getType() == this.gameInteraction.getBlockWin()){
-                    this.gameManager.qualifiedPlayer(p);
+                    this.gameManager.getPlayerManager().qualifiedPlayer(p);
                 }
             }
         }
@@ -90,7 +90,7 @@ public class InteractionListener implements Listener {
             if(this.gameManager.getActualGame() != null && !playerData.isDead()){
                 if(this.gameManager.getActualGame().getGameMap() != null){
                     if(this.gameManager.getActualGame().getGameMap().getSpawnLocation().getY() - this.gameInteraction.getDeathUnderSpawn() >= p.getLocation().getY()){
-                        this.gameManager.eliminatePlayer(p);
+                        this.gameManager.getPlayerManager().eliminatePlayer(p);
                     }
                 }
             }

@@ -87,7 +87,7 @@ public class ColorShuffleTask implements Runnable {
 
     private void chooseRandomColor() {
         chosenMaterial = this.availableMaterials.get(Utils.randomNumber(0, this.availableMaterials.size() - 1));
-        for(PlayerData playerData : this.gameManager.getAlivePlayerData()){
+        for(PlayerData playerData : this.gameManager.getPlayerManager().getAlivePlayerData()){
             Player p = Bukkit.getPlayer(playerData.getUuid());
             if(p != null && p.isOnline()){
                 p.getInventory().clear();

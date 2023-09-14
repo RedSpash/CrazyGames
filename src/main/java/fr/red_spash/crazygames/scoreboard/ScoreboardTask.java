@@ -2,6 +2,7 @@ package fr.red_spash.crazygames.scoreboard;
 
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
+import fr.red_spash.crazygames.game.manager.PlayerManager;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.game.tasks.GameTimer;
@@ -40,10 +41,11 @@ public class ScoreboardTask implements Runnable{
             GameType gameType = game.getGameType();
 
             board.setLine(14,SYMBOL+"Temps: §a"+getTimeRemaining());
+            PlayerManager playerManager = this.gameManager.getPlayerManager();
             if(gameType.isQualificationMode()){
-                board.setLine(13,SYMBOL+"§fQualifiés: §a"+this.gameManager.getQualifiedPlayers().size()+"/"+(this.gameManager.getAmountQualifiedPlayer()));
+                board.setLine(13,SYMBOL+"§fQualifiés: §a"+playerManager.getQualifiedPlayers().size()+"/"+(playerManager.getAmountQualifiedPlayer()));
             }else{
-                board.setLine(13,SYMBOL+"§fÉliminés: §c"+this.gameManager.getEliminatedPlayer().size()+"/"+this.gameManager.getAmountEliminatedPlayer());
+                board.setLine(13,SYMBOL+"§fÉliminés: §c"+playerManager.getEliminatedPlayer().size()+"/"+playerManager.getAmountEliminatedPlayer());
             }
 
             board.setLine(12,"§f§1");

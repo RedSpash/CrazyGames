@@ -75,7 +75,7 @@ public class GameListener implements Listener {
         if(e.getEntity() instanceof Player p){
             if(p.getHealth()-e.getFinalDamage() <= 0.0){
                 e.setCancelled(true);
-                this.gameManager.eliminatePlayer(p);
+                this.gameManager.getPlayerManager().eliminatePlayer(p);
             }
         }
     }

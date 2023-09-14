@@ -1,10 +1,14 @@
 package fr.red_spash.crazygames.map;
 
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.util.Vector;
 
 public class CheckPoint {
 
+    private static final String LOCATION_MIN_PATH = "locationMin";
+    private static final String LOCATION_MAX_PATH = "locationMax";
     public final Location locationMin;
     public final Location locationMax;
     private final int id;
@@ -46,6 +50,34 @@ public class CheckPoint {
         this.locationMax = new Location(locationB.getWorld(),maxX,maxY,maxZ);
     }
 
+    public CheckPoint(FileConfiguration fileConfiguration, String path, String id){
+        this(fileConfiguration,path,id,null);
+    }
+
+    public CheckPoint(FileConfiguration fileConfiguration, String path, String id, World world) {
+        double minX = fileConfiguration.getDouble(path+"."+id+ "." + LOCATION_MIN_PATH + ".x");
+        double minY = fileConfiguration.getDouble(path+"."+id+ "." + LOCATION_MIN_PATH + ".y");
+        double minZ = fileConfiguration.getDouble(path+"."+id+ "." + LOCATION_MIN_PATH + ".z");
+
+        double maxX = fileConfiguration.getDouble(path+"."+id+ "." + LOCATION_MAX_PATH + ".x");
+        double maxY = fileConfiguration.getDouble(path+"."+id+ "." + LOCATION_MAX_PATH + ".y");
+        double maxZ = fileConfiguration.getDouble(path+"."+id+ "." + LOCATION_MAX_PATH + ".z");
+
+        this.locationMin = new Location(world,minX,minY,minZ);
+        this.locationMax = new Location(world,maxX,maxY,maxZ);
+        this.id = Integer.parseInt(id);
+    }
+
+    public void setWorld(World world){
+        this.locationMin.setWorld(world);
+        this.locationMax.setWorld(world);
+    }
+
+    public Location getMiddle(){
+        Vector vector = this.locationMax.clone().subtract(this.locationMin).toVector();
+        return this.locationMin.clone().add(vector);
+    }
+
     public boolean isInside(Location location){
         double x = location.getX();
         double y = location.getY();
@@ -60,8 +92,14 @@ public class CheckPoint {
         return id;
     }
 
-    public Location getCheckPointLocation() {
-        Vector vector = this.locationMax.subtract(this.locationMin).toVector();
-        return this.locationMin.clone().add(vector);
+
+    public void save(FileConfiguration fileConfiguration) {
+        fileConfiguration.set("checkpoints."+this.id+ "." + LOCATION_MIN_PATH + ".x",this.locationMin.getX());
+        fileConfiguration.set("checkpoints."+this.id+ "." + LOCATION_MIN_PATH + ".y",this.locationMin.getY());
+        fileConfiguration.set("checkpoints."+this.id+ "." + LOCATION_MIN_PATH + ".z",this.locationMin.getZ());
+
+        fileConfiguration.set("checkpoints."+this.id+ "." + LOCATION_MAX_PATH + ".x",this.locationMax.getX());
+        fileConfiguration.set("checkpoints."+this.id+ "." + LOCATION_MAX_PATH + ".y",this.locationMax.getY());
+        fileConfiguration.set("checkpoints."+this.id+ "." + LOCATION_MAX_PATH + ".z",this.locationMax.getZ());
     }
 }

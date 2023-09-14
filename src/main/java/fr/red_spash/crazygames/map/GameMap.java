@@ -35,9 +35,7 @@ public class GameMap {
 
         if(this.fileConfiguration.isSet("checkpoints")){
             this.fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).forEach(checkpointId ->{
-                Location firstLocation = this.getConfigurationLocation("checkpoints."+checkpointId+".pointA");
-                Location secondLocation = this.getConfigurationLocation("checkpoints."+checkpointId+".pointB");
-                this.checkPoints.add(new CheckPoint(Integer.parseInt(checkpointId),firstLocation,secondLocation));
+                this.checkPoints.add(new CheckPoint(this.fileConfiguration,"checkpoints",checkpointId,this.world));
             });
         }
     }

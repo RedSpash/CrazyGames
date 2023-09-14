@@ -11,6 +11,7 @@ import fr.red_spash.crazygames.listener.edittools.EditToolsListener;
 import fr.red_spash.crazygames.scoreboard.ScoreboardTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -19,9 +20,6 @@ public class Main extends JavaPlugin {
     private GameManager gameManager;
     private static Main instance;
     private EditTools editTools;
-    public static Main getInstance() {
-        return instance;
-    }
 
     @Override
     public void onEnable() {
@@ -33,16 +31,15 @@ public class Main extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new GameListener(this.gameManager),this);
         Bukkit.getPluginManager().registerEvents(new SystemListener(this.gameManager),this);
-        Bukkit.getPluginManager().registerEvents(new EditToolsListener(this.editTools),this);
+        Bukkit.getPluginManager().registerEvents(new EditToolsListener(this.editTools,this.gameManager),this);
 
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ScoreboardTask(this.gameManager), 0, 20);
+
         this.setSpawn(new Location(Bukkit.getWorld("world"),0,100,0));
-
-
     }
 
     private void setSpawn(Location world) {
-        this.spawn = world;
+        spawn = world;
     }
 
     private void loadCommands() {
@@ -58,10 +55,22 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         this.gameManager.destroyWorlds();
+        for(Player p : Bukkit.getOnlinePlayers()){
+            for(Player pl : Bukkit.getOnlinePlayers()){
+                if(!p.canSee(pl)){
+                    p.showPlayer(this,pl);
+                }
+            }
+        }
     }
 
 
     public GameManager getGameManager() {
         return this.gameManager;
     }
+
+    public static Main getInstance() {
+        return instance;
+    }
+
 }

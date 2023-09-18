@@ -17,7 +17,7 @@ public class BlastVillage extends Game {
     public BlastVillage() {
         super(GameType.BLAST_VILLAGE);
         this.blastVillageTask = new BlastVillageTask(this);
-        super.initializeTask(blastVillageTask,0,10);
+        super.registerTask(blastVillageTask,0,10);
     }
 
     @Override
@@ -44,10 +44,10 @@ public class BlastVillage extends Game {
     }
 
     @Override
-    public List<String> updateScoreboard() {
+    public List<String> updateScoreboard(Player p) {
         if(this.blastVillageTask != null){
             return Arrays.asList("Fireballs: §c"+this.blastVillageTask.getAmountOfFireBall(),"Dégats: §c"+this.blastVillageTask.getFireBallDamage());
         }
-        return super.updateScoreboard();
+        return super.updateScoreboard(p);
     }
 }

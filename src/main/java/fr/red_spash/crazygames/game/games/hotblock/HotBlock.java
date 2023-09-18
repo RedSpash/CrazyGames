@@ -5,6 +5,7 @@ import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,11 +32,11 @@ public class HotBlock extends Game {
     @Override
     public void startGame() {
         this.hotBlockTask = new HotBlockTask(this.blocks);
-        super.initializeTask(this.hotBlockTask,0,1);
+        super.registerTask(this.hotBlockTask,0,1);
     }
 
     @Override
-    public List<String> updateScoreboard() {
+    public List<String> updateScoreboard(Player p) {
         int removedBlock = 0;
         int blockNumber = 0;
         if(hotBlockTask != null){

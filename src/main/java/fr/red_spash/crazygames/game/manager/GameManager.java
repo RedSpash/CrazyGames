@@ -7,6 +7,7 @@ import fr.red_spash.crazygames.game.interaction.GameInteraction;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.game.tasks.GameTimer;
+import fr.red_spash.crazygames.game.victory.Victory;
 import fr.red_spash.crazygames.map.GameMap;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
@@ -45,6 +46,7 @@ public class GameManager {
         this.mapManager = new MapManager(this);
         this.gameInteraction = new GameInteraction(this.main,this);
 
+        this.actualGame = null;
         this.playerManager.fillPlayerData();
     }
 
@@ -85,6 +87,12 @@ public class GameManager {
             GameStatus gameStatus = this.actualGame.getGameStatus();
             if(gameStatus != GameStatus.WAITING && gameStatus != GameStatus.ENDING)return;
         }
+        Bukkit.getServer().setSpawnRadius(0);
+        if(Bukkit.getServer().getSpawnRadius() > 0){
+            Bukkit.broadcastMessage("§cImpossible de lancer une partie lorsque le rayon de protection du spawn est au dessus de 0 !");
+            return;
+        }
+
         this.mapManager.setPlayed(gameMap);
 
         if(this.actualGame != null){
@@ -99,14 +107,6 @@ public class GameManager {
 
         this.playerManager.resetPlayerData();
 
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
-            p.setHealth(20);
-            this.updateHidedPlayer(p);
-            p.setFlying(false);
-            p.setAllowFlight(false);
-        }
-
         try {
             this.actualGame = gameMap.getGameType().createInstance();
         } catch (ConstructorError e) {throw new RuntimeException(e);}
@@ -114,6 +114,7 @@ public class GameManager {
         this.actualGame.initializePlayers();
         this.actualGame.setGameStatus(GameStatus.STARTING);
         this.playedGameType.add(gameMap.getGameType());
+        this.actualGame.preStart();
 
         GameType gameType = gameMap.getGameType();
         this.playerManager.calculatePlayerQualifiedOrEliminated(gameType);
@@ -127,7 +128,7 @@ public class GameManager {
             this.taskCountDown.cancel();
         }
         this.taskCountDown = Bukkit.getScheduler().runTaskTimer(this.main, new Runnable() {
-            int seconds = 8;
+            int seconds = 12;
             @Override
             public void run() {
                 if(seconds == 0){
@@ -204,14 +205,23 @@ public class GameManager {
                 uuid = playerData.getUuid();
             }
         }
-        if(uuid != null){
-            Player p = Bukkit.getPlayer(uuid);
-            if(p != null){
-                this.messageManager.broadcastVictoryMessage(p.getName());
+
+        if(this.actualGame != null){
+            World oldWorld = this.actualGame.getGameMap().getWorld();
+            if(oldWorld != null){
+                Bukkit.getScheduler().runTaskLater(this.main, ()->{
+                    Utils.teleportPlayersAndRemoveWorld(oldWorld,false);
+                    this.actualGame.getGameMap().deleteWorld(oldWorld);
+                } ,10);
             }
-        }else{
-            Bukkit.broadcastMessage("§c§lFIN DE LA PARTIE");
         }
+
+        this.gameInteraction.resetInteractions();
+        this.actualGame = new Victory(uuid);
+        this.actualGame.loadMap(this.mapManager.getVictoryMap());
+        this.actualGame.setGameStatus(GameStatus.PLAYING);
+        this.actualGame.initializePlayers();
+        this.actualGame.startGame();
     }
 
     public void rollGames() {
@@ -230,7 +240,8 @@ public class GameManager {
                 GameType gameType = GameType.values()[Utils.randomNumber(0,GameType.values().length-1)];
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendTitle(ChatColor.of(gameType.getColor())+gameType.getName(),"§2"+gameType.getShortDescription(),0,20,0);
-                    p.playSound(p.getLocation(), Sound.ENTITY_EVOKER_PREPARE_ATTACK,1,2);
+                    p.playSound(p.getLocation(), Sound.BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_ON,3,0);
+
                 }
                 rollNumber ++;
             }
@@ -303,5 +314,9 @@ public class GameManager {
 
     public Game getActualGame() {
         return actualGame;
+    }
+
+    public void setActualGame(Game game) {
+        this.actualGame = game;
     }
 }

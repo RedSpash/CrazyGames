@@ -1,9 +1,11 @@
 package fr.red_spash.crazygames.game.models;
 
 import fr.red_spash.crazygames.game.error.ConstructorError;
+import fr.red_spash.crazygames.game.games.anvilfall.AnvilFall;
 import fr.red_spash.crazygames.game.games.blastvillage.BlastVillage;
 import fr.red_spash.crazygames.game.games.bridgeit.BridgeIt;
 import fr.red_spash.crazygames.game.games.colorshuffle.ColorShuffle;
+import fr.red_spash.crazygames.game.games.hotbarspeed.HotBarSpeed;
 import fr.red_spash.crazygames.game.games.hotblock.HotBlock;
 import fr.red_spash.crazygames.game.games.spleef.Spleef;
 import fr.red_spash.crazygames.game.games.maze.Maze;
@@ -18,8 +20,9 @@ public enum GameType {
     BLAST_VILLAGE(BlastVillage.class,false,"Blast Village",Color.RED,"Survivez le plus longtemps à la pluie de météore !","Votre mission est de survivre aussi longtemps que possible à la pluie de météores qui s'abat sur le village. Évitez les impacts dévastateurs, trouvez un abri sûr, et démontrez votre habileté à réagir rapidement face à cette catastrophe imminente."),
     HOT_BLOCK(HotBlock.class,false,"Hot Block", Color.ORANGE,"Restez sur les blocks le plus longtemps !","Restez sur les blocs le plus longtemps possible. Plus les blocs deviennent rouges, plus ils risquent de se briser rapidement. Sois agile et rapide pour devenir le champion de Hot Block."),
     COLOR_SHUFFLE(ColorShuffle.class,false,"Color Shuffle",Color.MAGENTA ,"Positionnez vous sur la couleur demandé pour survivre !", "Votre mission est de trouver rapidement la couleur demandée et de vous y positionner. Les couleurs sont en constante évolution, alors restez vif et agile pour suivre le rythme. Serez-vous capable de faire correspondre les teintes et devenir le maître du mélange chromatique ?"),
-    RACE(Race.class,true,"Course",Color.green,"Terminez la course pour vous qualifier.","§c§lAucune description");
-
+    RACE(Race.class,true,"Course",Color.green,"Terminez la course pour vous qualifier.","§c§lAucune description pour le moment"),
+    HOTBAR_SPEED(HotBarSpeed.class,true,"HotBar Speed",new Color(255, 123, 0),"Cliquez le plus rapidement sur l'item ayant le moins de rapport avec les autres !","Votre but est de cliquer sur l'item ayant le moins de rapport avec les autres. Par exemple: si vos items sont en rapport avec l'eau et que vous avez de la lave, cliquez sur la lave pour passez à l'étape suivante."),
+    ANVIL_FALL(AnvilFall.class,false,"Chute d'Enclume", new Color(255, 0, 106),"Évitez les enclumes qui tombent du ciel !","§c§lAucune description pour le moment.");
     private final Class<? extends Game> gameClass;
     private final String name;
     private final String shortDescription;

@@ -30,7 +30,7 @@ public class Spleef extends Game {
     public void initializePlayers(){
         this.availableBlocks.addAll(super.getBlockPlatform(Material.SNOW_BLOCK));
         this.availableBlocks.addAll(super.getBlockPlatform(Material.CLAY));
-        super.initializeListener(new SpleefListener(this));
+        super.registerListener(new SpleefListener(this));
         super.initializePlayers();
     }
 
@@ -61,7 +61,7 @@ public class Spleef extends Game {
     }
 
     @Override
-    public List<String> updateScoreboard() {
+    public List<String> updateScoreboard(Player p) {
         return List.of("Blocks restants: "+this.availableBlocks.size());
     }
 

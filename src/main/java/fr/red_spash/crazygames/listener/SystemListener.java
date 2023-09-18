@@ -53,7 +53,7 @@ public class SystemListener implements Listener {
             if(this.gameManager.getActualGame() != null){
                 this.gameManager.getPlayerManager().killPlayer(p,"déconnexion");
             }
-            e.setQuitMessage("§c§l"+e.getPlayer()+" §cvient de quitter la partie !");
+            e.setQuitMessage("§c§l"+e.getPlayer().getName()+" §cvient de quitter la partie !");
         }else{
             e.setQuitMessage("");
         }

@@ -19,6 +19,8 @@ public class MapManager {
     private ArrayList<File> invalidMaps = new ArrayList<>();
     private final ArrayList<GameMap> playedGameMap = new ArrayList<>();
     private final ArrayList<GameMap> maps = new ArrayList<>();
+    private GameMap victoryMap;
+
     public MapManager(GameManager gameManager) {
         this.gameManager = gameManager;
         this.loadMaps();
@@ -56,13 +58,23 @@ public class MapManager {
                             }
 
                             GameMap gameMap = new GameMap(name[name.length - 1], directory, fileConfiguration);
-                            this.maps.add(gameMap);
-                            getLogger().info("[MAP LOADER]: map " + gameMap.getName() + " loaded !");
+                            if(gameMap.isVictoryMap()){
+                                getLogger().info("[MAP LOADER]: Victory map '"+ gameMap.getName() + "' loaded !");
+                                this.victoryMap = gameMap;
+                            }else{
+                                this.maps.add(gameMap);
+                                getLogger().info("[MAP LOADER]: map " + gameMap.getName() + " loaded !");
+                            }
+
                         }
                     }
                 }
             }
         }
+    }
+
+    public GameMap getVictoryMap() {
+        return victoryMap.clone();
     }
 
     private void invalidateMap(File directory) {
@@ -78,7 +90,7 @@ public class MapManager {
         ArrayList<GameMap> mapsAvailable = new ArrayList<>();
         for(GameMap gameMap : this.maps){
             if(!this.playedGameMap.contains(gameMap) && gameMap.getGameType() == gameType){
-                mapsAvailable.add(gameMap);
+                mapsAvailable.add(gameMap.clone());
             }
         }
 
@@ -92,7 +104,7 @@ public class MapManager {
 
     public GameMap getRandomMap(GameType gameType) {
         ArrayList<GameMap> mapsAvailable = new ArrayList<>(this.getAvailableMaps(gameType));
-        return mapsAvailable.get(Utils.randomNumber(0,mapsAvailable.size()-1));
+        return mapsAvailable.get(Utils.randomNumber(0,mapsAvailable.size()-1)).clone();
     }
 
     public void setPlayed(GameMap gameMap) {

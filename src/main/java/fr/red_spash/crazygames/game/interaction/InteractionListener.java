@@ -2,7 +2,10 @@ package fr.red_spash.crazygames.game.interaction;
 
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
+import fr.red_spash.crazygames.game.models.GameType;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -86,6 +89,16 @@ public class InteractionListener implements Listener {
             }
         }
 
+        if(!this.gameInteraction.getMaterialPotionEffectHashMap().isEmpty()){
+            for(Material material : this.gameInteraction.getMaterialPotionEffectHashMap().keySet()){
+                for(int i =0; i>=-2; i--){
+                    if(p.getLocation().add(0,i,0).getBlock().getType() == material){
+                        p.addPotionEffect(this.gameInteraction.getMaterialPotionEffectHashMap().get(material));
+                    }
+                }
+            }
+        }
+
         if(this.gameInteraction.getDeathUnderSpawn() > 0){
             if(this.gameManager.getActualGame() != null && !playerData.isDead()){
                 if(this.gameManager.getActualGame().getGameMap() != null){
@@ -95,11 +108,30 @@ public class InteractionListener implements Listener {
                 }
             }
         }
+        if(this.gameManager.getActualGame() != null){
+            if(this.gameManager.getActualGame().getGameType() == GameType.RACE){
+                if(p.getLocation().getY() <= 50){
+                    this.gameManager.getPlayerManager().eliminatePlayer(p);
+                }
+            }
+        }
 
         if(this.gameInteraction.getTeleportUnderBlock() != -1){
             if(this.gameManager.getSpawnLocation() != null && !playerData.isDead()){
                 if(this.gameManager.getSpawnLocation().getY()-this.gameInteraction.getTeleportUnderBlock() >= p.getLocation().getY()){
                     p.teleport(this.gameManager.getSpawnLocation());
+                }
+            }
+        }
+
+        for(Material material : this.gameInteraction.getKillPlayerMaterials()){
+            if(material.isSolid()){
+                if(p.getLocation().add(0,-1,0).getBlock().getType().equals(material)){
+                    this.gameManager.getPlayerManager().eliminatePlayer(p);
+                }
+            }else{
+                if(p.getLocation().getBlock().getType().equals(material)){
+                    this.gameManager.getPlayerManager().eliminatePlayer(p);
                 }
             }
         }
@@ -231,7 +263,6 @@ public class InteractionListener implements Listener {
     @EventHandler
     public void entityHit(EntityDamageByEntityEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
-
         if(!gameInteraction.isPvp()){
             if(e.getDamager() instanceof Player && e.getEntity() instanceof Player){
                 e.setCancelled(true);
@@ -239,22 +270,31 @@ public class InteractionListener implements Listener {
             }
         }
 
-        if(!gameInteraction.isPve()){
-            if(!(e.getDamager() instanceof Player && e.getEntity() instanceof Player)){
-                e.setCancelled(true);
+        if(gameInteraction.isPve()){
+            if (e.getEntity() instanceof Player pl && !(e.getDamager() instanceof Player)) {
+                if(pl.getHealth() <= e.getFinalDamage()){
+                    e.setCancelled(true);
+                    this.gameManager.getPlayerManager().eliminatePlayer(pl);
+                }
             }
+        }else{
+            e.setCancelled(true);
         }
 
     }
 
     @EventHandler
-    public void entityDamage(EntityDamageEvent e){
+    public void playerDeath(EntityDamageEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
-
-        if(e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK){
-            if(!gameInteraction.isPve()){
-                e.setCancelled(true);
+        if(gameInteraction.isPve()){
+            if(e.getEntity() instanceof Player p){
+                if(p.getHealth() <= e.getFinalDamage()){
+                    e.setCancelled(true);
+                    this.gameManager.getPlayerManager().eliminatePlayer(p);
+                }
             }
+        }else{
+            e.setCancelled(true);
         }
     }
 

@@ -19,6 +19,7 @@ public class EditTools implements CommandExecutor {
     public static final ItemStack SPAWN_LOCATION = Utils.createFastItemStack(Material.RED_BED,"§6Point de Spawn","§7Permet de modifier l'endroit de spawn des joueurs.");
     public static final ItemStack CHECKPOINT_MANAGER = Utils.createFastItemStack(Material.DIAMOND_AXE,"§aAjouter un checkpoint","§7Permet d'ajouter un nouveau checkpoint.","§7Clique gauche sur un block pour poser le 1er point","§7Clique droit sur un block pour poser le 2ème point.");
     public static final ItemStack SHOW_CHECK_POINT = Utils.createFastItemStack(Material.BOOK,"§aVoir les Checkpoints","§7Permet de voir les checkpoints.");
+    public static final ItemStack ADD_SPAWN = Utils.createFastItemStack(Material.RED_BANNER,"§aAjoute un point de spawn","§7Permet d'ajouter des points de spawn supplémentaire.'");
 
     private final EditWorld editWorld;
     private final ArrayList<UUID> editMode;
@@ -64,10 +65,14 @@ public class EditTools implements CommandExecutor {
 
         PlayerInventory playerInventory = p.getInventory();
 
-        playerInventory.setItem(4,GAME_TYPE);
+
         playerInventory.setItem(1,SHOW_CHECK_POINT);
         playerInventory.setItem(2,CHECKPOINT_MANAGER);
-        playerInventory.setItem(6,SPAWN_LOCATION);
+
+        playerInventory.setItem(4,GAME_TYPE);
+
+        playerInventory.setItem(6,ADD_SPAWN);
+        playerInventory.setItem(7,SPAWN_LOCATION);
     }
 
     public void removeFromEditMode(Player p){

@@ -5,6 +5,7 @@ import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -56,11 +57,11 @@ public class ColorShuffle extends Game {
     public void startGame() {
 
         this.colorShuffleTask = new ColorShuffleTask(this.blocks,new HashMap<>(allowedMaterials),super.gameManager);
-        super.initializeTask(this.colorShuffleTask,0,1);
+        super.registerTask(this.colorShuffleTask,0,1);
     }
 
     @Override
-    public List<String> updateScoreboard() {
+    public List<String> updateScoreboard(Player p) {
         if(this.colorShuffleTask != null){
             ArrayList<String> list = new ArrayList<>();
             list.add("Tour n°"+this.colorShuffleTask.getRoundNumber());
@@ -68,6 +69,6 @@ public class ColorShuffle extends Game {
             list.add("Temps max: §c"+Utils.onXString(4,String.valueOf(Utils.round(this.colorShuffleTask.getMaxTime(),100.0)))+"s");
             return list;
         }
-        return super.updateScoreboard();
+        return super.updateScoreboard(p);
     }
 }

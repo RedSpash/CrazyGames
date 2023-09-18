@@ -4,9 +4,11 @@ import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class GameInteraction {
@@ -30,6 +32,9 @@ public class GameInteraction {
     private boolean playerRegen;
     private boolean blockLootItem;
     private boolean allowInteraction;
+    private HashMap<Material, PotionEffect> materialPotionEffectHashMap;
+    private ArrayList<Material> killPlayerMaterials;
+    private boolean dropItem;
 
     public GameInteraction(Main main, GameManager gameManager) {
         this.resetInteractions();
@@ -38,6 +43,7 @@ public class GameInteraction {
     }
 
     public void resetInteractions(){
+        this.materialPotionEffectHashMap = new HashMap<>();
         this.allowInteraction = false;
         this.blockLootItem = true;
         this.playerRegen = true;
@@ -56,7 +62,17 @@ public class GameInteraction {
         this.deathUnderSpawn = 0;
         this.allowedToBeBreak = new ArrayList<>();
         this.allowedToBePlaced = new ArrayList<>();
+        this.killPlayerMaterials = new ArrayList<>();
         this.blockLoot = true;
+    }
+
+    public GameInteraction addMaterialPotionEffectHashMap(Material material, PotionEffect potionEffect) {
+        this.materialPotionEffectHashMap.put(material,potionEffect);
+        return this;
+    }
+
+    public HashMap<Material, PotionEffect> getMaterialPotionEffectHashMap() {
+        return materialPotionEffectHashMap;
     }
 
     public double getDeathUnderSpawn() {
@@ -65,6 +81,15 @@ public class GameInteraction {
 
     public GameInteraction setMaxBuildHeight(int maxBuildHeight) {
         this.maxBuildHeight = maxBuildHeight;
+        return this;
+    }
+
+    public ArrayList<Material> getKillPlayerMaterials() {
+        return killPlayerMaterials;
+    }
+
+    public GameInteraction addKillPlayerMaterials(Material... killPlayerMaterials) {
+        this.killPlayerMaterials.addAll(List.of(killPlayerMaterials));
         return this;
     }
 
@@ -243,4 +268,5 @@ public class GameInteraction {
     public boolean isAllowInteraction() {
         return allowInteraction;
     }
+
 }

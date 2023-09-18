@@ -9,7 +9,7 @@ import java.awt.*;
 public class MessageManager {
 
     private final GameManager gameManager;
-    public static final String PREFIX = "§d§lCrazy§2§lGames";
+    public static final String PREFIX = "§d§lCrazy§5§lGames";
     public static final String SEPARATOR = "§6§l>>>";
 
     public MessageManager(GameManager gameManager){
@@ -21,7 +21,7 @@ public class MessageManager {
     }
 
     public void broadcastEliminateMessage(String playerName, String reason){
-        if(reason != null){
+        if(reason != null && !reason.equalsIgnoreCase("")){
             reason="§7("+reason+")";
         }
         Bukkit.broadcastMessage(PREFIX+" "+ SEPARATOR+" "+ChatColor.of(Color.RED)+"§l"+playerName+" §cvient d'être éliminé !"+reason);
@@ -31,8 +31,11 @@ public class MessageManager {
         Bukkit.broadcastMessage(PREFIX+" "+ SEPARATOR+" "+ChatColor.of(Color.GREEN)+"§l"+name+" §avient de gagner la partie !");
     }
 
-    public void broadcastQualificationMessage(String name, int top) {
-        Bukkit.broadcastMessage(PREFIX+" "+SEPARATOR+" "+ChatColor.of(Color.GREEN)+"§l"+name+"§a vient de se qualifier ! §e§lTOP "+top);
+    public void broadcastQualificationMessage(String name, int top, String comment) {
+        if(comment == null){
+            comment = "";
+        }
+        Bukkit.broadcastMessage(PREFIX+" "+SEPARATOR+" "+ChatColor.of(Color.GREEN)+"§l"+name+"§a vient de se qualifier! §e§lTOP "+top+" "+comment);
     }
 
     public void sendQualificationTitle(Player p){

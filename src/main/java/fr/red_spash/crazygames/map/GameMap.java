@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameMap {
+public class GameMap implements Cloneable{
     private Location spawnLocation;
     private final String name;
     private final File file;
@@ -20,22 +20,40 @@ public class GameMap {
     private final FileConfiguration fileConfiguration;
     private final ArrayList<CheckPoint> checkPoints;
     private World world;
+    private ArrayList<Location> otherLocations;
+    private boolean isVictoryMap;
 
     public GameMap(String name, File file,FileConfiguration fileConfiguration) {
         this.name = name;
         this.file = file;
         this.fileConfiguration = fileConfiguration;
         this.checkPoints = new ArrayList<>();
+        this.otherLocations = new ArrayList<>();
 
-        this.gameType = GameType.valueOf(this.fileConfiguration.getString("gametype","").toUpperCase());
+        String gameTypeString = this.fileConfiguration.getString("gametype","").toUpperCase();
+        if(gameTypeString.equalsIgnoreCase("victory")){
+            this.gameType = null;
+        }else{
+            this.gameType = GameType.valueOf(gameTypeString);
+        }
+        this.isVictoryMap = this.gameType == null;
     }
 
     private void loadMapData() {
+        this.otherLocations.clear();
+        this.checkPoints.clear();
+
         this.spawnLocation = this.getConfigurationLocation("spawnlocation");
 
         if(this.fileConfiguration.isSet("checkpoints")){
             this.fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).forEach(checkpointId ->{
                 this.checkPoints.add(new CheckPoint(this.fileConfiguration,"checkpoints",checkpointId,this.world));
+            });
+        }
+
+        if(this.fileConfiguration.isSet("spawns")){
+            this.fileConfiguration.getConfigurationSection("spawns").getKeys(false).forEach(spawnId ->{
+                this.otherLocations.add(this.getConfigurationLocation("spawns."+spawnId));
             });
         }
     }
@@ -90,11 +108,15 @@ public class GameMap {
             world = Bukkit.getWorld(pathName);
         }else{
             world.setGameRule(GameRule.DO_MOB_SPAWNING,false);
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE,false);
+            world.setGameRule(GameRule.DO_FIRE_TICK,false);
+            world.setGameRule(GameRule.DO_VINES_SPREAD,false);
         }
 
         try{
             this.loadMapData();
         }catch (Exception e){
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -130,4 +152,22 @@ public class GameMap {
         return !this.checkPoints.isEmpty();
     }
 
+    public List<Location> getOtherLocations() {
+        return this.otherLocations;
+    }
+
+    @Override
+    public GameMap clone() {
+        try {
+            GameMap clone = (GameMap) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    public boolean isVictoryMap() {
+        return isVictoryMap;
+    }
 }

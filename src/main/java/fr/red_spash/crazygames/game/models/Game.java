@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Game implements Cloneable{
+public abstract class Game{
 
     protected final GameManager gameManager;
     private final GameType gameType;
@@ -42,15 +42,19 @@ public abstract class Game implements Cloneable{
         this.loadMap(null);
     }
 
+    public void preStart(){
+
+    }
+
     public void loadMap(@Nullable GameMap forceGameMap){
         if(forceGameMap == null){
             List<GameMap> gameMaps = new ArrayList<>(this.getGameManager().getMapManager().getMaps());
             gameMaps.removeIf(map -> map.getGameType() != this.gameType);
 
-            this.gameMap = gameMaps.get(Utils.randomNumber(0,gameMaps.size()-1));
+            this.gameMap = gameMaps.get(Utils.randomNumber(0,gameMaps.size()-1)).clone();
         }else{
             if(forceGameMap.getGameType() == this.gameType){
-                this.gameMap = forceGameMap;
+                this.gameMap = forceGameMap.clone();
             }else{
                 new IncompatibleGameType("La carte '"+forceGameMap.getName()+"' n'est pas compatible avec le mode "+this.gameType+" !").printStackTrace();
                 return;
@@ -71,13 +75,24 @@ public abstract class Game implements Cloneable{
             for(PotionEffect potionEffect : p.getActivePotionEffects()){
                 p.removePotionEffect(potionEffect.getType());
             }
+            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
             p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
             p.setFoodLevel(20);
+            if(p.getWalkSpeed() != 0.2F){
+                p.setWalkSpeed(0.2F);
+            }
+            p.setGlowing(false);
+            p.setCollidable(true);
             p.setLevel(0);
             p.setExp(0);
+            this.gameManager.updateHidedPlayer(p);
+            p.setFlying(false);
+            p.setAllowFlight(false);
             p.teleport(this.gameMap.getSpawnLocation());
-            p.sendTitle(ChatColor.of(gameType.getColor()) +"§l"+this.gameType.getName(),"§9"+this.gameType.getShortDescription(),20,20*3,20);
-            p.sendMessage(ChatColor.of(gameType.getColor())+"§l"+this.gameType.getName()+"\n§f "+this.gameType.getLongDescription());
+            if(this.gameType != null){
+                p.sendTitle(ChatColor.of(gameType.getColor()) +"§l"+this.gameType.getName(),"§d"+this.gameType.getShortDescription(),20,20*5,20);
+                p.sendMessage(ChatColor.of(gameType.getColor())+"§l"+this.gameType.getName()+"\n§f "+this.gameType.getLongDescription());
+            }
             p.getInventory().clear();
             if(playerData.isDead()){
                 p.setGameMode(GameMode.SPECTATOR);
@@ -120,12 +135,12 @@ public abstract class Game implements Cloneable{
         this.activeListeners.clear();
     }
 
-    protected void initializeListener(Listener listener) {
+    protected void registerListener(Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, Main.getInstance());
         this.activeListeners.add(listener);
     }
 
-    protected void initializeTask(Runnable runnable, int i, int i1) {
+    protected void registerTask(Runnable runnable, int i, int i1) {
         int id = Bukkit.getServer().getScheduler().runTaskTimer(this.gameManager.getMain(),runnable, i, i1).getTaskId();
         this.activeTasks.add(id);
     }
@@ -158,11 +173,15 @@ public abstract class Game implements Cloneable{
         return blocks;
     }
 
-    public List<Block> getBlockPlatform(Material material) {
+    protected List<Block> getBlockPlatform(Material material) {
         return this.getBlockPlatform(material,null);
     }
 
-    public List<String> updateScoreboard() {
+    protected List<Block> getBlockPlatform(List<Material> materials) {
+        return this.getBlockPlatform(materials,null);
+    }
+
+    public List<String> updateScoreboard(Player p) {
         return new ArrayList<>();
     }
 }

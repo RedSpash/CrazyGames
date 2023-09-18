@@ -28,31 +28,41 @@ public class ScoreboardTask implements Runnable{
             PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
             RedScoreBoard board = playerData.getScoreboard();
 
-            this.setScoreBoard(playerData,board);
+            this.setScoreBoard(playerData,p,board);
             this.updateTeam(board);
         }
     }
 
-    private void setScoreBoard(PlayerData playerData, RedScoreBoard board) {
+    private void setScoreBoard(PlayerData playerData,Player p, RedScoreBoard board) {
         board.setLine(15,"§f");
 
         if(this.gameManager.getActualGame() != null){
             Game game = this.gameManager.getActualGame();
             GameType gameType = game.getGameType();
 
-            board.setLine(14,SYMBOL+"Temps: §a"+getTimeRemaining());
             PlayerManager playerManager = this.gameManager.getPlayerManager();
-            if(gameType.isQualificationMode()){
-                board.setLine(13,SYMBOL+"§fQualifiés: §a"+playerManager.getQualifiedPlayers().size()+"/"+(playerManager.getAmountQualifiedPlayer()));
+            if(gameType == null){
+                    board.setLine(14,"§6§lFIN DE LA PARTIE");
+                    if(board.lineExist(13)){
+                        for(int i = 13; i>= 2; i--){
+                            board.removeLine(i);
+                        }
+                    }
+                return;
             }else{
-                board.setLine(13,SYMBOL+"§fÉliminés: §c"+playerManager.getEliminatedPlayer().size()+"/"+playerManager.getAmountEliminatedPlayer());
+                if(gameType.isQualificationMode()){
+                    board.setLine(13,SYMBOL+"§fQualifiés: §a"+playerManager.getQualifiedPlayers().size()+"/"+(playerManager.getAmountQualifiedPlayer()));
+                }else{
+                    board.setLine(13,SYMBOL+"§fÉliminés: §c"+playerManager.getEliminatedPlayer().size()+"/"+playerManager.getAmountEliminatedPlayer());
+                }
             }
 
+            board.setLine(14,SYMBOL+"Temps: §a"+getTimeRemaining());
             board.setLine(12,"§f§1");
             board.setLine(11,SYMBOL+"Jeu: §a"+gameType.getName());
             board.setLine(10,SYMBOL+"État: "+playerData.getPlayerState());
 
-            this.addOtherLineOfGameMode(board,game);
+            this.addOtherLineOfGameMode(board,p,game);
 
             if(board.lineExist(8)){
                 board.setLine(9,"§f§r§1");
@@ -68,8 +78,8 @@ public class ScoreboardTask implements Runnable{
         board.setLine(0,"§7Développé par Red_Spash");
     }
 
-    private void addOtherLineOfGameMode(RedScoreBoard board, Game game) {
-        List<String> otherLines = game.updateScoreboard();
+    private void addOtherLineOfGameMode(RedScoreBoard board,Player p, Game game) {
+        List<String> otherLines = game.updateScoreboard(p);
         int index = 0;
         for(int line = 8; line >= 2; line--){
             if(otherLines.size() > index){

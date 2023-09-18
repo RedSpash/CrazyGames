@@ -1,6 +1,8 @@
 package fr.red_spash.crazygames.map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.util.Vector;
@@ -75,13 +77,14 @@ public class CheckPoint {
 
     public Location getMiddle(){
         Vector vector = this.locationMax.clone().subtract(this.locationMin).toVector();
-        return this.locationMin.clone().add(vector);
+        vector.divide(new Vector(2,2,2));
+        return this.locationMin.clone().add(vector).add(0.5,0.0,0.5);
     }
 
     public boolean isInside(Location location){
-        double x = location.getX();
-        double y = location.getY();
-        double z = location.getZ();
+        double x = location.getBlockX();
+        double y = location.getBlockY();
+        double z = location.getBlockZ();
 
         return this.locationMin.getX() <= x && this.locationMax.getX() >= x
                 && this.locationMin.getY() <= y && this.locationMax.getY() >= y

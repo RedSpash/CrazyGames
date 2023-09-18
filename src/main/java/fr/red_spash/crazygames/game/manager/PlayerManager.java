@@ -4,6 +4,7 @@ import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -54,27 +55,28 @@ public class PlayerManager {
         }
     }
 
-    public void qualifiedPlayer(Player p) {
+    public void qualifiedPlayer(Player p){
+        this.qualifiedPlayer(p,null);
+    }
+    public void qualifiedPlayer(Player p, String comment) {
         PlayerData playerData = this.getPlayerData(p.getUniqueId());
 
         playerData.setQualified(true);
+        p.getInventory().clear();
         p.setGameMode(GameMode.SPECTATOR);
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
 
         int top = 0;
-        int alivePlayer = 0;
         for(PlayerData data : this.playerDataHashMap.values()){
             if(data.isQualified()){
                 top = top + 1;
-            } else if (!data.isDead()) {
-                alivePlayer += 1;
             }
         }
 
         this.messageManager.sendQualificationTitle(p);
-        this.messageManager.broadcastQualificationMessage(p.getName(),top);
+        this.messageManager.broadcastQualificationMessage(p.getName(),top,comment);
 
-        if(alivePlayer <= 1){
+        if(this.getQualifiedPlayers().size() >= this.amountQualifiedPlayer){
             this.gameManager.stopGame();
         }
     }
@@ -87,32 +89,32 @@ public class PlayerManager {
         Game actualGame = this.gameManager.getActualGame();
 
         if(actualGame != null){
-            if(actualGame.getGameMap().hasCheckpoint()) {
-                if( playerData.getLastCheckPoint() != null){
-                    p.teleport(playerData.getLastCheckPoint().getMiddle());
+            if(actualGame.getGameStatus() != GameStatus.PLAYING){
+                p.teleport(actualGame.getGameMap().getSpawnLocation());
+                return;
+            }
+            if(actualGame.getGameType().isQualificationMode()){
+                if(actualGame.getGameMap().hasCheckpoint()
+                        && playerData.getLastCheckPoint() != null) {
+                    Location location = playerData.getLastCheckPoint().getMiddle();
+                    location.setDirection(p.getLocation().getDirection());
+                    p.teleport(location);
+                }else {
+                    p.teleport(actualGame.getGameMap().getSpawnLocation());
+                }
+            }else if(!playerData.isDead()){
+                if(playerData.getLife() <= 0){
+                    this.killPlayer(p);
                 }else{
-                    p.teleport(actualGame.getGameMap().getSpawnLocation());
+                    playerData.loseLife();
+                    playerData.setEliminated(true);
+                    this.messageManager.broadcastLifeLost(p.getName(),playerData.getVisualLife());
+                    this.playEliminationAnimation(p);
                 }
-
-            }else if(actualGame.getGameStatus() == GameStatus.PLAYING){
-                if(actualGame.getGameType().isQualificationMode()){
-                    p.teleport(actualGame.getGameMap().getSpawnLocation());
-                }else if(!playerData.isDead()){
-
-                    if(playerData.getLife() <= 0){
-                        this.killPlayer(p);
-                    }else{
-                        playerData.loseLife();
-                        playerData.setEliminated(true);
-                        this.messageManager.broadcastLifeLost(p.getName(),playerData.getVisualLife());
-                        this.playEliminationAnimation(p);
-                    }
-
-                    if(this.amountEliminatedPlayer <= this.getEliminatedPlayer().size()){
-                        this.gameManager.stopGame();
-                    }
-                    this.gameManager.updateHidedPlayer(p);
+                if(this.amountEliminatedPlayer <= this.getEliminatedPlayer().size()){
+                    this.gameManager.stopGame();
                 }
+                this.gameManager.updateHidedPlayer(p);
             }
         }
     }
@@ -171,9 +173,18 @@ public class PlayerManager {
 
     public void calculatePlayerQualifiedOrEliminated(GameType gameType) {
         if(gameType.isQualificationMode()){
-            this.amountQualifiedPlayer = this.getAlivePlayerData().size()-1;
+            this.amountQualifiedPlayer = this.getAlivePlayerData().size()-2;
         }else{
-            this.amountEliminatedPlayer = this.getAlivePlayerData().size()-1;
+            this.amountEliminatedPlayer = 3;
+            while(this.getAlivePlayerData().size() <= this.amountEliminatedPlayer){
+                this.amountEliminatedPlayer--;
+            }
+        }
+
+        if(this.amountQualifiedPlayer <= 0 ){
+            this.amountQualifiedPlayer = 1;
+        }if(this.amountEliminatedPlayer <= 0 ){
+            this.amountEliminatedPlayer = 1;
         }
     }
 
@@ -188,6 +199,7 @@ public class PlayerManager {
         p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,10,1,false,false,false));
         p.getLocation().getWorld().playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN,4,1);
         p.setGameMode(GameMode.SPECTATOR);
+        p.sendHurtAnimation(10F);
     }
 
     public int removeLife(Player p) {

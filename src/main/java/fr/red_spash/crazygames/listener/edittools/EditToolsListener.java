@@ -121,7 +121,13 @@ public class EditToolsListener implements Listener {
                 if(playerData.getRightCheckPointCreation() != null && playerData.getLeftCheckPointCreation() != null){
                     try{
                         FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
-                        int lastId = fileConfiguration.getConfigurationSection("checkpoints").getKeys(true).size();
+                        int lastId;
+
+                        if(fileConfiguration.isSet("checkpoints")){
+                            lastId = fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).size();
+                        }else{
+                            lastId = 0;
+                        }
                         CheckPoint checkPoint = new CheckPoint(lastId,playerData.getRightCheckPointCreation(),playerData.getLeftCheckPointCreation());
                         checkPoint.save(fileConfiguration);
                         this.saveFileConfiguration(p.getWorld(),fileConfiguration);
@@ -135,13 +141,33 @@ public class EditToolsListener implements Listener {
             } else if (EditTools.SHOW_CHECK_POINT.isSimilar(itemStack)) {
                 Inventory inventory = Bukkit.createInventory(null,9*6,"§a§lCheckpoints de la carte");
                 FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
-                fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).forEach(id ->{
-                    CheckPoint checkPoint = new CheckPoint(fileConfiguration,"checkpoints",id);
-                    Material material = Material.GOLD_NUGGET;
+                if(fileConfiguration.isSet("checkpoints")){
+                    fileConfiguration.getConfigurationSection("checkpoints").getKeys(false).forEach(id ->{
+                        CheckPoint checkPoint = new CheckPoint(fileConfiguration,"checkpoints",id);
+                        Material material = Material.GOLD_NUGGET;
 
-                    inventory.setItem(Integer.parseInt(id),Utils.createFastItemStack(material,"Checkpoint n°"+id));
-                });
+                        inventory.setItem(Integer.parseInt(id),Utils.createFastItemStack(material,"Checkpoint n°"+id));
+                    });
+                }
                 p.openInventory(inventory);
+            } else if (EditTools.ADD_SPAWN.isSimilar(itemStack)) {
+                FileConfiguration fileConfiguration = this.getFileConfigurationOfWorld(p.getWorld());
+                int lastId;
+
+                if(fileConfiguration.isSet("spawns")){
+                    lastId = fileConfiguration.getConfigurationSection("spawns").getKeys(false).size();
+                }else{
+                    lastId = 0;
+                }
+
+                fileConfiguration.set("spawns."+lastId+".x",p.getLocation().getX());
+                fileConfiguration.set("spawns."+lastId+".y",p.getLocation().getY());
+                fileConfiguration.set("spawns."+lastId+"..z",p.getLocation().getZ());
+                fileConfiguration.set("spawns."+lastId+".yaw",p.getLocation().getYaw());
+                fileConfiguration.set("spawns."+lastId+".pitch",p.getLocation().getPitch());
+                p.sendMessage("§aAjout du spawn n°"+lastId);
+                p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,1,1);
+                this.saveFileConfiguration(p.getWorld(),fileConfiguration);
             }
         }
     }
@@ -153,7 +179,7 @@ public class EditToolsListener implements Listener {
         if(itemStack != null){
             if(EditTools.CHECKPOINT_MANAGER.isSimilar(itemStack)){
                 PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
-                if(playerData.getLeftCheckPointCreation() == null || playerData.getRightCheckPointCreation() == null){
+                if(playerData.getLeftCheckPointCreation() != null || playerData.getRightCheckPointCreation() != null){
                     playerData.setLeftCheckPointCreation(null);
                     playerData.setRightCheckPointCreation(null);
                     p.sendMessage("§cLa création du checkpoint en cours vient d'être annulée.");

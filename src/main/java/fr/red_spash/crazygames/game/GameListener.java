@@ -3,13 +3,17 @@ package fr.red_spash.crazygames.game;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
+import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.map.CheckPoint;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 public class GameListener implements Listener {
@@ -29,7 +33,7 @@ public class GameListener implements Listener {
 
         if (this.gameManager.getActualGameStatus() != GameStatus.PLAYING
                 && this.gameManager.getSpawnLocation() != null
-                && p.getLocation().getY() <= this.gameManager.getSpawnLocation().getY() - 20
+                && p.getLocation().getY() <= this.gameManager.getSpawnLocation().getY() - 10
                 && !playerData.isDead()
                 && !playerData.isEliminated()) {
             p.teleport(this.gameManager.getSpawnLocation());
@@ -62,21 +66,24 @@ public class GameListener implements Listener {
         for(CheckPoint checkPoint : this.gameManager.getActualGame().getGameMap().getCheckPoints()){
             if(checkPoint.isInside(p.getLocation())){
                 if(playerData.canUnlockCheckPoint(checkPoint)){
-                    playerData.unlockCheckPoint(checkPoint);
-                    p.playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE,1,2);
-                    p.sendMessage("§a§lCHECKPOINT débloqué !");
+                    if(this.gameManager.getActualGame().getGameMap().getCheckPoints().indexOf(checkPoint) == this.gameManager.getActualGame().getGameMap().getCheckPoints().size()-1){
+                        this.gameManager.getPlayerManager().qualifiedPlayer(p);
+                    }else{
+                        playerData.unlockCheckPoint(checkPoint);
+                        p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_BREAK,2,1);
+                        p.sendMessage("§a§lCHECKPOINT!");
+                    }
                 }
             }
         }
     }
 
+
     @EventHandler
-    public void playerDeath(EntityDamageEvent e){
-        if(e.getEntity() instanceof Player p){
-            if(p.getHealth()-e.getFinalDamage() <= 0.0){
-                e.setCancelled(true);
-                this.gameManager.getPlayerManager().eliminatePlayer(p);
-            }
-        }
+    public void entityChangeBlockEvent(EntityChangeBlockEvent e){
+        if(this.gameManager.getActualGame() == null)return;
+        if(this.gameManager.getActualGame().getGameType() == GameType.ANVIL_FALL)return;
+        e.setCancelled(true);
+
     }
 }

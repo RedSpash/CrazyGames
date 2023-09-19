@@ -36,6 +36,7 @@ public class BridgeIt extends Game {
                 setBlockWin(Material.LIME_CONCRETE)
                 .addAllowedToBePlaced(this.woolColor)
                 .addAllowedToBeBreak(this.woolColor)
-                .setMaxBuildHeight(10);
+                .setMaxBuildHeight(10)
+                .setHitCooldown(2);
     }
 }

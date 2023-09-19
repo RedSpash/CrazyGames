@@ -18,14 +18,19 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 public class InteractionListener implements Listener {
 
     private final GameInteraction gameInteraction;
     private final GameManager gameManager;
+    private final HashMap<UUID,Long> hitCooldown;
 
     public InteractionListener(GameInteraction gameInteraction, GameManager gameManager){
         this.gameInteraction = gameInteraction;
         this.gameManager = gameManager;
+        this.hitCooldown = new HashMap<>();
     }
 
 
@@ -141,10 +146,10 @@ public class InteractionListener implements Listener {
     public void blockBreakEvent(BlockBreakEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
-        if(!gameInteraction.getAllowedToBeBreak().contains(e.getBlock().getType())){
+        if(!this.gameInteraction.getAllowedToBeBreak().contains(e.getBlock().getType())){
             e.setCancelled(true);
         }
-        if(!gameInteraction.isBlockLoot()){
+        if(!this.gameInteraction.isBlockLoot()){
             e.setDropItems(false);
         }
     }
@@ -163,7 +168,7 @@ public class InteractionListener implements Listener {
                 }
             }
         }
-        if(!gameInteraction.getAllowedToBePlaced().contains(e.getBlock().getType())){
+        if(!this.gameInteraction.getAllowedToBePlaced().contains(e.getBlock().getType())){
             e.setCancelled(true);
         }
     }
@@ -187,7 +192,7 @@ public class InteractionListener implements Listener {
     public void vehicleBreak(VehicleDestroyEvent e){
         if(!this.gameManager.isInWorld(e.getVehicle().getWorld()))return;
 
-        if(!gameInteraction.isVehicleBreak()){
+        if(!this.gameInteraction.isVehicleBreak()){
             e.setCancelled(true);
         }
     }
@@ -196,7 +201,7 @@ public class InteractionListener implements Listener {
     public void mount(EntityMountEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
-        if(!gameInteraction.isEntityMount()){
+        if(!this.gameInteraction.isEntityMount()){
             e.setCancelled(true);
         }
     }
@@ -205,7 +210,7 @@ public class InteractionListener implements Listener {
     public void playerBucketFillEvent(PlayerBucketFillEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
-        if(!gameInteraction.isBucketInteract()){
+        if(!this.gameInteraction.isBucketInteract()){
             e.setCancelled(true);
         }
     }
@@ -214,7 +219,7 @@ public class InteractionListener implements Listener {
     public void playerBucketEmptyEvent(PlayerBucketEmptyEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
-        if(!gameInteraction.isBucketInteract()){
+        if(!this.gameInteraction.isBucketInteract()){
             e.setCancelled(true);
         }
     }
@@ -223,7 +228,7 @@ public class InteractionListener implements Listener {
     public void playerBucketEntityEvent(PlayerBucketEntityEvent e){
         if(!this.gameManager.isInWorld(e.getPlayer().getWorld()))return;
 
-        if(!gameInteraction.isBucketInteract()){
+        if(!this.gameInteraction.isBucketInteract()){
             e.setCancelled(true);
         }
     }
@@ -232,7 +237,7 @@ public class InteractionListener implements Listener {
     public void projectileHit(ProjectileLaunchEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
-        if(!gameInteraction.isShootProjectile()){
+        if(!this.gameInteraction.isShootProjectile()){
             e.setCancelled(true);
         }
     }
@@ -241,7 +246,7 @@ public class InteractionListener implements Listener {
     public void foodLevelChangeEvent(FoodLevelChangeEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
-        if(!gameInteraction.isFoodLevel()){
+        if(!this.gameInteraction.isFoodLevel()){
             e.getEntity().setFoodLevel(20);
             e.setCancelled(true);
         }
@@ -253,7 +258,7 @@ public class InteractionListener implements Listener {
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(e.getEntity() instanceof Player){
-            if(!gameInteraction.isPlayerRegen()){
+            if(!this.gameInteraction.isPlayerRegen()){
                 e.setCancelled(true);
             }
         }
@@ -263,14 +268,23 @@ public class InteractionListener implements Listener {
     @EventHandler
     public void entityHit(EntityDamageByEntityEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
-        if(!gameInteraction.isPvp()){
-            if(e.getDamager() instanceof Player && e.getEntity() instanceof Player){
+        if(e.getDamager() instanceof Player p && e.getEntity() instanceof Player){
+            if(this.gameInteraction.getHitCooldown() > 0){
+                if(this.hitCooldown.containsKey(p.getUniqueId())){
+                    if(this.hitCooldown.get(p.getUniqueId()) > System.currentTimeMillis()){
+                        e.setCancelled(true);
+                        return;
+                    }
+                }
+                this.hitCooldown.put(p.getUniqueId(), (long) (System.currentTimeMillis()+(1000*this.gameInteraction.getHitCooldown())));
+            }else if(!this.gameInteraction.isPvp()){
                 e.setCancelled(true);
-                return;
             }
+            return;
         }
 
-        if(gameInteraction.isPve()){
+
+        if(this.gameInteraction.isPve()){
             if (e.getEntity() instanceof Player pl && !(e.getDamager() instanceof Player)) {
                 if(pl.getHealth() <= e.getFinalDamage()){
                     e.setCancelled(true);

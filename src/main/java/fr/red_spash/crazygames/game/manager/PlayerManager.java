@@ -183,7 +183,8 @@ public class PlayerManager {
 
         if(this.amountQualifiedPlayer <= 0 ){
             this.amountQualifiedPlayer = 1;
-        }if(this.amountEliminatedPlayer <= 0 ){
+        }
+        if(this.amountEliminatedPlayer <= 0 ){
             this.amountEliminatedPlayer = 1;
         }
     }

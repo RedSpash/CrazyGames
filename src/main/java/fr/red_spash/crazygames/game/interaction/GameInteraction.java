@@ -35,6 +35,7 @@ public class GameInteraction {
     private HashMap<Material, PotionEffect> materialPotionEffectHashMap;
     private ArrayList<Material> killPlayerMaterials;
     private boolean dropItem;
+    private double hitCooldown;
 
     public GameInteraction(Main main, GameManager gameManager) {
         this.resetInteractions();
@@ -64,6 +65,7 @@ public class GameInteraction {
         this.allowedToBePlaced = new ArrayList<>();
         this.killPlayerMaterials = new ArrayList<>();
         this.blockLoot = true;
+        this.hitCooldown = 0;
     }
 
     public GameInteraction addMaterialPotionEffectHashMap(Material material, PotionEffect potionEffect) {
@@ -71,12 +73,9 @@ public class GameInteraction {
         return this;
     }
 
-    public HashMap<Material, PotionEffect> getMaterialPotionEffectHashMap() {
-        return materialPotionEffectHashMap;
-    }
-
-    public double getDeathUnderSpawn() {
-        return deathUnderSpawn;
+    public GameInteraction setHitCooldown(double hitCooldown) {
+        this.hitCooldown = hitCooldown;
+        return this;
     }
 
     public GameInteraction setMaxBuildHeight(int maxBuildHeight) {
@@ -84,9 +83,6 @@ public class GameInteraction {
         return this;
     }
 
-    public ArrayList<Material> getKillPlayerMaterials() {
-        return killPlayerMaterials;
-    }
 
     public GameInteraction addKillPlayerMaterials(Material... killPlayerMaterials) {
         this.killPlayerMaterials.addAll(List.of(killPlayerMaterials));
@@ -267,6 +263,22 @@ public class GameInteraction {
 
     public boolean isAllowInteraction() {
         return allowInteraction;
+    }
+
+    public double getHitCooldown() {
+        return hitCooldown;
+    }
+
+    public ArrayList<Material> getKillPlayerMaterials() {
+        return killPlayerMaterials;
+    }
+
+    public HashMap<Material, PotionEffect> getMaterialPotionEffectHashMap() {
+        return materialPotionEffectHashMap;
+    }
+
+    public double getDeathUnderSpawn() {
+        return deathUnderSpawn;
     }
 
 }

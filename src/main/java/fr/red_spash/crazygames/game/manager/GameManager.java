@@ -241,7 +241,6 @@ public class GameManager {
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendTitle(ChatColor.of(gameType.getColor())+gameType.getName(),"§2"+gameType.getShortDescription(),0,20,0);
                     p.playSound(p.getLocation(), Sound.BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_ON,3,0);
-
                 }
                 rollNumber ++;
             }

@@ -59,7 +59,7 @@ public class VictoryTask implements Runnable{
                 }
             }
         }
-        if(timer % 5 == 0 && this.maxTime > 3){
+        if(timer % 3 == 0 && this.maxTime > 3){
             Location location = this.victory.getWinnerLocation().add(Utils.randomNumber(-15,15),Utils.randomNumber(-15,15),Utils.randomNumber(-15,15));
 
             Firework firework = (Firework) location.getWorld().spawnEntity(location,EntityType.FIREWORK);

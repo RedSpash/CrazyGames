@@ -1,6 +1,7 @@
 package fr.red_spash.crazygames.game.games.spleef;
 
 
+import fr.red_spash.crazygames.game.bonus.BonusTask;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
@@ -39,6 +40,16 @@ public class Spleef extends Game {
     @Override
     public void startGame() {
 
+        super.registerTask(
+                new BonusTask(
+                        this.availableBlocks,
+                        List.of(new ItemStack(Material.SNOW_BLOCK,5)),
+                        20,
+                        1,
+                        20),
+                10,10
+        );
+
         for(Player p :Bukkit.getOnlinePlayers()){
             PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
             if(!playerData.isDead()){
@@ -48,14 +59,15 @@ public class Spleef extends Game {
                 itemMeta.addEnchant(Enchantment.DIG_SPEED,5,false);
                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 itemStack.setItemMeta(itemMeta);
-                p.getInventory().setItem(4,itemStack);
-                p.getInventory().setHeldItemSlot(4);
+                p.getInventory().setItem(0,itemStack);
+                p.getInventory().setHeldItemSlot(0);
             }
         }
 
         this.gameManager.getGameInteractions()
                 .setShootProjectile(true)
                 .addAllowedToBeBreak(Material.CLAY,Material.SNOW_BLOCK)
+                .addAllowedToBePlaced(Material.SNOW_BLOCK)
                 .blockLoot(false)
                 .setDeathUnderSpawn(5);
     }

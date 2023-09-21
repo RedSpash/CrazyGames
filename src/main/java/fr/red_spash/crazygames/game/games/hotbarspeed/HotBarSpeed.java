@@ -1,6 +1,5 @@
 package fr.red_spash.crazygames.game.games.hotbarspeed;
 
-import fr.red_spash.crazygames.game.games.hotblock.HotBarPreset;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;

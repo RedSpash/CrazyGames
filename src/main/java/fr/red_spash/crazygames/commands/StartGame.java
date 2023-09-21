@@ -22,6 +22,7 @@ public class StartGame implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if(commandSender.isOp()){
             this.gameManager.getPlayerManager().fillPlayerData();
+            this.gameManager.getMapManager().reset();
             if(strings.length > 0){
                 GameType gameType = GameType.valueOf(strings[0].toUpperCase());
                 commandSender.sendMessage("§aLancement d'un nouveau jeu !");

@@ -1,4 +1,4 @@
-package fr.red_spash.crazygames.game.games.hotblock;
+package fr.red_spash.crazygames.game.games.hotbarspeed;
 
 import fr.red_spash.crazygames.Utils;
 import org.bukkit.Material;

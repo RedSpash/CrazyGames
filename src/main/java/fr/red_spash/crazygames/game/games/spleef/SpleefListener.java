@@ -31,21 +31,16 @@ public class SpleefListener implements Listener {
         if(e.isCancelled())return;
         if(e.getBlock().getType() == Material.SNOW_BLOCK || e.getBlock().getType() == Material.CLAY){
             this.spleef.getAvailableBlocks().remove(e.getBlock());
-            if(Utils.randomNumber(0,2) == 0){
+            if(Utils.randomNumber(0,1) == 0){
                 Player p = e.getPlayer();
-                ItemStack itemStack = new ItemStack(Material.SNOWBALL);
-                if(p.getInventory().getItem(3) != null){
-                    itemStack = new ItemStack(Material.SNOWBALL,p.getInventory().getItem(3).getAmount()+1);
-                    if(itemStack.getAmount() > 16){
-                        itemStack.setAmount(16);
-                    }
+                if(!p.getInventory().containsAtLeast(new ItemStack(Material.SNOWBALL),16)){
+                    ItemStack itemStack = new ItemStack(Material.SNOWBALL);
+                    ItemMeta itemMeta = itemStack.getItemMeta();
+                    itemMeta.setDisplayName("§c§lSnowBreaker");
+                    itemMeta.setLore(Arrays.asList("§7Permet de casser le","§7block visé par la boule de neige."));
+                    itemStack.setItemMeta(itemMeta);
+                    e.getPlayer().getInventory().addItem(itemStack);
                 }
-
-                ItemMeta itemMeta = itemStack.getItemMeta();
-                itemMeta.setDisplayName("§c§lSnowBreaker");
-                itemMeta.setLore(Arrays.asList("§7Permet de casser le","§7block visé par la boule de neige."));
-                itemStack.setItemMeta(itemMeta);
-                e.getPlayer().getInventory().setItem(3,itemStack);
             }
         }
     }

@@ -114,4 +114,8 @@ public class MapManager {
     public List<File> getInvalidMaps() {
         return this.invalidMaps;
     }
+
+    public void reset() {
+        this.playedGameMap.clear();
+    }
 }

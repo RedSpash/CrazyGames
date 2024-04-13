@@ -13,3 +13,4 @@ commands:
     permission: CrazyGames.editTools
   startGame:
     permission: CrazyGames.startGame
+  leave:

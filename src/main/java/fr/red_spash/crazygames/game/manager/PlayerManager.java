@@ -1,11 +1,9 @@
 package fr.red_spash.crazygames.game.manager;
 
+import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -143,6 +141,12 @@ public class PlayerManager {
         playerData.setEliminated(true);
         this.playEliminationAnimation(p);
         p.sendTitle("§c§lÉliminé !","§cVous avez perdu !",0,20*3,20);
+
+        if(this.gameManager.isAutoStart()){
+            p.getInventory().clear();
+            p.sendMessage("§aCliquez sur l'item dans votre inventaire pour retourner sur la Red_Survie 3 !");
+            p.getInventory().setItem(4, Utils.createFastItemStack(Material.RED_DYE,"§a§lRetour à la survie","§fVous téléporte sur la Red_Survie 3"));
+        }
     }
 
     public List<PlayerData> getQualifiedPlayers() {

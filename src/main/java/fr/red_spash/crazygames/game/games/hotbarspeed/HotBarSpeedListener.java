@@ -72,7 +72,7 @@ public class HotBarSpeedListener implements Listener {
         HotBarPreset hotBarPreset = this.hotBarPresets.get(reachedPreset);
         ItemStack itemStack = e.getItem();
         if(itemStack != null){
-            if(itemStack.getType().equals(hotBarPreset.getRightMaterial())){
+            if(itemStack.getType().equals(hotBarPreset.rightMaterial())){
                 p.teleport(p.getLocation().add(0,1,0));
                 Location location = p.getLocation();
                 location.add(0,-1,0);

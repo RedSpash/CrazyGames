@@ -1,5 +1,8 @@
 package fr.red_spash.crazygames.game.victory;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
@@ -13,6 +16,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class VictoryTask implements Runnable{
     private final Victory victory;
@@ -46,6 +50,13 @@ public class VictoryTask implements Runnable{
         if(timer % 10 == 0){
             this.maxTime = this.maxTime - 1;
             if(this.maxTime <= 0){
+
+                if(victory.getGameManager().isAutoStart()){
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        Utils.sendPlayerToSurvieServer(p);
+                    }
+                }
+
                 this.victory.unRegisterListeners();
                 World oldWorld = this.victory.getGameMap().getWorld();
 

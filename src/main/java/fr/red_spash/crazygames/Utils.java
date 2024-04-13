@@ -1,5 +1,7 @@
 package fr.red_spash.crazygames;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -139,5 +141,13 @@ public class Utils {
     }
     public static double round(Float x){
         return round(x,10.0);
+    }
+
+    public static void sendPlayerToSurvieServer(Player p) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF( "Connect");
+        out.writeUTF("server");
+
+        p.sendPluginMessage(Main.getInstance(),"BungeeCord",out.toByteArray());
     }
 }

@@ -93,10 +93,10 @@ public abstract class Game{
                 p.sendTitle(ChatColor.of(gameType.getColor()) +"§l"+this.gameType.getName(),"§d"+this.gameType.getShortDescription(),20,20*5,20);
                 p.sendMessage(ChatColor.of(gameType.getColor())+"§l"+this.gameType.getName()+"\n§f "+this.gameType.getLongDescription());
             }
-            p.getInventory().clear();
             if(playerData.isDead()){
                 p.setGameMode(GameMode.SPECTATOR);
             }else{
+                p.getInventory().clear();
                 p.setGameMode(GameMode.SURVIVAL);
             }
         }

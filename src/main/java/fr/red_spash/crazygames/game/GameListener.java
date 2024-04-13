@@ -1,5 +1,6 @@
 package fr.red_spash.crazygames.game;
 
+import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
@@ -7,6 +8,7 @@ import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.map.CheckPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,7 +16,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class GameListener implements Listener {
     private final GameManager gameManager;
@@ -72,6 +76,22 @@ public class GameListener implements Listener {
                         playerData.unlockCheckPoint(checkPoint);
                         p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_BREAK,2,1);
                         p.sendMessage("§a§lCHECKPOINT!");
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void backToRed_Survie(InventoryClickEvent e){
+        Player p = (Player) e.getWhoClicked();
+        PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
+        if(playerData.isEliminated()){
+            ItemStack itemStack = e.getCurrentItem();
+            if(itemStack != null){
+                if(p.getGameMode() == GameMode.SPECTATOR){
+                    if(itemStack.getType() == Material.RED_DYE){
+                        Utils.sendPlayerToSurvieServer(p);
                     }
                 }
             }

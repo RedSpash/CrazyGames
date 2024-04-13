@@ -1,5 +1,7 @@
 package fr.red_spash.crazygames.game.games.bridgeit;
 
+import fr.red_spash.crazygames.game.games.hotbarspeed.HotBarPreset;
+import fr.red_spash.crazygames.game.games.hotbarspeed.HotBarSpeedListener;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
@@ -15,6 +17,7 @@ import java.util.List;
 public class BridgeIt extends Game {
 
     private final ArrayList<Material> woolColor = new ArrayList<>(List.of(Material.WHITE_WOOL,Material.LIGHT_GRAY_WOOL,Material.GRAY_WOOL,Material.BLACK_WOOL,Material.BROWN_WOOL,Material.RED_WOOL,Material.ORANGE_WOOL,Material.YELLOW_WOOL,Material.LIME_WOOL,Material.GREEN_WOOL,Material.CYAN_WOOL,Material.LIGHT_BLUE_WOOL, Material.BLUE_WOOL,Material.PURPLE_WOOL, Material.MAGENTA_WOOL,Material.PINK_WOOL));
+    private BridgeItListener bridgeItListener;
 
     public BridgeIt() {
         super(GameType.BRIDGE_IT);
@@ -22,6 +25,7 @@ public class BridgeIt extends Game {
 
     @Override
     public void startGame() {
+        super.registerListener(new BridgeItListener(this));
         Collections.shuffle(woolColor);
         int index = 0;
         for(PlayerData playerData : super.gameManager.getPlayerManager().getAlivePlayerData()){
@@ -37,6 +41,7 @@ public class BridgeIt extends Game {
                 .addAllowedToBePlaced(this.woolColor)
                 .addAllowedToBeBreak(this.woolColor)
                 .setMaxBuildHeight(10)
+                .setPvp(true)
                 .setHitCooldown(2);
     }
 }

@@ -162,7 +162,7 @@ public class EditToolsListener implements Listener {
 
                 fileConfiguration.set("spawns."+lastId+".x",p.getLocation().getX());
                 fileConfiguration.set("spawns."+lastId+".y",p.getLocation().getY());
-                fileConfiguration.set("spawns."+lastId+"..z",p.getLocation().getZ());
+                fileConfiguration.set("spawns."+lastId+".z",p.getLocation().getZ());
                 fileConfiguration.set("spawns."+lastId+".yaw",p.getLocation().getYaw());
                 fileConfiguration.set("spawns."+lastId+".pitch",p.getLocation().getPitch());
                 p.sendMessage("§aAjout du spawn n°"+lastId);

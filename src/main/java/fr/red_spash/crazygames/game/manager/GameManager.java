@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.List;
 
 public class GameManager {
-
+    private boolean autoStart = true;
     private static final int MAX_TIME = 60*4;
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
@@ -48,6 +48,10 @@ public class GameManager {
 
         this.actualGame = null;
         this.playerManager.fillPlayerData();
+    }
+
+    public boolean isAutoStart() {
+        return autoStart;
     }
 
     public void destroyWorlds() {

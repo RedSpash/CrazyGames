@@ -1,9 +1,6 @@
 package fr.red_spash.crazygames;
 
-import fr.red_spash.crazygames.commands.EditTools;
-import fr.red_spash.crazygames.commands.EditWorld;
-import fr.red_spash.crazygames.commands.SaveWorld;
-import fr.red_spash.crazygames.commands.StartGame;
+import fr.red_spash.crazygames.commands.*;
 import fr.red_spash.crazygames.game.GameListener;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.listener.SystemListener;
@@ -28,6 +25,7 @@ public class Main extends JavaPlugin {
         this.gameManager = new GameManager(this);
 
         this.loadCommands();
+        getServer().getMessenger().registerOutgoingPluginChannel( this, "BungeeCord");
 
         Bukkit.getPluginManager().registerEvents(new GameListener(this.gameManager),this);
         Bukkit.getPluginManager().registerEvents(new SystemListener(this.gameManager),this);
@@ -46,6 +44,7 @@ public class Main extends JavaPlugin {
         EditWorld editWorld = new EditWorld(this.gameManager);
         this.editTools = new EditTools(editWorld);
 
+        getCommand("leave").setExecutor(new Leave());
         getCommand("editWorld").setExecutor(editWorld);
         getCommand("saveWorld").setExecutor(new SaveWorld(editWorld));
         getCommand("edittools").setExecutor(this.editTools);

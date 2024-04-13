@@ -1,5 +1,6 @@
 package fr.red_spash.crazygames.game.interaction;
 
+import com.google.common.base.Predicates;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import fr.red_spash.crazygames.game.models.GameType;
@@ -19,10 +20,12 @@ import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class InteractionListener implements Listener {
 
+    private static final List<EntityDamageEvent.DamageCause> CANCELED_DAMAGE_CAUSE_NOT_PVE = List.of(EntityDamageEvent.DamageCause.ENTITY_ATTACK,EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK);
     private final GameInteraction gameInteraction;
     private final GameManager gameManager;
     private final HashMap<UUID,Long> hitCooldown;
@@ -300,16 +303,19 @@ public class InteractionListener implements Listener {
     @EventHandler
     public void playerDeath(EntityDamageEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
-        if(gameInteraction.isPve()){
-            if(e.getEntity() instanceof Player p){
+        if(e.getEntity() instanceof Player p){
+            if(gameInteraction.isPve()){
                 if(p.getHealth() <= e.getFinalDamage()){
                     e.setCancelled(true);
                     this.gameManager.getPlayerManager().eliminatePlayer(p);
                 }
+            }else{
+                if(!CANCELED_DAMAGE_CAUSE_NOT_PVE.contains(e.getCause())){
+                    e.setCancelled(true);
+                }
             }
-        }else{
-            e.setCancelled(true);
         }
+
     }
 
 

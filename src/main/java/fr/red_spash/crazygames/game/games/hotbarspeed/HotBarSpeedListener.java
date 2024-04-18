@@ -96,7 +96,7 @@ public class HotBarSpeedListener implements Listener {
                     return;
                 }
                 p.getWorld().spawnParticle(Particle.VILLAGER_HAPPY,p.getLocation(),20,0.35,1,0.35);
-                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
                 this.hotBarSpeed.setNextPreset(p);
             }else{
                 if(!mistakes.containsKey(p.getUniqueId())){
@@ -105,7 +105,7 @@ public class HotBarSpeedListener implements Listener {
                 mistakes.put(p.getUniqueId(),mistakes.get(p.getUniqueId())+1);
                 p.sendHurtAnimation(10F);
                 p.getWorld().spawnParticle(Particle.FLAME,p.getLocation(),50,0.5,1,0.5,0.1);
-                p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_PLACE,1,1);
+                p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ANVIL_PLACE,1,1);
                 p.getInventory().clear();
                 Bukkit.getScheduler().runTaskLater(this.hotBarSpeed.getGameManager().getMain(), () -> hotBarSpeed.giveActualPreset(p),20L);
             }

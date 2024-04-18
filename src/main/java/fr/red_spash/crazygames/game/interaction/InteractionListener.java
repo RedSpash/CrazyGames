@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -237,10 +238,21 @@ public class InteractionListener implements Listener {
     }
 
     @EventHandler
-    public void projectileHit(ProjectileLaunchEvent e){
+    public void projectileLaunch(ProjectileLaunchEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
 
         if(!this.gameInteraction.isShootProjectile()){
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void projectileHit(ProjectileHitEvent e){
+        if(e.getHitEntity() == null)return;
+        if(!(e.getHitEntity() instanceof Player p))return;
+        if(!this.gameManager.isInWorld(p.getWorld()))return;
+
+        if(!this.gameInteraction.isProjectileDamage()){
             e.setCancelled(true);
         }
     }
@@ -271,13 +283,19 @@ public class InteractionListener implements Listener {
     @EventHandler
     public void entityHit(EntityDamageByEntityEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
+        if(e.getDamager() instanceof Projectile){
+            if(!this.gameInteraction.isProjectileDamage()){
+                e.setCancelled(true);
+            }
+            return;
+        }
         if(e.getDamager() instanceof Player p && e.getEntity() instanceof Player){
             if(this.gameInteraction.getHitCooldown() > 0){
-                if(this.hitCooldown.containsKey(p.getUniqueId())){
-                    if(this.hitCooldown.get(p.getUniqueId()) > System.currentTimeMillis()){
-                        e.setCancelled(true);
-                        return;
-                    }
+                if(this.hitCooldown.containsKey(p.getUniqueId()) &&
+                        (this.hitCooldown.get(p.getUniqueId()) > System.currentTimeMillis())){
+                    e.setCancelled(true);
+                    return;
+
                 }
                 this.hitCooldown.put(p.getUniqueId(), (long) (System.currentTimeMillis()+(1000*this.gameInteraction.getHitCooldown())));
             }else if(!this.gameInteraction.isPvp()){
@@ -311,7 +329,9 @@ public class InteractionListener implements Listener {
                 }
             }else{
                 if(!CANCELED_DAMAGE_CAUSE_NOT_PVE.contains(e.getCause())){
-                    e.setCancelled(true);
+                    if(e.getCause() != EntityDamageEvent.DamageCause.PROJECTILE){
+                        e.setCancelled(true);
+                    }
                 }
             }
         }

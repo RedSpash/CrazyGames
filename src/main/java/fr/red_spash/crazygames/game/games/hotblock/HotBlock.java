@@ -6,6 +6,7 @@ import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -26,7 +27,8 @@ public class HotBlock extends Game {
     private HotBlockTask hotBlockTask;
     private int blockBefore;
     private HotBlockListener hotBlockListener;
-    private final ArrayList<Material> materialState = new ArrayList<>(Arrays.asList(Material.WHITE_TERRACOTTA,Material.YELLOW_CONCRETE,Material.ORANGE_CONCRETE,Material.RED_CONCRETE,Material.AIR));
+    private final ArrayList<Material> materialState = new ArrayList<>(Arrays.asList(Material.WHITE_TERRACOTTA,Material.YELLOW_CONCRETE,Material.ORANGE_CONCRETE, Material.RED_TERRACOTTA ,Material.RED_CONCRETE, Material.NETHER_WART_BLOCK,Material.AIR));
+    private int height = -1;
 
 
     public HotBlock() {
@@ -36,6 +38,9 @@ public class HotBlock extends Game {
     @Override
     public void initializePlayers() {
         this.blocks.addAll(super.getBlockPlatform(Material.WHITE_TERRACOTTA,materialState.get(0)));
+        if(!this.blocks.isEmpty()){
+            this.height = this.blocks.get(0).getY();
+        }
 
         super.gameManager.getGameInteractions().setDeathUnderSpawn(2).setShootProjectile(true);
         super.initializePlayers();
@@ -87,9 +92,16 @@ public class HotBlock extends Game {
     }
 
     public void changeBlock(Block block) {
-        block.setType(materialState.get(materialState.indexOf(block.getType())+1));
+        block.getWorld().spawnParticle(Particle.FLAME,block.getLocation().add(0.5,0.5,0.5),10,0.1,0.25,0.25,0.25);
         if(block.getType() == materialState.get(materialState.size()-1)){
             this.blocks.remove(block);
+            return;
         }
+        block.setType(materialState.get(materialState.indexOf(block.getType())+1));
+
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

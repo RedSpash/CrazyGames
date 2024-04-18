@@ -36,6 +36,7 @@ public class GameInteraction {
     private ArrayList<Material> killPlayerMaterials;
     private boolean dropItem;
     private double hitCooldown;
+    private boolean projectileDamage;
 
     public GameInteraction(Main main, GameManager gameManager) {
         this.resetInteractions();
@@ -46,6 +47,7 @@ public class GameInteraction {
     public void resetInteractions(){
         this.materialPotionEffectHashMap = new HashMap<>();
         this.allowInteraction = false;
+        this.projectileDamage = false;
         this.blockLootItem = true;
         this.playerRegen = true;
         this.maxBuildHeight = -1;
@@ -281,4 +283,12 @@ public class GameInteraction {
         return deathUnderSpawn;
     }
 
+    public GameInteraction setProjectileDamage(boolean b) {
+        this.projectileDamage = b;
+        return this;
+    }
+
+    public boolean isProjectileDamage() {
+        return projectileDamage;
+    }
 }

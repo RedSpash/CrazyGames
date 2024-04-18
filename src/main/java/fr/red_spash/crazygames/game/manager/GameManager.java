@@ -21,7 +21,8 @@ import java.util.*;
 import java.util.List;
 
 public class GameManager {
-    private boolean autoStart = true;
+    public static final int TIME_BEFORE_START = 15;
+    private boolean autoStart = false;
     private static final int MAX_TIME = 60*4;
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
@@ -132,7 +133,7 @@ public class GameManager {
             this.taskCountDown.cancel();
         }
         this.taskCountDown = Bukkit.getScheduler().runTaskTimer(this.main, new Runnable() {
-            int seconds = 12;
+            int seconds = TIME_BEFORE_START;
             @Override
             public void run() {
                 if(seconds == 0){
@@ -175,6 +176,7 @@ public class GameManager {
             if(gameType.isQualificationMode()){
                 if(playerData.isQualified()){
                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                    p.sendTitle(ChatColor.of(new Color(0, 255, 159))+"§lFin du jeu!","§aVous êtes qualifié!",0,20*3,20);
                     qualified++;
                 }else{
                     qualified += this.playerManager.removeLife(p);

@@ -69,7 +69,8 @@ public class Spleef extends Game {
                 .addAllowedToBeBreak(Material.CLAY,Material.SNOW_BLOCK)
                 .addAllowedToBePlaced(Material.SNOW_BLOCK)
                 .blockLoot(false)
-                .setDeathUnderSpawn(5);
+                .setDeathUnderSpawn(5)
+                .setProjectileDamage(true);
     }
 
     @Override

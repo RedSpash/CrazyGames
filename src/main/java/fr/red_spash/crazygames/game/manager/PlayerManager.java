@@ -174,12 +174,11 @@ public class PlayerManager {
         alive.removeIf(PlayerData::isDead);
         return alive;
     }
-
     public void calculatePlayerQualifiedOrEliminated(GameType gameType) {
         if(gameType.isQualificationMode()){
-            this.amountQualifiedPlayer = this.getAlivePlayerData().size()-2;
+            this.amountQualifiedPlayer = this.getAlivePlayerData().size()-1;
         }else{
-            this.amountEliminatedPlayer = 3;
+            this.amountEliminatedPlayer = (int) (this.getAlivePlayerData().size()*0.5);
             while(this.getAlivePlayerData().size() <= this.amountEliminatedPlayer){
                 this.amountEliminatedPlayer--;
             }

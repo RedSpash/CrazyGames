@@ -12,12 +12,10 @@ import java.util.List;
 
 public class BlastVillage extends Game {
 
-    private final BlastVillageTask blastVillageTask;
+    private BlastVillageTask blastVillageTask;
 
     public BlastVillage() {
         super(GameType.BLAST_VILLAGE);
-        this.blastVillageTask = new BlastVillageTask(this);
-        super.registerTask(blastVillageTask,0,10);
     }
 
     @Override
@@ -28,6 +26,8 @@ public class BlastVillage extends Game {
 
     @Override
     public void startGame() {
+        this.blastVillageTask = new BlastVillageTask(this);
+        super.registerTask(blastVillageTask,0,10);
         for(Player p : Bukkit.getOnlinePlayers()){
             p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(30);
             p.setHealth(30);
@@ -40,7 +40,8 @@ public class BlastVillage extends Game {
                 .setShootProjectile(true)
                 .setBlockLootItem(false)
                 .setAllowInteraction(true)
-                .addAllowedToBeBreak(Material.FIRE);
+                .addAllowedToBeBreak(Material.FIRE)
+                .setProjectileDamage(true);
     }
 
     @Override

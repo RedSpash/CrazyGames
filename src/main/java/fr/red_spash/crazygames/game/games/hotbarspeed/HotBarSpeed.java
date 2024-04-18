@@ -91,6 +91,8 @@ public class HotBarSpeed extends Game {
                 this.setNextPreset(p);
             }
         }
+        super.gameManager.getGameInteractions()
+                .setMoveItemInventory(false);
     }
 
     public void setNextPreset(Player p) {

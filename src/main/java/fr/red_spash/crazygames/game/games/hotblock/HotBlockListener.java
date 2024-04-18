@@ -32,15 +32,12 @@ public class HotBlockListener implements Listener {
 
             if(location != null){
                 for(Block block : (ArrayList<Block>) this.blocks.clone()){
-                    if (block.getLocation().distance(location) <= 3){
+                    if (block.getLocation().distance(location) <= 4){
+                        this.hotBlock.changeBlock(block);
                         this.hotBlock.changeBlock(block);
                     }
                 }
             }
         }
-
-
     }
-
-
 }

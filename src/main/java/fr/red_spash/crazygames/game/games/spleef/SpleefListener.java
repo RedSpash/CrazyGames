@@ -13,6 +13,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 
@@ -48,14 +49,13 @@ public class SpleefListener implements Listener {
     @EventHandler
     public void projectilHitEvent(ProjectileHitEvent e){
         if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
-        if(e.getEntity() instanceof Snowball){
-            if(e.getHitBlock() != null){
-                if(e.getHitBlock().getType() == Material.CLAY || e.getHitBlock().getType() == Material.SNOW_BLOCK ){
-                    e.getHitBlock().setType(Material.AIR);
-                }
-            }else{
-                e.setCancelled(true);
-            }
+        if(e.getEntity() instanceof Snowball &&
+                (e.getHitBlock() != null &&
+                        (e.getHitBlock().getType() == Material.CLAY || e.getHitBlock().getType() == Material.SNOW_BLOCK ))){
+            e.getHitBlock().setType(Material.AIR);
+        } else if (e.getHitEntity() instanceof Player p) {
+            p.sendHurtAnimation(1);
+            p.setVelocity(e.getEntity().getLocation().subtract(p.getLocation()).toVector().normalize().add(new Vector(0,0.25,0)).multiply(-1));
         }
     }
 

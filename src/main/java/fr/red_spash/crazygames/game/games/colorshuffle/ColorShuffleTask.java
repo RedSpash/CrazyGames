@@ -62,7 +62,7 @@ public class ColorShuffleTask implements Runnable {
                 }
                 case WAITING_COLOR -> {
                     this.chooseRandomColor();
-                    this.nextSong = Utils.round((this.maxTime / 2) / ColorShuffleTask.NUMBER_OF_SONG, 100.0) + this.maxTime / 2;
+                    this.nextSong = Utils.round((this.maxTime / 2) / ColorShuffleTask.NUMBER_OF_SONG, 100.0) + this.maxTime / 2+0.15;
                     this.setTime(this.getMaxTime());
                 }
             }

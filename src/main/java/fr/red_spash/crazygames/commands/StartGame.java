@@ -38,8 +38,14 @@ public class StartGame implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
         ArrayList<String> completer = new ArrayList<>();
+        String prefix = "";
+        if(strings.length >= 1){
+            prefix = strings[0];
+        }
         for(GameType gameType : GameType.values()){
-            completer.add(gameType.toString());
+            if(gameType.toString().startsWith(prefix)){
+                completer.add(gameType.toString());
+            }
         }
         return completer;
     }

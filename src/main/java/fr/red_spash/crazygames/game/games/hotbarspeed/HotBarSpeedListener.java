@@ -36,7 +36,7 @@ public class HotBarSpeedListener implements Listener {
         if(!e.getFrom().getWorld().getName().equals(this.hotBarSpeed.getGameMap().getWorld().getName()))return;
         Player p = e.getPlayer();
         PlayerData playerData = this.hotBarSpeed.getGameManager().getPlayerData(p.getUniqueId());
-        if(!playerData.isDead() && !playerData.isEliminated()){
+        if(!playerData.isDead() && !playerData.isEliminated() && !playerData.isQualified()){
             if(e.getFrom().getBlock() != e.getTo().getBlock()){
                 Location to = e.getFrom();
                 to.setPitch(e.getTo().getPitch());

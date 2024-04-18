@@ -17,6 +17,7 @@ public class BridgeItListener implements Listener {
     public void blockPlaceEvent(BlockPlaceEvent e){
         if(!this.bridgeIt.getGameManager().isInWorld(e.getPlayer().getWorld()))return;
         Game game = this.bridgeIt.getGameManager().getActualGame();
+        e.getItemInHand().setAmount(64);
         if(game != null ){
             GameMap gameMap = game.getGameMap();
             if(gameMap != null &&

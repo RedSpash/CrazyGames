@@ -13,6 +13,8 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -235,22 +237,86 @@ public class GameManager {
             this.rollGameTask.cancel();
         }
         this.rollGameTask = Bukkit.getScheduler().runTaskTimer(this.main, new Runnable() {
-            int rollNumber = 0;
+            private GameType lastGameType = null;
+            private final int maxRollNumber = 100+Utils.randomNumber(25,75);
+            private int rollNumber = 0;
+            private int trigger = 1;
+            private final ArrayList<GameType> lastFiveGameType = new ArrayList<>();
             @Override
             public void run() {
-                if(rollNumber >= 50){
-                    startRandomGame();
-                    rollGameTask.cancel();
-                    return;
-                }
-                GameType gameType = GameType.values()[Utils.randomNumber(0,GameType.values().length-1)];
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.sendTitle(ChatColor.of(gameType.getColor())+gameType.getName(),"§2"+gameType.getShortDescription(),0,20,0);
-                    p.playSound(p.getLocation(), Sound.BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_ON,3,0);
-                }
                 rollNumber ++;
+                if(rollNumber >= maxRollNumber ){
+                    if(lastGameType != null){
+                        for(Player player : Bukkit.getOnlinePlayers()){
+
+                            if(rollNumber == maxRollNumber){
+                                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                            }
+
+                            if(rollNumber <= maxRollNumber+4*4){
+                                for(int i = 4; i >= 1; i--){
+                                    if(rollNumber == maxRollNumber + i*4){
+                                        player.getInventory().setItem(4-i,null);
+                                        player.getInventory().setItem(4+i,null);
+                                    }
+                                }
+                            }
+
+                            String color = ChatColor.of(new Color(133, 133, 133)).toString();
+                            if(rollNumber % 4 <= 1){
+                                color = ChatColor.of(lastGameType.getColor()).toString();
+                            }
+                            player.sendTitle(color+"§l"+lastGameType.getName(),"§a"+lastGameType.getShortDescription(),0,10,0);
+                        }
+
+                        if(rollNumber >= maxRollNumber + 75){
+                            startAGameType(lastGameType);
+                            rollGameTask.cancel();
+                        }
+                    }else{
+                        Bukkit.broadcastMessage("§c§lImpossible de lancer un jeu!");
+                        rollGameTask.cancel();
+                    }
+                }else{
+                    if(lastFiveGameType.size() > 5){
+                        lastFiveGameType.remove(0);
+                    }
+
+
+                    if(maxRollNumber - rollNumber <= 100 && rollNumber % 20 == 0){
+                        trigger = trigger + 1;
+                    }
+
+
+                    if(rollNumber % trigger == 0){
+                        GameType gameType = GameType.values()[Utils.randomNumber(0,GameType.values().length-1)];
+                        lastFiveGameType.add(gameType);
+                        ItemStack  itemStackGame = new ItemStack(gameType.getMaterial());
+                        ItemMeta itemMeta = itemStackGame.getItemMeta();
+                        itemMeta.setDisplayName(ChatColor.of(gameType.getColor())+"§l"+gameType.getName());
+                        itemMeta.setLore(List.of(gameType.getShortDescription()));
+                        itemStackGame.setItemMeta(itemMeta);
+
+                        if(lastFiveGameType.size() >= 5){
+                            lastGameType = lastFiveGameType.remove(0);
+                        }
+
+                        for(Player p : Bukkit.getOnlinePlayers()){
+                            p.getInventory().setHeldItemSlot(4);
+                            for(int i =0; i < 8; i++){
+                                ItemStack itemStack = p.getInventory().getItem(i+1);
+                                p.getInventory().setItem(i, itemStack);
+                            }
+                            p.getInventory().setItem(8,itemStackGame);
+                            if(lastGameType != null){
+                                p.sendTitle(ChatColor.of(lastGameType.getColor())+lastGameType.getName(),"§2"+lastGameType.getShortDescription(),0,20,0);
+                            }
+                            p.playSound(p.getLocation(), Sound.BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_ON,3,0);
+                        }
+                    }
+                }
             }
-        },1,2);
+        },1,1);
 
     }
 

@@ -362,7 +362,7 @@ public class GameManager {
     }
 
     public GameStatus getActualGameStatus() {
-        if(this.actualGame == null)return null;
+        if(this.actualGame == null)return GameStatus.LOBBY;
         return this.actualGame.getGameStatus();
     }
 

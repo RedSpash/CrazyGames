@@ -288,7 +288,6 @@ public class InteractionListener implements Listener {
                 e.setCancelled(true);
             }
         }
-
     }
 
     @EventHandler

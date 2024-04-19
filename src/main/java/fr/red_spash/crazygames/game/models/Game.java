@@ -12,6 +12,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -70,6 +71,9 @@ public abstract class Game{
     }
     public void initializePlayers(){
         for(Player p : Bukkit.getOnlinePlayers()){
+            for(Entity mounted : p.getPassengers()){
+                p.removePassenger(mounted);
+            }
             PlayerData playerData = this.gameManager.getPlayerData(p.getUniqueId());
             playerData.resetGameData();
             for(PotionEffect potionEffect : p.getActivePotionEffects()){

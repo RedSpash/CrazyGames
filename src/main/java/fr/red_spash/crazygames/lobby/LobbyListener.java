@@ -13,8 +13,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.*;
 
 public class LobbyListener implements Listener {
 
@@ -42,6 +41,27 @@ public class LobbyListener implements Listener {
 
     @EventHandler
     public void blockPlaceEvent(BlockPlaceEvent e){
+        if(e.getPlayer().isOp() && e.getPlayer().getGameMode() == GameMode.CREATIVE)return;
+        if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void explode(PlayerDropItemEvent e){
+        if(e.getPlayer().isOp() && e.getPlayer().getGameMode() == GameMode.CREATIVE)return;
+        if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void playerBucketFillEvent(PlayerBucketFillEvent e){
+        if(e.getPlayer().isOp() && e.getPlayer().getGameMode() == GameMode.CREATIVE)return;
+        if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void playerBucketEmptyEvent(PlayerBucketEmptyEvent e){
         if(e.getPlayer().isOp() && e.getPlayer().getGameMode() == GameMode.CREATIVE)return;
         if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
         e.setCancelled(true);

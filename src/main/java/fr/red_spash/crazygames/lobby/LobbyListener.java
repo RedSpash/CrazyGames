@@ -4,9 +4,11 @@ import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.GameStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -104,6 +106,13 @@ public class LobbyListener implements Listener {
     public void entityDamageByEntityEvent(EntityDamageByEntityEvent e){
         if(!(e.getEntity() instanceof Player p))return;
         if(p.isOp() && p.getGameMode() == GameMode.CREATIVE)return;
+        if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void playerInteractEvent(PlayerInteractEvent e){
+        if(e.getPlayer().isOp() && e.getPlayer().getGameMode() == GameMode.CREATIVE)return;
         if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
         e.setCancelled(true);
     }

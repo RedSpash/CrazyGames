@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -157,6 +158,16 @@ public class InteractionListener implements Listener {
             e.setDropItems(false);
         }
     }
+
+    @EventHandler
+    public void paintingBreakEvent(HangingBreakByEntityEvent e){
+        if(!this.gameManager.isInWorld(e.getEntity().getWorld()))return;
+
+        if(!this.gameInteraction.isAllowInteraction()){
+            e.setCancelled(true);
+        }
+    }
+
 
     @EventHandler
     public void blockPlaceEvent(BlockPlaceEvent e){

@@ -2,6 +2,7 @@ package fr.red_spash.crazygames.listener;
 
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.game.manager.GameManager;
+import fr.red_spash.crazygames.game.manager.GameStatus;
 import fr.red_spash.crazygames.game.manager.PlayerData;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -34,15 +35,16 @@ public class SystemListener implements Listener {
             this.gameManager.getPlayerManager().addPlayerData(p.getUniqueId(),playerData);
         }
         p.setScoreboard(playerData.getScoreboard().getBoard());
-
         if(playerData.isDead()){
             e.setJoinMessage("");
             p.setGameMode(GameMode.SPECTATOR);
         }else{
-            if(this.gameManager.getActualGameStatus() != null){
+            if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY){
                 playerData.setDead(true);
                 p.setGameMode(GameMode.SPECTATOR);
+                e.setJoinMessage("");
             }else{
+                this.gameManager.getLobby().giveItems(p);
                 p.setGameMode(GameMode.SURVIVAL);
                 e.setJoinMessage("§a§l"+p.getName()+"§a vient de rejoindre la partie !");
             }

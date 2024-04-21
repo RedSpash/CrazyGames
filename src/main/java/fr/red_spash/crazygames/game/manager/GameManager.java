@@ -8,6 +8,7 @@ import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.game.tasks.GameTimer;
 import fr.red_spash.crazygames.game.victory.Victory;
+import fr.red_spash.crazygames.lobby.Lobby;
 import fr.red_spash.crazygames.map.GameMap;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
@@ -24,6 +25,7 @@ import java.util.List;
 
 public class GameManager {
     public static final int TIME_BEFORE_START = 15;
+    private final Lobby lobby;
     private boolean autoStart = false;
     private static final int MAX_TIME = 60*4;
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
@@ -43,6 +45,8 @@ public class GameManager {
 
     public GameManager(Main main){
         this.main = main;
+
+        this.lobby = new Lobby(this, this.main);
 
         this.messageManager = new MessageManager(this);
         this.playerManager = new PlayerManager(this.messageManager,this);
@@ -389,5 +393,9 @@ public class GameManager {
 
     public void setActualGame(Game game) {
         this.actualGame = game;
+    }
+
+    public Lobby getLobby() {
+        return lobby;
     }
 }

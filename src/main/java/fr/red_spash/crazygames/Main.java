@@ -5,6 +5,8 @@ import fr.red_spash.crazygames.game.GameListener;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.listener.SystemListener;
 import fr.red_spash.crazygames.listener.edittools.EditToolsListener;
+import fr.red_spash.crazygames.lobby.Lobby;
+import fr.red_spash.crazygames.lobby.LobbyItemsListener;
 import fr.red_spash.crazygames.lobby.LobbyListener;
 import fr.red_spash.crazygames.scoreboard.ScoreboardTask;
 import org.bukkit.Bukkit;

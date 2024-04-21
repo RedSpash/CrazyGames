@@ -108,14 +108,14 @@ public class Utils {
 
     public static List<String> splitSentance(String shortDescription) {
         List<String> dividedList = new ArrayList<>();
-        String[] words = shortDescription.split("\\s+"); // Diviser la phrase en mots
+        String[] words = shortDescription.split("\\s+");
 
         int currentIndex = 0;
         while (currentIndex < words.length) {
-            int endIndex = Math.min(currentIndex + 7, words.length); // Index de fin pour chaque sous-liste
-            String[] subArray = Arrays.copyOfRange(words, currentIndex, endIndex); // Sous-liste de 7 mots ou moins
-            dividedList.add("§7"+String.join(" ", subArray)); // Ajouter la sous-liste à la liste principale
-            currentIndex = endIndex; // Passer à la prochaine sous-liste
+            int endIndex = Math.min(currentIndex + 7, words.length);
+            String[] subArray = Arrays.copyOfRange(words, currentIndex, endIndex);
+            dividedList.add("§7"+String.join(" ", subArray));
+            currentIndex = endIndex;
         }
 
         return dividedList;
@@ -149,5 +149,27 @@ public class Utils {
         out.writeUTF("server");
 
         p.sendPluginMessage(Main.getInstance(),"BungeeCord",out.toByteArray());
+    }
+
+    public static ArrayList<String> maxWordOnOneLine(int i, String longDescription) {
+        ArrayList<String> list = new ArrayList<>();
+        int counter = 0;
+        String temporaryWords = "";
+        for(String word : longDescription.split(" ")){
+            temporaryWords = temporaryWords + word + " ";
+            counter = counter + 1;
+
+            if(counter >= i){
+                list.add(temporaryWords);
+                temporaryWords = "";
+                counter = 0;
+            }
+        }
+
+        if(!temporaryWords.equals("")){
+            list.add(temporaryWords);
+        }
+
+        return list;
     }
 }

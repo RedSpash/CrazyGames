@@ -14,6 +14,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.swing.event.MenuKeyEvent;
+
 public class Main extends JavaPlugin {
 
     public static Location spawn;
@@ -38,6 +40,10 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ScoreboardTask(this.gameManager), 0, 20);
 
         this.setSpawn(new Location(Bukkit.getWorld("world"),0,100,0));
+
+        for(Player p : Bukkit.getOnlinePlayers()){
+            this.gameManager.getLobby().giveItems(p);
+        }
     }
 
     private void setSpawn(Location world) {
@@ -57,6 +63,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        this.gameManager.getLobby().clearBlocks();
         this.gameManager.destroyWorlds();
         for(Player p : Bukkit.getOnlinePlayers()){
             for(Player pl : Bukkit.getOnlinePlayers()){

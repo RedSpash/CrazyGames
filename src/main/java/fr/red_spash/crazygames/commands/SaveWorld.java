@@ -3,6 +3,7 @@ package fr.red_spash.crazygames.commands;
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.models.GameType;
+import fr.red_spash.crazygames.world.WorldManager;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,10 +21,12 @@ public class SaveWorld implements CommandExecutor {
 
     private final EditWorld editWorld;
     private final ArrayList<UUID> waitingReSend;
+    private final WorldManager worldManager;
 
     public SaveWorld(EditWorld editWorld) {
         this.editWorld = editWorld;
         this.waitingReSend = new ArrayList<>();
+        this.worldManager = editWorld.getWorldManager();
     }
 
     @Override
@@ -78,18 +81,18 @@ public class SaveWorld implements CommandExecutor {
 
             try {
                 p.sendMessage("§aDéchargement du monde...");
-                Utils.teleportPlayersAndRemoveWorld(world,true);
+                this.worldManager.teleportPlayersAndRemoveWorld(world,true);
                 p.sendMessage("§aMonde déchargé !");
                 if(path.exists()) {
                     p.sendMessage("§cLe monde existe déjà! Suppresion en cours du monde...");
-                    Utils.deleteWorldFiles(path);
+                    this.worldManager.deleteWorldFiles(path);
                     p.sendMessage("§aSuppresion du monde réussie!");
                 }
                 p.sendMessage("§aSauvegarde en cours du monde ...");
                 Utils.copyDirectory(file.getPath(),path.toString());
                 p.sendMessage("§aMonde sauvegardé correctement !");
                 p.sendMessage("§aSuppresion des fichiers...");
-                Utils.deleteWorldFiles(file);
+                this.worldManager.deleteWorldFiles(file);
                 p.sendMessage("§aFichiers supprimé corectement !");
                 p.sendMessage("§a§lMonde sauvegardé sous le nom de '"+name+"'");
                 this.editWorld.removeEditingWorld(world);

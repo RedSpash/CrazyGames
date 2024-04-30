@@ -57,7 +57,7 @@ public class MapManager {
                                 return;
                             }
 
-                            GameMap gameMap = new GameMap(name[name.length - 1], directory, fileConfiguration);
+                            GameMap gameMap = new GameMap(name[name.length - 1], directory, fileConfiguration, this.gameManager.getWorldManager());
                             if(gameMap.isVictoryMap()){
                                 getLogger().info("[MAP LOADER]: Victory map '"+ gameMap.getName() + "' loaded !");
                                 this.victoryMap = gameMap;

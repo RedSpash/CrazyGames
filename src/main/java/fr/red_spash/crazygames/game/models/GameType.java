@@ -7,6 +7,7 @@ import fr.red_spash.crazygames.game.games.bridgeit.BridgeIt;
 import fr.red_spash.crazygames.game.games.colorshuffle.ColorShuffle;
 import fr.red_spash.crazygames.game.games.hotbarspeed.HotBarSpeed;
 import fr.red_spash.crazygames.game.games.hotblock.HotBlock;
+import fr.red_spash.crazygames.game.games.pickablock.PickABlock;
 import fr.red_spash.crazygames.game.games.spleef.Spleef;
 import fr.red_spash.crazygames.game.games.maze.Maze;
 import fr.red_spash.crazygames.game.games.race.Race;
@@ -23,7 +24,8 @@ public enum GameType {
     COLOR_SHUFFLE(ColorShuffle.class,false,"Color Shuffle",Color.MAGENTA , Material.PINK_CONCRETE ,"Positionnez vous sur la couleur demandé pour survivre !", "Votre mission est de trouver rapidement la couleur demandée et de vous y positionner. Les couleurs sont en constante évolution, alors restez vif et agile pour suivre le rythme. Serez-vous capable de faire correspondre les teintes et devenir le maître du mélange chromatique ?"),
     RACE(Race.class,true,"Course",Color.green,Material.IRON_BOOTS,"Terminez la course pour vous qualifier.","§c§lAucune description pour le moment"),
     HOTBAR_SPEED(HotBarSpeed.class,true,"HotBar Speed",new Color(255, 123, 0),Material.TARGET ,"Cliquez le plus rapidement sur l'item ayant le moins de rapport avec les autres !","Votre but est de cliquer sur l'item ayant le moins de rapport avec les autres. Par exemple: si vos items sont en rapport avec l'eau et que vous avez de la lave, cliquez sur la lave pour passez à l'étape suivante."),
-    ANVIL_FALL(AnvilFall.class,false,"Chute d'Enclume", new Color(255, 0, 106), Material.ANVIL ,"Évitez les enclumes qui tombent du ciel !","§c§lAucune description pour le moment.");
+    ANVIL_FALL(AnvilFall.class,false,"Chute d'Enclume", new Color(255, 0, 106), Material.ANVIL ,"Évitez les enclumes qui tombent du ciel !","§c§lAucune description pour le moment."),
+    PICK_A_BLOCK(PickABlock.class,false,"Pick A Block",new Color(211, 0, 255),Material.GOLD_BLOCK,"Cassez rapidement le block demandé !","Chaque manche, un block aléatoire de la carte est demandé. A vous de le trouver et de le casser pour ne pas être éliminé !");
     private final Class<? extends Game> gameClass;
     private final String name;
     private final String shortDescription;

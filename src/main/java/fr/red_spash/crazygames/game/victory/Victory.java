@@ -28,7 +28,7 @@ public class Victory extends Game {
         this.looserLocation = super.getGameMap().getSpawnLocation();
         this.looserLocation.getWorld().setTime(0L);
         super.registerListener(new VictoryListener(this));
-        super.registerTask(new VictoryTask(this),2,2);
+        super.registerTask(new VictoryTask(this, this.gameManager.getWorldManager()),2,2);
 
         String title = ChatColor.of(Color.ORANGE)+ "§lÉGALITÉ !";
         String subTitle = "§cPersonne ne gagne.";

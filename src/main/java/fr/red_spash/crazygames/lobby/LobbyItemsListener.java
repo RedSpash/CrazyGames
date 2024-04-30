@@ -45,7 +45,9 @@ public class LobbyItemsListener implements Listener {
         if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
         if(!e.getItemInHand().isSimilar(Lobby.PINK_WOOL_ITEM))return;
 
-        if(!e.getBlockReplacedState().getType().equals(Material.AIR)){
+        if(!e.getBlockReplacedState().getType().equals(Material.AIR) ||
+                e.getBlock().getLocation().add(0,-1,0).getBlock().getType().equals(Material.DIRT_PATH) ||
+                e.getBlock().getLocation().distance(this.lobby.getSpawn()) <= 5){
             e.setCancelled(true);
             return;
         }

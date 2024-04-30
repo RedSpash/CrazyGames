@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import fr.red_spash.crazygames.Main;
 import fr.red_spash.crazygames.Utils;
+import fr.red_spash.crazygames.world.WorldManager;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -23,12 +24,14 @@ public class VictoryTask implements Runnable{
     private final List<Color> colors = List.of(Color.RED,Color.GREEN,Color.BLUE,Color.LIME,Color.PURPLE,Color.ORANGE,Color.WHITE,Color.OLIVE,Color.AQUA);
 
     private final ArrayList<Item> items;
+    private final WorldManager worldManager;
     private int maxTime = 25;
     private int timer;
 
-    public VictoryTask(Victory victory) {
+    public VictoryTask(Victory victory, WorldManager worldManager) {
         this.items = new ArrayList<>();
         this.victory = victory;
+        this.worldManager = worldManager;
         this.timer = 0;
     }
 
@@ -61,7 +64,7 @@ public class VictoryTask implements Runnable{
                 World oldWorld = this.victory.getGameMap().getWorld();
 
                 if(oldWorld != null){
-                    Utils.teleportPlayersAndRemoveWorld(oldWorld,false);
+                    this.worldManager.teleportPlayersAndRemoveWorld(oldWorld,false);
                     this.victory.getGameMap().deleteWorld(oldWorld);
                 }
                 this.victory.getGameManager().setActualGame(null);

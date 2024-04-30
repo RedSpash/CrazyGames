@@ -49,37 +49,6 @@ public class Utils {
         }
     }
 
-    public static void deleteWorldFiles(File worldFolder) {
-        if (worldFolder.exists() && worldFolder.isDirectory()) {
-            File[] files = worldFolder.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        deleteWorldFiles(file);
-                    }
-                    try {
-                        Files.delete(file.toPath());
-                    } catch (IOException e) {
-                        Bukkit.getLogger().warning("Impossible de supprimer le fichier: "+file.getName()+"!");
-                    }
-                }
-            }
-            try {
-                Files.delete(worldFolder.toPath());
-            } catch (IOException e) {
-                Bukkit.getLogger().warning("Impossible de supprimer le monde: "+worldFolder.getName()+"!");
-            }
-        }
-    }
-
-    public static void teleportPlayersAndRemoveWorld(World world,boolean save) {
-        for(Player p : world.getPlayers()){
-            p.teleport(Main.spawn);
-            p.sendMessage("§cLe monde vient d'être détruit! Vous êtes désormais au spawn.");
-        }
-        Bukkit.unloadWorld(world,save);
-    }
-
     public static ItemStack createFastItemStack(Material material, String name, String... lore) {
         return createFastItemStack(material,name,0,new ArrayList<>(Arrays.asList(lore)));
     }

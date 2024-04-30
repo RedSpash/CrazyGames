@@ -3,6 +3,7 @@ package fr.red_spash.crazygames.map;
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
+import fr.red_spash.crazygames.world.WorldManager;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameMap implements Cloneable{
+    private final WorldManager worldManager;
     private Location spawnLocation;
     private final String name;
     private final File file;
@@ -23,10 +25,11 @@ public class GameMap implements Cloneable{
     private ArrayList<Location> otherLocations;
     private boolean isVictoryMap;
 
-    public GameMap(String name, File file,FileConfiguration fileConfiguration) {
+    public GameMap(String name, File file, FileConfiguration fileConfiguration, WorldManager worldManager) {
         this.name = name;
         this.file = file;
         this.fileConfiguration = fileConfiguration;
+        this.worldManager = worldManager;
         this.checkPoints = new ArrayList<>();
         this.otherLocations = new ArrayList<>();
 
@@ -88,8 +91,8 @@ public class GameMap implements Cloneable{
 
     public void deleteWorld(World world){
         if(world != null){
-            Utils.teleportPlayersAndRemoveWorld(world,false);
-            Utils.deleteWorldFiles(world.getWorldFolder());
+            this.worldManager.teleportPlayersAndRemoveWorld(world,false);
+            this.worldManager.deleteWorldFiles(world.getWorldFolder());
         }else{
             Bukkit.broadcastMessage("§cMonde introuvable !");
         }

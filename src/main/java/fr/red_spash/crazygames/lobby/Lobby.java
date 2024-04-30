@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.Inventory;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 
 public class Lobby {
 
-    public static final Location LOBBY_SPAWN = new Location(Bukkit.getWorld("world"),0,100,0,0,0);
+    public final Location lobbySpawn = new Location(Bukkit.getWorld("world"),0.5,100,0.5,0,0);
 
     public static final ItemStack SHOW_GAMES_ITEM = new ItemStackBuilder(Material.SPYGLASS).setName("§a§lVoir les mini jeux").setLore("§fVous permet d'avoir la liste","§fainsi que la description des jeux disponibles").hideAttributes().toItemStack();
     public static final ItemStack PINK_WOOL_ITEM = new ItemStackBuilder(Material.PINK_WOOL,20).setName("§d§lBlock").setLore("§fVous permet de poser des","§fblocks dans le lobby").hideAttributes().addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL,1).toItemStack();
@@ -83,5 +84,13 @@ public class Lobby {
 
     public void clearBlocks() {
         this.lobbyItemListener.clearBlocks();
+    }
+
+    public Location getSpawn() {
+        return this.lobbySpawn;
+    }
+
+    public double getTeleportHeight() {
+        return 70;
     }
 }

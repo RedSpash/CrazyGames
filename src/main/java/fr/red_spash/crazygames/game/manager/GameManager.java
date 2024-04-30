@@ -10,6 +10,7 @@ import fr.red_spash.crazygames.game.tasks.GameTimer;
 import fr.red_spash.crazygames.game.victory.Victory;
 import fr.red_spash.crazygames.lobby.Lobby;
 import fr.red_spash.crazygames.map.GameMap;
+import fr.red_spash.crazygames.world.WorldManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -40,13 +41,14 @@ public class GameManager {
     private BukkitTask rollGameTask;
     private GameTimer gameTimer;
     private BukkitTask gameTimerTask;
-
+    private WorldManager worldManager;
 
 
     public GameManager(Main main){
         this.main = main;
 
         this.lobby = new Lobby(this, this.main);
+        this.worldManager = new WorldManager(this.lobby);
 
         this.messageManager = new MessageManager(this);
         this.playerManager = new PlayerManager(this.messageManager,this);
@@ -110,7 +112,7 @@ public class GameManager {
             World oldWorld = this.actualGame.getGameMap().getWorld();
             if(oldWorld != null){
                 Bukkit.getScheduler().runTaskLater(this.main, ()->{
-                    Utils.teleportPlayersAndRemoveWorld(oldWorld,false);
+                    this.worldManager.teleportPlayersAndRemoveWorld(oldWorld,false);
                     this.actualGame.getGameMap().deleteWorld(oldWorld);
                 } ,10);
             }
@@ -222,7 +224,7 @@ public class GameManager {
             World oldWorld = this.actualGame.getGameMap().getWorld();
             if(oldWorld != null){
                 Bukkit.getScheduler().runTaskLater(this.main, ()->{
-                    Utils.teleportPlayersAndRemoveWorld(oldWorld,false);
+                    this.worldManager.teleportPlayersAndRemoveWorld(oldWorld,false);
                     this.actualGame.getGameMap().deleteWorld(oldWorld);
                 } ,10);
             }
@@ -397,5 +399,9 @@ public class GameManager {
 
     public Lobby getLobby() {
         return lobby;
+    }
+
+    public WorldManager getWorldManager() {
+        return this.worldManager;
     }
 }

@@ -5,6 +5,7 @@ import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.manager.GameManager;
 import fr.red_spash.crazygames.game.manager.MapManager;
 import fr.red_spash.crazygames.map.GameMap;
+import fr.red_spash.crazygames.world.WorldManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -24,9 +25,11 @@ import java.util.List;
 public class EditWorld implements CommandExecutor, TabCompleter {
     private final GameManager gameManager;
     private final ArrayList<World> editingWorld;
+    private WorldManager worldManager;
 
     public EditWorld(GameManager gameManager) {
         this.gameManager = gameManager;
+        this.worldManager = this.gameManager.getWorldManager();
         this.editingWorld = new ArrayList<>();
     }
 
@@ -106,5 +109,9 @@ public class EditWorld implements CommandExecutor, TabCompleter {
 
     public void removeEditingWorld(World world) {
         this.editingWorld.remove(world);
+    }
+
+    public WorldManager getWorldManager() {
+        return this.worldManager;
     }
 }

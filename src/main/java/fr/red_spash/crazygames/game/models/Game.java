@@ -25,11 +25,11 @@ import java.util.List;
 public abstract class Game{
 
     protected final GameManager gameManager;
+    protected GameMap gameMap;
+    protected GameStatus gameStatus;
     private final GameType gameType;
-    private GameMap gameMap;
-    private GameStatus gameStatus;
     private final ArrayList<Listener> activeListeners;
-    private ArrayList<Integer> activeTasks;
+    private final ArrayList<Integer> activeTasks;
 
     protected Game(GameType gameType) {
         this.activeListeners = new ArrayList<>();

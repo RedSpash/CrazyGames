@@ -159,7 +159,7 @@ public class LobbyListener implements Listener {
     public void playerInteractEvent(PlayerInteractEvent e){
         if(e.getPlayer().isOp() && e.getPlayer().getGameMode() == GameMode.CREATIVE)return;
         if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY)return;
-        if(e.getItem() != null && e.getItem().isSimilar(Lobby.PINK_WOOL_ITEM) && (e.getClickedBlock() == null || this.lockedBlocks.contains(e.getClickedBlock().getType())))return;
+        if(e.getItem() != null && e.getItem().isSimilar(Lobby.PINK_WOOL_ITEM) && (e.getClickedBlock() != null && !this.lockedBlocks.contains(e.getClickedBlock().getType())))return;
         e.setCancelled(true);
     }
 }

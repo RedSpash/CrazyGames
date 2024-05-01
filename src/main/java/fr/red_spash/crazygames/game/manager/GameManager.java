@@ -13,7 +13,6 @@ import fr.red_spash.crazygames.map.GameMap;
 import fr.red_spash.crazygames.world.WorldManager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -26,22 +25,23 @@ import java.util.List;
 
 public class GameManager {
     public static final int TIME_BEFORE_START = 15;
-    private final Lobby lobby;
-    private boolean autoStart = false;
+    private final boolean autoStart = false;
     private static final int MAX_TIME = 60*4;
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
+    private final Lobby lobby;
     private final Main main;
     private final MapManager mapManager;
     private final GameInteraction gameInteraction;
     private final MessageManager messageManager;
     private final PlayerManager playerManager;
+    private final WorldManager worldManager;
     private Game actualGame;
     private BukkitTask taskCountDown;
     private BukkitTask rollGameTask;
     private GameTimer gameTimer;
     private BukkitTask gameTimerTask;
-    private WorldManager worldManager;
+    private PointManager pointManager;
 
 
     public GameManager(Main main){
@@ -106,6 +106,7 @@ public class GameManager {
             return;
         }
 
+        this.pointManager = new PointManager(this);
         this.mapManager.setPlayed(gameMap);
 
         if(this.actualGame != null){
@@ -123,6 +124,7 @@ public class GameManager {
         try {
             this.actualGame = gameMap.getGameType().createInstance();
         } catch (ConstructorError e) {throw new RuntimeException(e);}
+
         this.actualGame.loadMap();
         this.actualGame.initializePlayers();
         this.actualGame.setGameStatus(GameStatus.STARTING);
@@ -193,8 +195,17 @@ public class GameManager {
                 if(playerData.isEliminated()){
                     this.playerManager.qualifiedWithLifeLost(p,true);
                 }else{
-                    this.messageManager.sendQualificationTitle(p);
-                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                    if(this.pointManager.isUsed()){
+                        if(this.pointManager.getQualifiedUUID().contains(p.getUniqueId())){
+                            this.messageManager.sendQualificationTitle(p);
+                            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                        }else{
+                            qualified += this.playerManager.removeLife(p);
+                        }
+                    }else{
+                        this.messageManager.sendQualificationTitle(p);
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+                    }
                 }
                 qualified++;
             }
@@ -403,5 +414,9 @@ public class GameManager {
 
     public WorldManager getWorldManager() {
         return this.worldManager;
+    }
+
+    public PointManager getPointManager() {
+        return this.pointManager;
     }
 }

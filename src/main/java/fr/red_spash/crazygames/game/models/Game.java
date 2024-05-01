@@ -186,6 +186,6 @@ public abstract class Game{
     }
 
     public List<String> updateScoreboard(Player p) {
-        return new ArrayList<>();
+        return this.gameManager.getPointManager().getExtraScoreboard();
     }
 }

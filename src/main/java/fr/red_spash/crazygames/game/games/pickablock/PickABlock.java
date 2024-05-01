@@ -2,6 +2,7 @@ package fr.red_spash.crazygames.game.games.pickablock;
 
 import fr.red_spash.crazygames.Utils;
 import fr.red_spash.crazygames.game.manager.PlayerData;
+import fr.red_spash.crazygames.game.manager.PointManager;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
 import net.md_5.bungee.api.ChatColor;
@@ -17,14 +18,14 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.awt.*;
+import java.util.List;
 import java.util.*;
 
 public class PickABlock extends Game {
-
-    private final HashMap<UUID, Integer> points = new HashMap<>();
+    private static final int RADIUS = 50;
     private final ArrayList<UUID> endedPlayers = new ArrayList<>();
-    private final static int RADIUS = 50;
     private final HashMap<Material, ArrayList<Block>> materialBlockList;
+    private final PointManager pointManager;
     private Material choosedMaterial = null;
     private final PickABlockListener pickABlockListener;
     private final PickABlockTask pickABlockTask;
@@ -34,6 +35,7 @@ public class PickABlock extends Game {
         this.materialBlockList = new HashMap<>();
         this.pickABlockListener = new PickABlockListener(this);
         this.pickABlockTask = new PickABlockTask(this);
+        this.pointManager = this.getGameManager().getPointManager();
     }
 
     @Override
@@ -74,20 +76,24 @@ public class PickABlock extends Game {
         for(PlayerData playerData : this.gameManager.getPlayerManager().getAlivePlayerData()){
             Player p = Bukkit.getPlayer(playerData.getUuid());
             if(p != null && p.isOnline()){
+                this.pointManager.addPoint(p.getUniqueId(),0);
                 p.setAllowFlight(true);
                 p.setFlying(true);
-
-                for(Player pl : Bukkit.getOnlinePlayers()){
-                    if(!pl.getName().equals(p.getName())){
-                        p.hidePlayer(this.gameManager.getMain(),pl);
-                    }
-                }
             }
         }
     }
 
     @Override
     public void startGame() {
+        this.gameManager.getGameInteractions()
+                .setMoveItemInventory(false);
+        for(PlayerData playerData : this.gameManager.getPlayerManager().getAlivePlayerData()){
+            Player p = Bukkit.getPlayer(playerData.getUuid());
+            if(p != null && p.isOnline()){
+                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,PotionEffect.INFINITE_DURATION,5,false,false));
+            }
+        }
+
         this.registerListener(this.pickABlockListener);
         this.registerTask(this.pickABlockTask,0,10);
         this.chooseAnotherBlock();
@@ -104,12 +110,12 @@ public class PickABlock extends Game {
 
         ArrayList<Material> availableMaterials = new ArrayList<>(this.materialBlockList.keySet());
         this.choosedMaterial = availableMaterials.get(Utils.randomNumber(0,availableMaterials.size()-1));
-
+        String materialName = this.choosedMaterial.toString().replace("_"," ");
         for(Player p : Bukkit.getOnlinePlayers()){
-            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT,1,0);
             p.sendTitle(
                     "",
-                    ChatColor.of(new Color(77, 255, 0, 255))+"§l"+this.choosedMaterial.toString().replace("_"," "),
+                    ChatColor.of(new Color(77, 255, 0, 255))+"§l"+materialName,
                     0,
                     20*5,
                     0
@@ -118,6 +124,8 @@ public class PickABlock extends Game {
             p.getInventory().setHeldItemSlot(4);
             p.getInventory().setItem(4,new ItemStack(this.choosedMaterial));
         }
+
+        Bukkit.broadcastMessage("§aVous devez trouver "+ChatColor.of(Color.GREEN)+"§l"+materialName+" §a!");
     }
 
     public Material getChoosedMaterial() {
@@ -125,24 +133,52 @@ public class PickABlock extends Game {
     }
 
     public void chosenRightBlock(Player p) {
-        int points = this.gameManager.getPlayerManager().getAlivePlayerData().size()-this.endedPlayers.size()+1;
-        Bukkit.broadcastMessage(ChatColor.of(Color.GREEN)+"§l"+p.getName()+" §avient de trouver le block ! §e§l+"+(points)+" points !");
-
+        int playerPoints = this.gameManager.getPlayerManager().getAlivePlayerData().size()-this.endedPlayers.size();
+        Bukkit.broadcastMessage(ChatColor.of(Color.GREEN)+"§l"+p.getName()+" §avient de trouver le block ! §e§l+"+(playerPoints)+" points !");
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT,1,1);
+        p.getInventory().clear();
+        for(Player pl : Bukkit.getOnlinePlayers()){
+            if(!pl.getUniqueId().equals(p.getUniqueId())){
+                pl.playSound(pl.getLocation(), Sound.ENCHANT_THORNS_HIT,1,2);
+            }
+        }
+        p.sendTitle("§a","§a§l+ "+playerPoints+" points !",0,20,20);
         this.endedPlayers.add(p.getUniqueId());
-        this.points.put(p.getUniqueId(),this.points.getOrDefault(p.getUniqueId(),0)+points);
+        this.pointManager.addPoint(p.getUniqueId(),playerPoints);
 
-        this.replaceBlocks();
-        this.chooseAnotherBlock();
+
+        if(this.endedPlayers.size() == this.gameManager.getPlayerManager().getAlivePlayerData().size()){
+            for(PlayerData playerData : this.gameManager.getPlayerManager().getAlivePlayerData()){
+                Player pl = Bukkit.getPlayer(playerData.getUuid());
+                if(pl != null && pl.isOnline()){
+                    for(PlayerData playerData2 : this.gameManager.getPlayerManager().getAlivePlayerData()){
+                        Player pl2 = Bukkit.getPlayer(playerData2.getUuid());
+                        if(pl2 != null && pl2.isOnline() && !pl2.getUniqueId().equals(pl.getUniqueId())){
+                            pl.showPlayer(this.gameManager.getMain(),pl2);
+                        }
+                    }
+                }
+            }
+            this.replaceBlocks();
+            this.chooseAnotherBlock();
+        }else{
+            for(PlayerData playerData : this.gameManager.getPlayerManager().getAlivePlayerData()){
+                Player pl = Bukkit.getPlayer(playerData.getUuid());
+                if(pl != null && pl.isOnline() && !pl.getUniqueId().equals(p.getUniqueId())){
+                    pl.hidePlayer(this.gameManager.getMain(),p);
+                }
+            }
+        }
     }
 
-    private void replaceBlocks() {
+    public void replaceBlocks() {
         for(Block block : this.materialBlockList.get(this.choosedMaterial)){
             FallingBlock fallingBlock = block.getWorld().spawnFallingBlock(block.getLocation().add(0.5,0.5,0.5),block.getBlockData());
             fallingBlock.setVelocity(new Vector(
-                    Utils.randomNumber(-100,100)/100,
-                    Utils.randomNumber(-100,100)/100,
-                    Utils.randomNumber(-100,100)/100)
-            );
+                    0,
+                    2,
+                    0
+            ));
             fallingBlock.setTicksLived(20*10);
             fallingBlock.setFallDistance(20*10f);
             fallingBlock.setDropItem(false);
@@ -159,11 +195,31 @@ public class PickABlock extends Game {
         p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION,20*3,10,false,false,false));
     }
 
-    public HashMap<UUID, Integer> getPoints() {
-        return points;
+
+    public List<UUID> getEndedPlayers() {
+        return endedPlayers;
     }
 
-    public ArrayList<UUID> getEndedPlayers() {
-        return endedPlayers;
+    public String isQualified(Player p) {
+        return this.pointManager.getQualifiedUUID().contains(p.getUniqueId()) ?
+                "§a§lQUALIFICATION" : "§4§lÉLIMINATION";
+    }
+
+    public String getTop(Player p) {
+        int point = this.pointManager.getPoint(p.getUniqueId());
+
+        ArrayList<Integer> scores = this.pointManager.getOrderedPoints();
+        String top = "?";
+        for(int i = 0; i < scores.size(); i++){
+            if(scores.get(i) == point){
+                top = (i+1)+"";
+            }
+        }
+        return top;
+    }
+
+    @Override
+    public int getMaxTime() {
+        return 60*3;
     }
 }

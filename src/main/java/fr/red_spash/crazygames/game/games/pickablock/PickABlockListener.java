@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -44,6 +45,12 @@ public class PickABlockListener implements Listener {
     @EventHandler
     public void blockGrowEvent(BlockGrowEvent e){
         e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void playerItemHeldEvent(PlayerItemHeldEvent e){
+        e.setCancelled(true);
+        e.getPlayer().getInventory().setHeldItemSlot(4);
     }
 
     @EventHandler

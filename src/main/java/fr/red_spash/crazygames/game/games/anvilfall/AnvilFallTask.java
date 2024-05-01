@@ -30,7 +30,11 @@ public class AnvilFallTask implements Runnable {
     @Override
     public void run() {
         if(tick == 0){
-            int randomNumber = Utils.randomNumber(10,20);
+            int moreAnvilStart = 0;
+            if(round <= 10){
+                moreAnvilStart = 7;
+            }
+            int randomNumber = Utils.randomNumber(10,20)+moreAnvilStart;
             this.round++;
             for(int i =0; i<= randomNumber; i++){
                 if(!this.platform.isEmpty()){

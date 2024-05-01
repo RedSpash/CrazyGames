@@ -26,7 +26,6 @@ import java.util.List;
 public class GameManager {
     public static final int TIME_BEFORE_START = 15;
     private final boolean autoStart = false;
-    private static final int MAX_TIME = 60*4;
     private final List<String> countDown = new ArrayList<>(Arrays.asList("❶","❷","❸","❹","❺","❻","❼","❽","❾","❿"));
     private final ArrayList<GameType> playedGameType = new ArrayList<>();
     private final Lobby lobby;
@@ -138,7 +137,7 @@ public class GameManager {
     }
 
     private void startCountdown() {
-       this.gameTimer = new GameTimer(this, GameManager.MAX_TIME);
+       this.gameTimer = new GameTimer(this, this.actualGame.getMaxTime());
         if(this.taskCountDown != null){
             this.taskCountDown.cancel();
         }
@@ -372,10 +371,6 @@ public class GameManager {
 
     public GameTimer getGameTimer() {
         return gameTimer;
-    }
-
-    public int getMaxTime() {
-        return GameManager.MAX_TIME;
     }
 
     public GameStatus getActualGameStatus() {

@@ -188,4 +188,8 @@ public abstract class Game{
     public List<String> updateScoreboard(Player p) {
         return this.gameManager.getPointManager().getExtraScoreboard();
     }
+
+    public int getMaxTime() {
+        return 60*4;
+    }
 }

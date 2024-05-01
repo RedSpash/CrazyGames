@@ -64,13 +64,17 @@ public class HotBarSpeed extends Game {
     @Override
     public void preStart(){
         ArrayList<Location> otherSpawns = new ArrayList<>(super.getGameMap().getOtherLocations());
-        if(otherSpawns.size() >= super.getGameManager().getPlayerManager().getAlivePlayerData().size()){
+        int qualifiedPlayer = super.getGameManager().getPlayerManager().getAlivePlayerData().size();
+        int space = otherSpawns.size() / qualifiedPlayer;
+        if(otherSpawns.size() >= qualifiedPlayer){
+            int index = 0;
             for(Player p : Bukkit.getOnlinePlayers()){
                 PlayerData playerData = super.gameManager.getPlayerData(p.getUniqueId());
                 if(!playerData.isDead()){
-                    p.teleport(otherSpawns.remove(0));
+                    p.teleport(otherSpawns.get(space*index));
                     p.setWalkSpeed(0);
                 }
+                index = index +1;
             }
         }
 

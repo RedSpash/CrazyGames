@@ -29,7 +29,7 @@ public class HotBlockTask implements Runnable {
 
     @Override
     public void run() {
-        for(int i =0; i<=1; i++){
+        for(int i =0; i<=5; i++){
             if(!this.blocks.isEmpty()){
                 Block block = blocks.get(Utils.randomNumber(0,blocks.size()-1));
                 hotBlock.changeBlock(block);
@@ -54,8 +54,10 @@ public class HotBlockTask implements Runnable {
                             if(lastPlayerLocation.distance(p.getLocation()) <= 0.5){
                                 for(int x = -1; x <=1; x++){
                                     for(int z = -1; z <=1; z++){
-                                        Location blockLocation = location.clone().add(x,0,z);
-                                        this.hotBlock.changeBlock(blockLocation.getBlock());
+                                        if(x != 0 && z != 0){
+                                            Location blockLocation = location.clone().add(x,0,z);
+                                            this.hotBlock.changeBlock(blockLocation.getBlock());
+                                        }
                                     }
                                 }
                             }

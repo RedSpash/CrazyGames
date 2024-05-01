@@ -171,7 +171,7 @@ public class PlayerManager {
 
     public List<PlayerData> getAlivePlayerData(){
         ArrayList<PlayerData> alive = new ArrayList<>(this.playerDataHashMap.values());
-        alive.removeIf(PlayerData::isDead);
+        alive.removeIf(playerData -> playerData.isDead() || playerData.isEliminated());
         return alive;
     }
     public void calculatePlayerQualifiedOrEliminated(GameType gameType) {

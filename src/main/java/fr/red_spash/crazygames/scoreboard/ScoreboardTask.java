@@ -145,8 +145,8 @@ public class ScoreboardTask implements Runnable{
             minute = gameTimer.getTimeRemaining()/60;
             second = gameTimer.getTimeRemaining()%60;
         }else{
-            minute = this.gameManager.getMaxTime()/60;
-            second = this.gameManager.getMaxTime()%60;
+            minute = 0;
+            second = 0;
         }
         return minute+"m "+second+"s";
     }

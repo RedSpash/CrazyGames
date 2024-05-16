@@ -13,24 +13,4 @@ import org.bukkit.util.Vector;
 
 public class TestListener implements Listener {
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        Location location = event.getPlayer().getLocation();
-
-        // Summon the armor stand
-        ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
-        armorStand.setGravity(false); // Make armor stand not fall
-
-        // Summon the falling block
-        FallingBlock fallingBlock = (FallingBlock) location.getWorld().spawnFallingBlock(location, Material.STONE.createBlockData());
-        fallingBlock.setDropItem(false);
-        fallingBlock.setVelocity(new Vector(0, 0, 0)); // Set velocity to zero to make it static
-        armorStand.addPassenger(fallingBlock);
-
-        // Summon the shulker
-        Shulker shulker = (Shulker) location.getWorld().spawnEntity(location, EntityType.SHULKER);
-        shulker.setAI(false); // Disable AI
-        shulker.addPassenger(armorStand);
-    }
-
 }

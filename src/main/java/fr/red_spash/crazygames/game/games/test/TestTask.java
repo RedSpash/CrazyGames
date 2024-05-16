@@ -22,6 +22,8 @@ public class TestTask implements Runnable {
         this.test = test;
     }
 
+    private int index = 0;
+
     @Override
     public void run() {
         for(Entity entity : this.test.getShulkers()){
@@ -29,20 +31,23 @@ public class TestTask implements Runnable {
             for(Entity passager : passagers){
                 entity.removePassenger(passager);
             }
-            entity.teleport(entity.getLocation().add(0.1,0,0.1));
+            entity.teleport(entity.getLocation().add(0,0,-0.5));
             for(Entity passager : passagers){
                 entity.addPassenger(passager);
             }
 
-            for(Entity nearby : entity.getWorld().getNearbyEntities(entity.getLocation().add(0,1,0),0.30,1,0.30)){
+            for(Entity nearby : entity.getWorld().getNearbyEntities(entity.getLocation().add(0,0,0),0.5,0.5,0.5)){
                 if(nearby instanceof Player p){
-                    Location loc = p.getLocation().clone();
-
-                    // Here we're keeping the same yaw and pitch
-                    p.teleport(new Location(loc.getWorld(), p.getLocation().getX()+0.1, p.getLocation().getY(), p.getLocation().getZ()+0.1, loc.getYaw(), loc.getPitch()));
-                }
+                   this.test.getGameManager().getPlayerManager().eliminatePlayer(p);
+               }
             }
         }
+
+        if (index % 10 == 0 || Utils.randomNumber(0,20) == 0){
+            this.test.spawnShulker();
+        }
+
+        index = index + 1;
     }
 
 }

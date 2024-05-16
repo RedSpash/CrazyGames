@@ -10,6 +10,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -173,17 +175,15 @@ public class PickABlock extends Game {
 
     public void replaceBlocks() {
         for(Block block : this.materialBlockList.get(this.choosedMaterial)){
-            FallingBlock fallingBlock = block.getWorld().spawnFallingBlock(block.getLocation().add(0.5,0.5,0.5),block.getBlockData());
-            fallingBlock.setVelocity(new Vector(
-                    0,
-                    2,
-                    0
-            ));
-            fallingBlock.setTicksLived(20*10);
-            fallingBlock.setFallDistance(20*10f);
-            fallingBlock.setDropItem(false);
-            fallingBlock.setHurtEntities(true);
-            block.setType(Material.RED_STAINED_GLASS);
+            ArmorStand armorStand = (ArmorStand) block.getWorld().spawnEntity(block.getLocation().add(0.5,-1.5,0.5), EntityType.ARMOR_STAND);
+
+            armorStand.setInvisible(true);
+            armorStand.setMarker(true);
+            armorStand.setInvulnerable(true);
+            armorStand.setGravity(false);
+            armorStand.getEquipment().setHelmet(new ItemStack(block.getType()));
+
+            block.setType(Material.BARRIER);
         }
     }
 

@@ -7,9 +7,12 @@ import java.util.*;
 
 public class PointManager {
 
+    private boolean eliminatePlayers = true;
     private final HashMap<UUID, Integer> points = new HashMap<>();
     private final ArrayList<String> extraScoreboard = new ArrayList<>();
     private final GameManager gameManager;
+    private String singular = "";
+    private String plural = "";
 
     public PointManager(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -39,7 +42,7 @@ public class PointManager {
             if(pl != null){
                 name = pl.getName();
             }
-            temporaryScoreboard.add("§a"+index+" §d"+name+" §7- §e"+point);
+            temporaryScoreboard.add("§a"+index+". §d"+name+" §7- §e"+point+" "+(point > 1 ? this.plural : this.singular));
 
             index += 1;
         }
@@ -76,5 +79,18 @@ public class PointManager {
             }
         }
         return qualified;
+    }
+
+    public void setUnite(String singular, String plural) {
+        this.singular = singular;
+        this.plural = plural;
+    }
+
+    public void setEliminatePlayers(boolean eliminatePlayers) {
+        this.eliminatePlayers = eliminatePlayers;
+    }
+
+    public boolean isEliminatePlayers() {
+        return eliminatePlayers;
     }
 }

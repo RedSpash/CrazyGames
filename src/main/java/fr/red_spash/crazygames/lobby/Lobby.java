@@ -8,6 +8,7 @@ import fr.red_spash.crazygames.game.models.GameType;
 import fr.red_spash.crazygames.map.GameMap;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -39,6 +40,8 @@ public class Lobby {
 
         p.getInventory().setItem(4, SHOW_GAMES_ITEM);
         p.getInventory().setItem(0, PINK_WOOL_ITEM);
+
+        p.setGameMode(GameMode.SURVIVAL);
     }
 
     public Inventory getGamesInventory() {
@@ -92,5 +95,9 @@ public class Lobby {
 
     public double getTeleportHeight() {
         return 70;
+    }
+
+    public void teleportToSpawn(Player p) {
+        p.teleport(this.lobbySpawn);
     }
 }

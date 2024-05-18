@@ -66,15 +66,17 @@ public class HotBarSpeed extends Game {
         ArrayList<Location> otherSpawns = new ArrayList<>(super.getGameMap().getOtherLocations());
         int qualifiedPlayer = super.getGameManager().getPlayerManager().getAlivePlayerData().size();
         int space = otherSpawns.size() / qualifiedPlayer;
+        this.gameManager.getPointManager().setEliminatePlayers(false);
         if(otherSpawns.size() >= qualifiedPlayer){
             int index = 0;
             for(Player p : Bukkit.getOnlinePlayers()){
                 PlayerData playerData = super.gameManager.getPlayerData(p.getUniqueId());
                 if(!playerData.isDead()){
+                    this.getGameManager().getPointManager().addPoint(p.getUniqueId(),0);
                     p.teleport(otherSpawns.get(space*index));
                     p.setWalkSpeed(0);
+                    index = index +1;
                 }
-                index = index +1;
             }
         }
 
@@ -103,6 +105,9 @@ public class HotBarSpeed extends Game {
         if(!presetReached.containsKey(p.getUniqueId())){
             presetReached.put(p.getUniqueId(),-1);
         }
+        if(presetReached.get(p.getUniqueId())+1 >= this.hotBarPresets.size()){
+            return;
+        }
         presetReached.put(p.getUniqueId(),presetReached.get(p.getUniqueId())+1);
         this.giveActualPreset(p);
     }
@@ -112,14 +117,5 @@ public class HotBarSpeed extends Game {
         HotBarPreset hotBarPreset = this.hotBarPresets.get(this.presetReached.get(p.getUniqueId()));
 
         hotBarPreset.giveRandomItems(p);
-    }
-
-    @Override
-    public List<String> updateScoreboard(Player p) {
-        int amount = 0;
-        if(presetReached.containsKey(p.getUniqueId())){
-            amount = this.presetReached.get(p.getUniqueId());
-        }
-        return List.of("Complétés: "+amount+"/"+HotBarSpeed.MAX_HOTBAR);
     }
 }

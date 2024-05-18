@@ -87,6 +87,8 @@ public class HotBarSpeedListener implements Listener {
                     location.getBlock().setType(Material.WATER);
                 }
                 p.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent("§a§lComplétés: "+(reachedPreset+1)+"/"+HotBarSpeed.MAX_HOTBAR));
+                this.hotBarSpeed.setNextPreset(p);
+                this.hotBarSpeed.getGameManager().getPointManager().addPoint(p.getUniqueId(),1);
                 if(reachedPreset+1 == HotBarSpeed.MAX_HOTBAR){
                     String comment = "§a§lSANS FAUTE!";
                     if(mistakes.containsKey(p.getUniqueId())){
@@ -97,7 +99,6 @@ public class HotBarSpeedListener implements Listener {
                 }
                 p.getWorld().spawnParticle(Particle.VILLAGER_HAPPY,p.getLocation(),20,0.35,1,0.35);
                 p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
-                this.hotBarSpeed.setNextPreset(p);
             }else{
                 if(!mistakes.containsKey(p.getUniqueId())){
                     mistakes.put(p.getUniqueId(),0);

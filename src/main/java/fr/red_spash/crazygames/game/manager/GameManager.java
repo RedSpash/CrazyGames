@@ -194,7 +194,7 @@ public class GameManager {
                 if(playerData.isEliminated()){
                     this.playerManager.qualifiedWithLifeLost(p,true);
                 }else{
-                    if(this.pointManager.isUsed()){
+                    if(this.pointManager.isUsed() && this.pointManager.isEliminatePlayers()){
                         if(this.pointManager.getQualifiedUUID().contains(p.getUniqueId())){
                             this.messageManager.sendQualificationTitle(p);
                             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);

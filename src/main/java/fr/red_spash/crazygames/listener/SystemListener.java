@@ -38,6 +38,9 @@ public class SystemListener implements Listener {
         if(playerData.isDead()){
             e.setJoinMessage("");
             p.setGameMode(GameMode.SPECTATOR);
+            if(this.gameManager.getActualGame() != null && this.gameManager.getActualGame().getGameMap() != null){
+                p.teleport(this.gameManager.getActualGame().getGameMap().getSpawnLocation());
+            }
         }else{
             if(this.gameManager.getActualGameStatus() != GameStatus.LOBBY){
                 playerData.setDead(true);
@@ -47,6 +50,7 @@ public class SystemListener implements Listener {
                 this.gameManager.getLobby().giveItems(p);
                 p.setGameMode(GameMode.SURVIVAL);
                 e.setJoinMessage("§a§l"+p.getName()+"§a vient de rejoindre la partie !");
+                this.gameManager.getLobby().teleportToSpawn(p);
             }
 
         }

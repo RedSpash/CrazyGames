@@ -60,6 +60,10 @@ public class VictoryTask implements Runnable{
                     }
                 }
 
+                for(Player p : Bukkit.getOnlinePlayers()){
+                    p.getInventory().clear();
+                }
+
                 this.victory.unRegisterListeners();
                 World oldWorld = this.victory.getGameMap().getWorld();
 
@@ -68,9 +72,6 @@ public class VictoryTask implements Runnable{
                     this.victory.getGameMap().deleteWorld(oldWorld);
                 }
                 this.victory.getGameManager().setActualGame(null);
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.getInventory().clear();
-                }
             }
         }
         if(timer % 3 == 0 && this.maxTime > 3){

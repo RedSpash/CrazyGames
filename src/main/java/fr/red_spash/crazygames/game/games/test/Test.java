@@ -1,8 +1,12 @@
 package fr.red_spash.crazygames.game.games.test;
 
 import fr.red_spash.crazygames.Utils;
+import fr.red_spash.crazygames.game.games.test.moving_blocks.MovingBlock;
+import fr.red_spash.crazygames.game.manager.PlayerData;
+import fr.red_spash.crazygames.game.manager.PointManager;
 import fr.red_spash.crazygames.game.models.Game;
 import fr.red_spash.crazygames.game.models.GameType;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -14,10 +18,12 @@ import java.util.Locale;
 
 public class Test extends Game {
 
-    private final ArrayList<ArmorStand> shulkers =  new ArrayList<>();
+    private final ArrayList<MovingBlock> movingBlocks =  new ArrayList<>();
+    private final PointManager pointManager;
 
     public Test() {
         super(GameType.TEST);
+        this.pointManager = this.getGameManager().getPointManager();
     }
 
     @Override
@@ -30,8 +36,11 @@ public class Test extends Game {
                 location.getBlock().setType(Material.STONE);
             }
         }
-
-        super.registerListener(new TestListener());
+        this.pointManager.setEliminatePlayers(false);
+        this.pointManager.setUnite("vie","vies");
+        for(PlayerData playerData : this.gameManager.getPlayerManager().getAlivePlayerData()){
+            this.pointManager.addPoint(playerData.getUuid(),3);
+        }
     }
 
     @Override
@@ -41,11 +50,10 @@ public class Test extends Game {
                 .setPvp(true)
                 .setHitCooldown(5)
                 .setDeathUnderSpawn(1);
-
     }
 
-    public List<ArmorStand> getShulkers() {
-        return shulkers;
+    public List<MovingBlock> getMovingBlocks() {
+        return new ArrayList<>(this.movingBlocks);
     }
 
     public void spawnShulker() {
@@ -55,17 +63,12 @@ public class Test extends Game {
     }
 
     private void spawnShulker(Location loca) {
-        Shulker shulker = (Shulker) this.gameMap.getSpawnLocation().getWorld().spawnEntity(loca, EntityType.SHULKER);
+        MovingBlock movingBlock = new MovingBlock(Material.RED_CONCRETE,Utils.randomNumber(1,5)/10.0, DyeColor.values()[Utils.randomNumber(0,DyeColor.values().length-1)]);
+        movingBlock.spawn(loca);
+        this.movingBlocks.add(movingBlock);
+    }
 
-        ArmorStand armorStand = (ArmorStand) this.gameMap.getSpawnLocation().getWorld().spawnEntity(loca, EntityType.ARMOR_STAND);
-        armorStand.setInvisible(true);
-        armorStand.setMarker(true);
-        armorStand.setGravity(false);
-
-        shulker.setInvulnerable(true);
-        shulker.setAI(false);
-        armorStand.addPassenger(shulker);
-
-        this.shulkers.add(armorStand);
+    public void removeMovingBlock(MovingBlock movingBlock) {
+        this.movingBlocks.remove(movingBlock);
     }
 }
